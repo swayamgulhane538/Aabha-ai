@@ -1,39 +1,97 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0F9D8A"/>
-      <stop offset="50%" stop-color="#06B6D4"/>
-      <stop offset="100%" stop-color="#3B82F6"/>
+    <!-- Luxury Background Gradient -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0A1128"/>
+      <stop offset="50%" stop-color="#060913"/>
+      <stop offset="100%" stop-color="#051923"/>
     </linearGradient>
-    <linearGradient id="coreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+
+    <!-- Glowing Emerald to Cyan Gradient -->
+    <linearGradient id="coreEmeraldCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981"/>
+      <stop offset="40%" stop-color="#06B6D4"/>
+      <stop offset="80%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+
+    <!-- Radiant Gold & Teal Accent -->
+    <linearGradient id="goldTeal" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#34D399"/>
       <stop offset="50%" stop-color="#22D3EE"/>
-      <stop offset="100%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#A78BFA"/>
     </linearGradient>
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="16" result="blur"/>
-      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+
+    <!-- Outer Ring Gradient -->
+    <linearGradient id="ringGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10B981" stop-opacity="0.8"/>
+      <stop offset="50%" stop-color="#06B6D4" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#6366F1" stop-opacity="0.9"/>
+    </linearGradient>
+
+    <!-- Super Soft Volumetric Glow Filter -->
+    <filter id="ultraGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur1"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="36" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Shadow Filter -->
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#000000" flood-opacity="0.6"/>
     </filter>
   </defs>
+
+  <!-- Base App Icon Container (Modern Rounded Squircle) -->
+  <rect x="16" y="16" width="480" height="480" rx="120" fill="url(#bgGradient)" stroke="rgba(255, 255, 255, 0.12)" stroke-width="3" filter="url(#dropShadow)"/>
+
+  <!-- Inner Ambient Neon Rim -->
+  <rect x="20" y="20" width="472" height="472" rx="116" fill="none" stroke="url(#ringGrad)" stroke-width="2" opacity="0.6"/>
+
+  <!-- Background Ambient Aura -->
+  <circle cx="256" cy="240" r="140" fill="url(#coreEmeraldCyan)" opacity="0.2" filter="url(#ultraGlow)"/>
+
+  <!-- 3D Orbit Ring 1 (Tilted Ellipse) -->
+  <ellipse cx="256" cy="240" rx="160" ry="60" fill="none" stroke="url(#ringGrad)" stroke-width="5" stroke-dasharray="16 10" transform="rotate(-28 256 240)"/>
+
+  <!-- 3D Orbit Ring 2 (Opposite Angle) -->
+  <ellipse cx="256" cy="240" rx="150" ry="55" fill="none" stroke="url(#goldTeal)" stroke-width="4" opacity="0.75" transform="rotate(35 256 240)"/>
+
+  <!-- Orbiting Light Bead -->
+  <circle cx="380" cy="180" r="7" fill="#FFFFFF" filter="url(#ultraGlow)"/>
+  <circle cx="130" cy="290" r="5.5" fill="#34D399" filter="url(#ultraGlow)"/>
+
+  <!-- Central Luminous 3D Glass Sphere (The Caring Heart & AI Orb) -->
+  <g filter="url(#ultraGlow)">
+    <circle cx="256" cy="240" r="88" fill="url(#coreEmeraldCyan)"/>
+    
+    <!-- Spherical 3D Depth Highlight -->
+    <ellipse cx="228" cy="204" rx="44" ry="24" fill="#FFFFFF" opacity="0.4" transform="rotate(-20 228 204)"/>
+    <circle cx="216" cy="192" r="12" fill="#FFFFFF" opacity="0.75"/>
+  </g>
+
+  <!-- Modern Stylized "A" + Heartbeat / Synaptic Star in Core -->
+  <path d="M 256 182 
+           C 264 212, 286 230, 310 240 
+           C 286 250, 264 268, 256 298 
+           C 248 268, 226 250, 202 240 
+           C 226 230, 248 212, 256 182 Z" 
+        fill="#FFFFFF" opacity="0.95" filter="url(#dropShadow)"/>
+
+  <!-- Pulse Wave Line Across the Orb -->
+  <path d="M 180 240 L 220 240 L 235 220 L 250 260 L 265 228 L 278 245 L 290 240 L 332 240" 
+        fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+
+  <!-- Premium Typography: AABHA AI -->
+  <text x="256" y="420" text-anchor="middle" fill="#F8FAFC" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-weight="900" font-size="34" letter-spacing="6">
+    AABHA AI
+  </text>
   
-  <!-- Rounded Base Background -->
-  <rect width="512" height="512" rx="128" fill="#060913"/>
-  
-  <!-- Outer Orbit Ring -->
-  <circle cx="256" cy="256" r="180" fill="none" stroke="url(#bgGrad)" stroke-width="8" opacity="0.4" stroke-dasharray="24 16"/>
-  
-  <!-- Ambient Glow -->
-  <circle cx="256" cy="256" r="120" fill="url(#coreGrad)" opacity="0.25" filter="url(#glow)"/>
-  
-  <!-- Central Luminous 3D Sphere -->
-  <circle cx="256" cy="256" r="110" fill="url(#coreGrad)"/>
-  
-  <!-- Inner Highlight -->
-  <ellipse cx="220" cy="200" rx="45" ry="30" fill="#FFFFFF" opacity="0.35"/>
-  
-  <!-- Sparkle & Voice Wave Icon -->
-  <path d="M256 180 L266 230 L316 240 L266 250 L256 300 L246 250 L196 240 L246 230 Z" fill="#FFFFFF" filter="url(#glow)"/>
-  
-  <!-- Text Label -->
-  <text x="256" y="440" text-anchor="middle" fill="#F8FAFC" font-family="sans-serif" font-weight="900" font-size="44" letter-spacing="4">AABHA AI</text>
+  <text x="256" y="446" text-anchor="middle" fill="#06B6D4" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-weight="700" font-size="13" letter-spacing="3" opacity="0.9">
+    COGNITIVE CARE
+  </text>
 </svg>

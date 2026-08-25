@@ -1,0 +1,415 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   AABHA AI — DUAL-THEME DESIGN SYSTEM (LIGHT DEFAULT + DARK MODE)
+   ========================================================================== */
+
+/* ── LIGHT THEME TOKENS (DEFAULT) ─────────────────────────────────────────── */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  --bg-page: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-surface-secondary: #F1F5F9;
+  --bg-header: rgba(255, 255, 255, 0.88);
+  --bg-modal-overlay: rgba(15, 23, 42, 0.35);
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --border: rgba(15, 23, 42, 0.08);
+  --border-hover: rgba(13, 148, 136, 0.45);
+  --shadow-card: 0 4px 24px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
+  --shadow-card-hover: 0 12px 40px rgba(15, 23, 42, 0.10), 0 0 20px rgba(13, 148, 136, 0.08);
+  --shadow-btn-glow: 0 0 20px rgba(13, 148, 136, 0.25), 0 6px 16px rgba(15, 23, 42, 0.10);
+  --shadow-btn-glow-hover: 0 0 30px rgba(13, 148, 136, 0.40), 0 10px 24px rgba(15, 23, 42, 0.15);
+  --primary: #0D9488;
+  --primary-light: #14B8A6;
+  --accent: #06B6D4;
+  --accent-secondary: #6366F1;
+  --emerald-glow: #10B981;
+  --cyan-glow: #06B6D4;
+  --indigo-glow: #6366F1;
+  --scrollbar-track: #F1F5F9;
+  --scrollbar-thumb: rgba(15, 23, 42, 0.12);
+  --scrollbar-thumb-hover: rgba(13, 148, 136, 0.4);
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(15, 23, 42, 0.06);
+  --btn-glass-bg: rgba(15, 23, 42, 0.04);
+  --btn-glass-bg-hover: rgba(15, 23, 42, 0.08);
+  --btn-glass-border: rgba(15, 23, 42, 0.10);
+  --btn-glass-text: #334155;
+  --input-bg: rgba(241, 245, 249, 0.6);
+  --input-border: rgba(15, 23, 42, 0.10);
+  --input-text: #0F172A;
+  --badge-emerald-bg: rgba(16, 185, 129, 0.10);
+  --badge-emerald-border: rgba(16, 185, 129, 0.25);
+  --badge-emerald-text: #065F46;
+  --badge-rose-bg: rgba(244, 63, 94, 0.08);
+  --badge-rose-border: rgba(244, 63, 94, 0.25);
+  --badge-rose-text: #9F1239;
+  --nav-active-bg: linear-gradient(135deg, #0D9488, #06B6D4);
+  --nav-inactive-text: #64748B;
+  --inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --card-bg-inline: #FFFFFF;
+  --card-border-inline: rgba(15, 23, 42, 0.08);
+  --card-hover-border: rgba(13, 148, 136, 0.35);
+}
+
+/* ── DARK THEME TOKENS ────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-page: #060913;
+  --bg-surface: rgba(13, 20, 38, 0.72);
+  --bg-surface-secondary: rgba(13, 20, 38, 0.5);
+  --bg-header: rgba(6, 9, 19, 0.80);
+  --bg-modal-overlay: rgba(6, 9, 19, 0.85);
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(16, 185, 129, 0.4);
+  --shadow-card: 0 20px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --shadow-card-hover: 0 25px 60px rgba(0, 0, 0, 0.55), 0 0 30px rgba(16, 185, 129, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  --shadow-btn-glow: 0 0 25px rgba(16, 185, 129, 0.35), 0 8px 20px rgba(0, 0, 0, 0.3);
+  --shadow-btn-glow-hover: 0 0 35px rgba(16, 185, 129, 0.55), 0 12px 28px rgba(0, 0, 0, 0.4);
+  --primary: #10B981;
+  --primary-light: #34D399;
+  --accent: #06B6D4;
+  --accent-secondary: #6366F1;
+  --emerald-glow: #10B981;
+  --cyan-glow: #06B6D4;
+  --indigo-glow: #6366F1;
+  --scrollbar-track: rgba(6, 9, 19, 0.8);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.15);
+  --scrollbar-thumb-hover: rgba(16, 185, 129, 0.5);
+  --glass-bg: rgba(13, 20, 38, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --btn-glass-bg: rgba(255, 255, 255, 0.06);
+  --btn-glass-bg-hover: rgba(255, 255, 255, 0.12);
+  --btn-glass-border: rgba(255, 255, 255, 0.12);
+  --btn-glass-text: #F8FAFC;
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --input-border: rgba(255, 255, 255, 0.10);
+  --input-text: #F8FAFC;
+  --badge-emerald-bg: rgba(16, 185, 129, 0.20);
+  --badge-emerald-border: rgba(16, 185, 129, 0.30);
+  --badge-emerald-text: #6EE7B7;
+  --badge-rose-bg: rgba(244, 63, 94, 0.15);
+  --badge-rose-border: rgba(244, 63, 94, 0.30);
+  --badge-rose-text: #FDA4AF;
+  --nav-active-bg: linear-gradient(135deg, #10B981, #14B8A6);
+  --nav-inactive-text: #94A3B8;
+  --inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --card-bg-inline: rgba(13, 20, 38, 0.75);
+  --card-border-inline: rgba(255, 255, 255, 0.10);
+  --card-hover-border: rgba(16, 185, 129, 0.40);
+}
+
+/* ==========================================================================
+   BASE RESET & TYPOGRAPHY
+   ========================================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  max-width: 100vw;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+  perspective: 1200px;
+}
+
+/* ── Smooth Theme Transition ──────────────────────────────────────────────── */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, fill 0.25s ease !important;
+}
+
+/* ── Custom Scrollbar ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* ── Mobile Touch Actions ─────────────────────────────────────────────────── */
+button, a, input, select, textarea {
+  touch-action: manipulation;
+}
+
+/* ── Accessible Placeholders ──────────────────────────────────────────────── */
+::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 1 !important;
+}
+
+/* ==========================================================================
+   ACCESSIBILITY & ASSISTIVE SCALING
+   ========================================================================== */
+
+.text-scale-large {
+  font-size: 115% !important;
+}
+
+.text-scale-xl {
+  font-size: 130% !important;
+}
+
+.high-contrast-active {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.high-contrast-active * {
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+}
+
+.one-hand-active main {
+  padding-top: 12vh !important;
+}
+
+/* ==========================================================================
+   3D GLASS CARDS, GLOW BUTTONS & DEPTH — THEME-AWARE
+   ========================================================================== */
+
+/* 1. Master Glassmorphic 3D Card */
+.card-3d,
+.glass-card-3d {
+  background: var(--bg-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  border-radius: 24px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s ease;
+  transform-style: preserve-3d;
+  will-change: transform, box-shadow;
+}
+
+.card-3d:hover,
+.glass-card-3d:hover {
+  transform: translateY(-5px) scale(1.01) rotateX(2deg);
+  border-color: var(--card-hover-border);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.card-3d:active,
+.glass-card-3d:active {
+  transform: translateY(2px) scale(0.99);
+  box-shadow: var(--shadow-card);
+}
+
+/* 2. Interactive Tilt Card for Games & Spotlights */
+.card-3d-interactive {
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+  transform-style: preserve-3d;
+  border-radius: 24px;
+}
+
+.card-3d-interactive:hover {
+  transform: translateY(-6px) scale(1.02) rotateX(3deg) rotateY(-1deg);
+  border-color: var(--card-hover-border);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* 3. Glowing Neon Gradient Button */
+.btn-glow {
+  background: linear-gradient(135deg, var(--emerald-glow) 0%, var(--cyan-glow) 50%, #3B82F6 100%);
+  color: #ffffff;
+  border-radius: 18px;
+  font-weight: 800;
+  box-shadow: var(--shadow-btn-glow);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, filter 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-glow:hover {
+  transform: translateY(-2px) scale(1.02);
+  filter: brightness(1.1);
+  box-shadow: var(--shadow-btn-glow-hover);
+}
+
+.btn-glow:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: var(--shadow-btn-glow);
+}
+
+/* 4. Secondary Glass Button */
+.btn-glass {
+  background: var(--btn-glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--btn-glass-border);
+  color: var(--btn-glass-text);
+  border-radius: 18px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.btn-glass:hover {
+  background: var(--btn-glass-bg-hover);
+  border-color: var(--border-hover);
+  transform: translateY(-1px);
+}
+
+.btn-glass:active {
+  transform: translateY(1px);
+}
+
+/* ==========================================================================
+   SEMANTIC THEME-AWARE UTILITY CLASSES
+   ========================================================================== */
+
+/* Page-level */
+.theme-bg-page { background-color: var(--bg-page); }
+.theme-bg-surface { background: var(--bg-surface); }
+.theme-bg-surface-secondary { background: var(--bg-surface-secondary); }
+.theme-bg-header { background: var(--bg-header); }
+
+/* Text */
+.theme-text { color: var(--text-primary); }
+.theme-text-secondary { color: var(--text-secondary); }
+.theme-text-muted { color: var(--text-muted); }
+
+/* Borders */
+.theme-border { border-color: var(--border); }
+.theme-border-hover:hover { border-color: var(--border-hover); }
+
+/* Cards inline (for Tailwind bg-[...] replacements) */
+.theme-card {
+  background: var(--card-bg-inline);
+  border: 1px solid var(--card-border-inline);
+}
+
+/* Inputs */
+.theme-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--input-text);
+}
+.theme-input:focus {
+  border-color: var(--primary);
+}
+
+/* ==========================================================================
+   CINEMATIC 3D ORB & PARTICLES ANIMATIONS
+   ========================================================================== */
+
+/* 1. Luminous Breathing Glow */
+@keyframes orbBreathing {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+    filter: drop-shadow(0 0 25px rgba(16, 185, 129, 0.4)) drop-shadow(0 0 60px rgba(6, 182, 212, 0.25));
+  }
+  50% {
+    transform: translateY(-8px) scale(1.04);
+    filter: drop-shadow(0 0 40px rgba(16, 185, 129, 0.65)) drop-shadow(0 0 80px rgba(99, 102, 241, 0.4));
+  }
+}
+
+.animate-orb-glow {
+  animation: orbBreathing 4.5s ease-in-out infinite;
+}
+
+/* 2. Expanding Concentric Soundwaves */
+@keyframes waveRadiate {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+.animate-wave-radiate {
+  animation: waveRadiate 2.4s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+}
+
+/* 3. Orbit Ring Rotation */
+@keyframes spinSlow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes spinReverseSlow {
+  0% { transform: rotate(360deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 20s linear infinite;
+}
+
+.animate-spin-reverse {
+  animation: spinReverseSlow 24s linear infinite;
+}
+
+/* 4. Glowing Badge Shimmer */
+@keyframes badgeGlowPulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3), inset 0 0 5px rgba(16, 185, 129, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.7), inset 0 0 10px rgba(16, 185, 129, 0.4);
+  }
+}
+
+.animate-badge-glow {
+  animation: badgeGlowPulse 2.2s ease-in-out infinite;
+}
+
+/* Safe Area Inset */
+.pb-safe {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  .animate-orb-glow,
+  .animate-wave-radiate,
+  .animate-spin-slow,
+  .animate-spin-reverse,
+  .card-3d:hover,
+  .card-3d-interactive:hover,
+  .btn-glow:hover {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  html.theme-transition,
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition: none !important;
+  }
+}

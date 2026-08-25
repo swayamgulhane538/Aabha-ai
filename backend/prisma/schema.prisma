@@ -1,0 +1,373 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PATIENT
+  CAREGIVER
+  ADMIN
+}
+
+enum ReminderType {
+  MEDICINE
+  WATER
+  MEAL
+  APPOINTMENT
+  ACTIVITY
+  FAMILY_CALL
+  ROUTINE
+  CUSTOM
+}
+
+enum ReminderStatus {
+  ACTIVE
+  COMPLETED
+  SNOOZED
+  CANCELLED
+}
+
+enum AlertSeverity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum GameType {
+  MEMORY_MATCH
+  REMEMBER_OBJECTS
+  SEQUENCE_RECALL
+  PICTURE_RECOGNITION
+  ATTENTION_CHALLENGE
+  DAILY_MEMORY_STORY
+}
+
+enum MessageType {
+  TEXT
+  PHOTO
+  VOICE
+  ACTIVITY
+}
+
+enum SyncStatus {
+  PENDING
+  SYNCED
+  FAILED
+}
+
+// ─── Users & Auth ────────────────────────────────────────────
+
+model User {
+  id                String   @id @default(uuid())
+  name              String
+  email             String   @unique
+  phone             String?
+  passwordHash      String
+  role              Role
+  preferredLanguage String   @default("en")
+  profileImage      String?
+  isVerified        Boolean  @default(false)
+  isDemo            Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  patientProfile     PatientProfile?
+  caregiverLinks     CaregiverPatientLink[] @relation("CaregiverUser")
+  patientLinks       CaregiverPatientLink[] @relation("PatientUser")
+  passwordResetTokens PasswordResetToken[]
+  aiConversations    AiConversation[]
+  sentFamilyMessages FamilyMessage[]        @relation("SenderMessages")
+  receivedFamilyMessages FamilyMessage[]    @relation("ReceiverMessages")
+  auditLogs          AuditLog[]
+  reminders          Reminder[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([token])
+}
+
+// ─── Patient Profile ─────────────────────────────────────────
+
+model PatientProfile {
+  id                    String   @id @default(uuid())
+  userId                String   @unique
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  age                   Int?
+  dateOfBirth           DateTime?
+  gender                String?
+  accessibilityPrefs    Json?    // { fontSize: "large", highContrast: true, etc. }
+  voicePrefs            Json?    // { speed: "slow", pitch: "normal", voice: "female" }
+  currentDifficulty     Int      @default(1) // 1-10 scale
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  memoryPassport        MemoryPassport?
+  gameSessions          GameSession[]
+  performanceMetrics    PerformanceMetric[]
+  alerts                Alert[]
+}
+
+// ─── Caregiver ↔ Patient Links ───────────────────────────────
+
+model CaregiverPatientLink {
+  id          String   @id @default(uuid())
+  caregiverId String
+  patientId   String
+  caregiver   User     @relation("CaregiverUser", fields: [caregiverId], references: [id], onDelete: Cascade)
+  patient     User     @relation("PatientUser", fields: [patientId], references: [id], onDelete: Cascade)
+  isPrimary   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@unique([caregiverId, patientId])
+  @@index([caregiverId])
+  @@index([patientId])
+}
+
+// ─── Memory Passport ─────────────────────────────────────────
+
+model MemoryPassport {
+  id        String   @id @default(uuid())
+  patientId String   @unique
+  patient   PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  people    MemoryPerson[]
+  items     MemoryItem[]
+}
+
+model MemoryPerson {
+  id             String   @id @default(uuid())
+  passportId     String
+  passport       MemoryPassport @relation(fields: [passportId], references: [id], onDelete: Cascade)
+  name           String
+  relationship   String
+  photo          String?  // base64 or URL
+  description    String?
+  isApprovedForAI Boolean @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([passportId])
+}
+
+model MemoryItem {
+  id             String   @id @default(uuid())
+  passportId     String
+  passport       MemoryPassport @relation(fields: [passportId], references: [id], onDelete: Cascade)
+  category       String   // "song", "place", "object", "routine", "date", "activity", "preference"
+  title          String
+  description    String?
+  photo          String?
+  metadata       Json?    // Flexible storage for category-specific data
+  isApprovedForAI Boolean @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([passportId])
+  @@index([category])
+}
+
+// ─── Cognitive Games ─────────────────────────────────────────
+
+model GameSession {
+  id            String   @id @default(uuid())
+  patientId     String
+  patient       PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  gameType      GameType
+  difficulty    Int      @default(1)
+  startedAt     DateTime @default(now())
+  completedAt   DateTime?
+  isCompleted   Boolean  @default(false)
+
+  results       GameResult[]
+
+  @@index([patientId])
+  @@index([gameType])
+  @@index([startedAt])
+}
+
+model GameResult {
+  id          String   @id @default(uuid())
+  sessionId   String
+  session     GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  score       Int
+  maxScore    Int
+  accuracy    Float    // 0.0 to 1.0
+  timeTaken   Int      // seconds
+  attempts    Int      @default(1)
+  details     Json?    // Game-specific result data
+  createdAt   DateTime @default(now())
+
+  @@index([sessionId])
+}
+
+model PerformanceMetric {
+  id            String   @id @default(uuid())
+  patientId     String
+  patient       PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  gameType      GameType
+  period        String   // "daily", "weekly", "monthly"
+  periodStart   DateTime
+  avgAccuracy   Float
+  avgTimeTaken  Float
+  gamesPlayed   Int
+  avgDifficulty Float
+  trend         Float?   // positive = improving, negative = declining
+  createdAt     DateTime @default(now())
+
+  @@index([patientId])
+  @@index([gameType])
+  @@index([periodStart])
+}
+
+// ─── Reminders ───────────────────────────────────────────────
+
+model Reminder {
+  id          String         @id @default(uuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        ReminderType
+  title       String
+  description String?
+  scheduledAt DateTime
+  recurrence  String?        // "daily", "weekly", or null for one-time
+  status      ReminderStatus @default(ACTIVE)
+  createdBy   String?        // caregiver userId who created it
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  notifications Notification[]
+
+  @@index([userId])
+  @@index([scheduledAt])
+  @@index([status])
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  reminderId String?
+  reminder   Reminder? @relation(fields: [reminderId], references: [id], onDelete: SetNull)
+  userId     String
+  title      String
+  message    String
+  isRead     Boolean  @default(false)
+  readAt     DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+}
+
+// ─── AI Conversations ────────────────────────────────────────
+
+model AiConversation {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String?
+  language  String   @default("en")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages  AiMessage[]
+
+  @@index([userId])
+}
+
+model AiMessage {
+  id             String   @id @default(uuid())
+  conversationId String
+  conversation   AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String   // "user", "assistant", "system"
+  content        String
+  createdAt      DateTime @default(now())
+
+  @@index([conversationId])
+}
+
+// ─── Family Messages ─────────────────────────────────────────
+
+model FamilyMessage {
+  id         String      @id @default(uuid())
+  senderId   String
+  sender     User        @relation("SenderMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver   User        @relation("ReceiverMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  type       MessageType
+  content    String
+  mediaUrl   String?
+  isRead     Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+
+  @@index([receiverId])
+  @@index([senderId])
+}
+
+// ─── Alerts ──────────────────────────────────────────────────
+
+model Alert {
+  id          String        @id @default(uuid())
+  patientId   String
+  patient     PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  severity    AlertSeverity
+  title       String
+  message     String
+  data        Json?         // { recentAccuracy: [...], trend: -15.2, etc. }
+  isRead      Boolean       @default(false)
+  readAt      DateTime?
+  createdAt   DateTime      @default(now())
+
+  @@index([patientId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// ─── Offline Sync ────────────────────────────────────────────
+
+model OfflineSyncQueue {
+  id        String     @id @default(uuid())
+  userId    String
+  action    String     // "CREATE_GAME_RESULT", "CREATE_REMINDER", etc.
+  payload   Json
+  status    SyncStatus @default(PENDING)
+  error     String?
+  createdAt DateTime   @default(now())
+  syncedAt  DateTime?
+
+  @@index([userId])
+  @@index([status])
+}
+
+// ─── Audit ───────────────────────────────────────────────────
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  entity    String?
+  entityId  String?
+  details   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}

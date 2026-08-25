@@ -36,9 +36,9 @@
       "name": "Medical Reports & Prescriptions",
       "icons": [
         {
-          "src": "/aabha-icon.svg",
+          "src": "/aabha-icon-192.png",
           "sizes": "192x192",
-          "type": "image/svg+xml"
+          "type": "image/png"
         }
       ],
       "accept": {
@@ -81,7 +81,7 @@
       "type": "application/json",
       "screenshots": [
         {
-          "src": "/aabha-icon.svg",
+          "src": "/aabha-icon-512.png",
           "sizes": "512x512",
           "label": "AABHA Vitals Widget Preview",
           "form_factor": "narrow"
@@ -89,9 +89,9 @@
       ],
       "icons": [
         {
-          "src": "/aabha-icon.svg",
+          "src": "/aabha-icon-192.png",
           "sizes": "192x192",
-          "type": "image/svg+xml"
+          "type": "image/png"
         }
       ],
       "auth": false
@@ -99,22 +99,50 @@
   ],
   "icons": [
     {
+      "src": "/aabha-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/aabha-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/aabha-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/aabha-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
       "src": "/aabha-icon.svg",
       "sizes": "192x192 512x512 any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "AABHA AI Mobile Patient Dashboard"
     },
     {
-      "src": "/aabha-icon-192.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "/aabha-icon-512.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
+      "src": "/screenshot-desktop.png",
+      "sizes": "1024x768",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "AABHA AI Desktop Healthcare Platform"
     }
   ],
   "shortcuts": [
@@ -125,8 +153,9 @@
       "url": "/aabha",
       "icons": [
         {
-          "src": "/aabha-icon.svg",
-          "sizes": "192x192"
+          "src": "/aabha-icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
@@ -137,8 +166,9 @@
       "url": "/patient/games",
       "icons": [
         {
-          "src": "/aabha-icon.svg",
-          "sizes": "192x192"
+          "src": "/aabha-icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
@@ -149,8 +179,9 @@
       "url": "/patient/reminders",
       "icons": [
         {
-          "src": "/aabha-icon.svg",
-          "sizes": "192x192"
+          "src": "/aabha-icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
@@ -161,8 +192,9 @@
       "url": "/patient/consultation",
       "icons": [
         {
-          "src": "/aabha-icon.svg",
-          "sizes": "192x192"
+          "src": "/aabha-icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     }

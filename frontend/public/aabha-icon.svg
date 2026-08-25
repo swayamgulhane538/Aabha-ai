@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F9D8A"/>
+      <stop offset="50%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+    <linearGradient id="coreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399"/>
+      <stop offset="50%" stop-color="#22D3EE"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  
+  <!-- Rounded Base Background -->
+  <rect width="512" height="512" rx="128" fill="#060913"/>
+  
+  <!-- Outer Orbit Ring -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="url(#bgGrad)" stroke-width="8" opacity="0.4" stroke-dasharray="24 16"/>
+  
+  <!-- Ambient Glow -->
+  <circle cx="256" cy="256" r="120" fill="url(#coreGrad)" opacity="0.25" filter="url(#glow)"/>
+  
+  <!-- Central Luminous 3D Sphere -->
+  <circle cx="256" cy="256" r="110" fill="url(#coreGrad)"/>
+  
+  <!-- Inner Highlight -->
+  <ellipse cx="220" cy="200" rx="45" ry="30" fill="#FFFFFF" opacity="0.35"/>
+  
+  <!-- Sparkle & Voice Wave Icon -->
+  <path d="M256 180 L266 230 L316 240 L266 250 L256 300 L246 250 L196 240 L246 230 Z" fill="#FFFFFF" filter="url(#glow)"/>
+  
+  <!-- Text Label -->
+  <text x="256" y="440" text-anchor="middle" fill="#F8FAFC" font-family="sans-serif" font-weight="900" font-size="44" letter-spacing="4">AABHA AI</text>
+</svg>

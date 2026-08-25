@@ -1,22 +1,96 @@
 {
-  "name": "AABHA AI",
-  "short_name": "AABHA",
-  "description": "AI-powered cognitive companion for elderly users - A caring voice for every memory",
+  "name": "AABHA AI — Cognitive Healthcare Companion",
+  "short_name": "AABHA AI",
+  "description": "AI-powered cognitive healthcare, medication alarms & multilingual voice companion for elderly users",
+  "id": "/?source=pwa",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#fdf8f0",
-  "theme_color": "#4361ee",
-  "orientation": "any",
+  "display_override": [
+    "standalone",
+    "window-controls-overlay",
+    "minimal-ui"
+  ],
+  "background_color": "#F8FAFC",
+  "theme_color": "#0D9488",
+  "orientation": "portrait-primary",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": [
+    "medical",
+    "health",
+    "lifestyle",
+    "utilities"
+  ],
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/aabha-icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "/aabha-icon.svg",
+      "sizes": "192x192 512x512 any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     },
     {
-      "src": "/aabha-icon-512.png",
+      "src": "/aabha-icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/aabha-icon-512.svg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Talk with AABHA AI",
+      "short_name": "Chat AI",
+      "description": "Start voice conversation with AABHA AI assistant",
+      "url": "/aabha",
+      "icons": [
+        {
+          "src": "/aabha-icon.svg",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Brain Games & Puzzles",
+      "short_name": "Games",
+      "description": "Play 18+ interactive cognitive memory games",
+      "url": "/patient/games",
+      "icons": [
+        {
+          "src": "/aabha-icon.svg",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Medication Alarms",
+      "short_name": "Alarms",
+      "description": "View daily prescribed medicines and chimes",
+      "url": "/patient/reminders",
+      "icons": [
+        {
+          "src": "/aabha-icon.svg",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Doctor Video Consult",
+      "short_name": "Consult",
+      "description": "Join video room with your neurologist",
+      "url": "/patient/consultation",
+      "icons": [
+        {
+          "src": "/aabha-icon.svg",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

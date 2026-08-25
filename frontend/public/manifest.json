@@ -9,7 +9,8 @@
   "display_override": [
     "standalone",
     "window-controls-overlay",
-    "minimal-ui"
+    "minimal-ui",
+    "browser"
   ],
   "background_color": "#F8FAFC",
   "theme_color": "#0D9488",
@@ -20,11 +21,82 @@
     "medical",
     "health",
     "lifestyle",
-    "utilities"
+    "utilities",
+    "games"
   ],
   "prefer_related_applications": false,
   "related_applications": [],
   "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "launch_handler": {
+    "client_mode": ["focus-existing", "navigate-new", "auto"]
+  },
+  "file_handlers": [
+    {
+      "action": "/patient/reports",
+      "name": "Medical Reports & Prescriptions",
+      "icons": [
+        {
+          "src": "/aabha-icon.svg",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
+        }
+      ],
+      "accept": {
+        "application/pdf": [".pdf"],
+        "text/plain": [".txt"],
+        "image/*": [".jpg", ".jpeg", ".png", ".webp"]
+      }
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+aabha",
+      "url": "/aabha?action=%s"
+    }
+  ],
+  "share_target": {
+    "action": "/patient/reports",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "scope_extensions": [
+    {
+      "origin": "https://aabha-ai.vercel.app"
+    }
+  ],
+  "widgets": [
+    {
+      "name": "AABHA Vitals & Medicine",
+      "short_name": "AABHA Widget",
+      "description": "Daily memory score, cognitive games & medication alarms widget",
+      "tag": "aabha-vitals",
+      "template": "widget-template",
+      "ms_ac_template": "widget.json",
+      "data": "/widget-data.json",
+      "type": "application/json",
+      "screenshots": [
+        {
+          "src": "/aabha-icon.svg",
+          "sizes": "512x512",
+          "label": "AABHA Vitals Widget Preview",
+          "form_factor": "narrow"
+        }
+      ],
+      "icons": [
+        {
+          "src": "/aabha-icon.svg",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
+        }
+      ],
+      "auth": false
+    }
+  ],
   "icons": [
     {
       "src": "/aabha-icon.svg",

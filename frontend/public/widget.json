@@ -1,0 +1,24 @@
+{
+  "type": "AdaptiveCard",
+  "version": "1.4",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "AABHA AI Health Status",
+      "weight": "Bolder",
+      "size": "Medium"
+    },
+    {
+      "type": "TextBlock",
+      "text": "Memory Score: 78% • All Morning Meds Taken",
+      "wrap": true
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "Open AABHA AI",
+      "url": "https://aabha-ai.vercel.app/patient"
+    }
+  ]
+}

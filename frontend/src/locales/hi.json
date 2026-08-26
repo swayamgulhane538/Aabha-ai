@@ -436,5 +436,15 @@
   "Doctor Live Voice Subtitles (Speech-to-Text)": "डॉक्टर लाइव आवाज़ सबटाइटल (Speech-to-Text)",
   "1-Tap Common Medical Signs & Phrases (ISL Shortcuts)": "1-टैप प्रमुख मेडिकल संकेत व वाक्य (ISL शॉर्टकट्स)",
   "High-Risk Medical Sign Detected (Urgent Alert)": "गंभीर मेडिकल संकेत पहचाना गया (आपातकालीन अलर्ट)",
-  "SignBridge Privacy & Camera Consent": "साइनब्रिज गोपनीयता व कैमरा सहमति"
+  "SignBridge Privacy & Camera Consent": "साइनब्रिज गोपनीयता व कैमरा सहमति",
+  "Two-Way Sign Language Consultation": "द्विमार्गी सांकेतिक भाषा डॉक्टर परामर्श",
+  "Two-Way SignBridge ISL": "द्विमार्गी साइनब्रिज ISL",
+  "Two-Way Doctor Desk": "द्विमार्गी डॉक्टर डेस्क",
+  "Two-Way Sign Language Clinical Consultation": "द्विमार्गी सांकेतिक भाषा नैदानिक परामर्श",
+  "Patient Medical Sign Library (16 ISL Shortcuts)": "मरीज़ मेडिकल सांकेतिक लाइब्रेरी (16 ISL शॉर्टकट्स)",
+  "Doctor Clinical Sign Library (13 ISL Shortcuts)": "डॉक्टर क्लिनिकल सांकेतिक लाइब्रेरी (13 ISL शॉर्टकट्स)",
+  "Your Sign Language (Patient)": "आपकी सांकेतिक भाषा (मरीज़)",
+  "Your Sign Language (Doctor)": "आपकी सांकेतिक भाषा (डॉक्टर)",
+  "Doctor's Sign (Translated to You)": "डॉक्टर का संकेत (आपको अनुवादित)",
+  "Patient's Sign (Translated to You)": "मरीज़ का संकेत (आपको अनुवादित)"
 }

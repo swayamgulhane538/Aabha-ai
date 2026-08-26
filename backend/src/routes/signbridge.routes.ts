@@ -11,12 +11,17 @@ interface SignBridgeMessage {
   senderId: string;
   senderName: string;
   senderRole: 'PATIENT' | 'CAREGIVER' | 'DOCTOR';
-  type: 'SIGN_TRANSLATION' | 'DOCTOR_SPEECH_SUBTITLE' | 'TEXT_CHAT' | 'EMERGENCY_ALERT';
+  type: 'PATIENT_SIGN' | 'DOCTOR_SIGN' | 'SIGN_TRANSLATION' | 'DOCTOR_SPEECH_SUBTITLE' | 'TEXT_CHAT' | 'EMERGENCY_ALERT' | 'MODE_CHANGE';
   text: string;
   hindiText?: string;
+  marathiText?: string;
+  bengaliText?: string;
+  assameseText?: string;
   confidence?: number;
   isEmergency?: boolean;
   timestamp: string;
+  icon?: string;
+  mode?: string;
 }
 
 // In-memory active room message buffer
@@ -37,8 +42,8 @@ router.get('/session/:roomId', (req, res) => {
         senderName: 'SignBridge Medical Assistant',
         senderRole: 'DOCTOR',
         type: 'TEXT_CHAT',
-        text: 'SignBridge Secure ISL Clinical Channel initialized.',
-        hindiText: 'साइनब्रिज सुरक्षित सांकेतिक भाषा परामर्श चैनल शुरू हो गया है।',
+        text: 'SignBridge Two-Way ISL Clinical Channel initialized.',
+        hindiText: 'साइनब्रिज द्विमार्गी सांकेतिक भाषा परामर्श चैनल शुरू हो गया है।',
         timestamp: new Date().toISOString()
       }
     ]);
@@ -56,10 +61,10 @@ router.get('/session/:roomId', (req, res) => {
   });
 });
 
-// ─── 2. POST MESSAGE (SIGN TRANSLATION OR DOCTOR SUBTITLE) ───────────────────
+// ─── 2. POST MESSAGE (TWO-WAY SIGN TRANSLATION OR DOCTOR SUBTITLE) ───────────
 router.post('/messages', (req, res) => {
   const user = req.user!;
-  const { roomId, type, text, hindiText, confidence, isEmergency } = req.body;
+  const { roomId, type, text, hindiText, marathiText, bengaliText, assameseText, confidence, isEmergency, icon, mode } = req.body;
 
   if (!roomId || !text) {
     return res.status(400).json({ message: 'Room ID and message text are required.' });
@@ -70,13 +75,18 @@ router.post('/messages', (req, res) => {
     roomId,
     senderId: user.id,
     senderName: user.name || (user.role === 'PATIENT' ? 'Patient' : 'Dr. Anita Verma'),
-    senderRole: user.role as any,
-    type: type || (user.role === 'PATIENT' ? 'SIGN_TRANSLATION' : 'DOCTOR_SPEECH_SUBTITLE'),
+    senderRole: (user.role === 'CAREGIVER' ? 'DOCTOR' : user.role) as any,
+    type: type || (user.role === 'PATIENT' ? 'PATIENT_SIGN' : 'DOCTOR_SIGN'),
     text: String(text).trim(),
     hindiText: hindiText ? String(hindiText).trim() : undefined,
+    marathiText: marathiText ? String(marathiText).trim() : undefined,
+    bengaliText: bengaliText ? String(bengaliText).trim() : undefined,
+    assameseText: assameseText ? String(assameseText).trim() : undefined,
     confidence: confidence ? Number(confidence) : 95,
     isEmergency: !!isEmergency,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    icon,
+    mode
   };
 
   if (!roomMessages.has(roomId)) {
@@ -85,10 +95,10 @@ router.post('/messages', (req, res) => {
 
   const list = roomMessages.get(roomId)!;
   list.push(newMsg);
-  if (list.length > 200) list.shift();
+  if (list.length > 250) list.shift();
 
-  // If critical emergency, record clinical alert
-  if (isEmergency && user.role === 'PATIENT') {
+  // If critical emergency sign detected, record emergency alert in database
+  if (isEmergency) {
     db.createAlert({
       id: 'alt-signbridge-' + Date.now(),
       patientUserId: user.id,
@@ -96,19 +106,19 @@ router.post('/messages', (req, res) => {
       patientName: user.name || 'Patient',
       severity: 'HIGH',
       alertType: 'EMERGENCY_SOS',
-      title: 'SignBridge Urgent Symptom Detected',
-      message: `Patient indicated high-risk sign gesture during consultation: "${text}"`,
+      title: 'SignBridge Urgent Symptom Signaled',
+      message: `${user.role === 'PATIENT' ? 'Patient' : 'Doctor'} signaled critical sign gesture: "${text}"`,
       isRead: false,
       createdAt: new Date().toISOString()
     });
 
     db.logAudit(
       user.id,
-      user.name || 'Patient',
+      user.name || 'User',
       'SIGNBRIDGE_EMERGENCY_GESTURE',
       'CONSULTATION',
       roomId,
-      `High-risk symptom detected during ISL sign consultation: ${text}`,
+      `Two-Way ISL consultation critical sign: ${text}`,
       req.ip
     );
   }
@@ -139,7 +149,7 @@ router.post('/consent', (req, res) => {
     'SIGNBRIDGE_CAMERA_CONSENT',
     'PRIVACY',
     user.id,
-    `Patient ${consentGiven ? 'GRANTED' : 'REVOKED'} camera gesture analysis consent for ISL translation`,
+    `User ${consentGiven ? 'GRANTED' : 'REVOKED'} camera gesture analysis consent for Two-Way ISL`,
     req.ip
   );
 

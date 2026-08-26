@@ -121,9 +121,9 @@ export const PatientDashboard: React.FC = () => {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
+    if (hour < 12) return t('Good Morning');
+    if (hour < 17) return t('Good Afternoon');
+    return t('Good Evening');
   };
 
   const completedRoutineCount = routine.filter(r => r.completed).length;
@@ -145,7 +145,7 @@ export const PatientDashboard: React.FC = () => {
             >
               <div>
                 <div className="text-[10px] font-black uppercase text-rose-500 tracking-wider">
-                  Emergency SOS
+                  {t('Emergency SOS')}
                 </div>
                 <div className="text-xs sm:text-sm font-black text-[var(--text-primary)] mt-0.5">
                   1-Tap Help
@@ -166,10 +166,10 @@ export const PatientDashboard: React.FC = () => {
             >
               <div>
                 <div className="text-[10px] font-black uppercase text-teal-600 dark:text-teal-400 tracking-wider">
-                  Today's Medicine
+                  {t("Today's Medication")}
                 </div>
                 <div className="text-xs sm:text-sm font-black text-[var(--text-primary)] mt-0.5">
-                  {takenMedsCount} / {medications.length} Taken
+                  {takenMedsCount} / {medications.length} {t('Taken')}
                 </div>
                 <div className="text-[10px] text-[var(--text-secondary)] font-medium">
                   Next: 01:00 PM
@@ -188,7 +188,7 @@ export const PatientDashboard: React.FC = () => {
             >
               <div>
                 <div className="text-[10px] font-black uppercase text-blue-600 dark:text-blue-400 tracking-wider">
-                  Hydration
+                  {t('Hydration')}
                 </div>
                 <div className="text-xs sm:text-sm font-black text-[var(--text-primary)] mt-0.5">
                   {hydrationCount} / {hydrationTarget} Glasses
@@ -209,10 +209,10 @@ export const PatientDashboard: React.FC = () => {
             >
               <div>
                 <div className="text-[10px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">
-                  Today's Routine
+                  {t('Daily Routine & Alarms')}
                 </div>
                 <div className="text-xs sm:text-sm font-black text-[var(--text-primary)] mt-0.5">
-                  {completedRoutineCount} / {routine.length} Done
+                  {completedRoutineCount} / {routine.length} {t('Done')}
                 </div>
                 <div className="text-[10px] text-[var(--text-secondary)] font-medium">
                   {Math.round((completedRoutineCount / routine.length) * 100)}% Completed
@@ -233,7 +233,7 @@ export const PatientDashboard: React.FC = () => {
                   AI Companion
                 </div>
                 <div className="text-xs sm:text-sm font-black text-[var(--text-primary)] mt-0.5">
-                  Ask AABHA
+                  {t('Ask AABHA')}
                 </div>
                 <div className="text-[10px] text-[var(--text-secondary)] font-medium">
                   I'm here to help!
@@ -278,7 +278,7 @@ export const PatientDashboard: React.FC = () => {
               Voice Assistant
             </div>
             <div className="text-base sm:text-lg font-black text-[var(--text-primary)]">
-              Talk to AABHA
+              {t('Ask AABHA')}
             </div>
             <div className="text-[11px] text-[var(--text-secondary)] font-medium">
               Tap mic to speak naturally
@@ -317,7 +317,7 @@ export const PatientDashboard: React.FC = () => {
             </div>
             <div>
               <h3 className="text-xs sm:text-sm font-black text-[var(--text-primary)] group-hover:text-purple-600 transition-colors">
-                Cognitive Activity
+                {t('Brain Games')}
               </h3>
               <p className="text-[11px] text-[var(--text-secondary)] font-medium mt-1 leading-snug">
                 Train your memory & mind
@@ -335,7 +335,7 @@ export const PatientDashboard: React.FC = () => {
             </div>
             <div>
               <h3 className="text-xs sm:text-sm font-black text-[var(--text-primary)] group-hover:text-indigo-600 transition-colors">
-                Today's Routine
+                {t('Daily Routine & Alarms')}
               </h3>
               <p className="text-[11px] text-[var(--text-secondary)] font-medium mt-1 leading-snug">
                 View & complete tasks
@@ -353,7 +353,7 @@ export const PatientDashboard: React.FC = () => {
             </div>
             <div>
               <h3 className="text-xs sm:text-sm font-black text-[var(--text-primary)] group-hover:text-teal-600 transition-colors">
-                Medicines
+                {t('Reminders')}
               </h3>
               <p className="text-[11px] text-[var(--text-secondary)] font-medium mt-1 leading-snug">
                 View reminders
@@ -371,7 +371,7 @@ export const PatientDashboard: React.FC = () => {
             </div>
             <div>
               <h3 className="text-xs sm:text-sm font-black text-[var(--text-primary)] group-hover:text-rose-600 transition-colors">
-                My Memory
+                {t('Memory Passport')}
               </h3>
               <p className="text-[11px] text-[var(--text-secondary)] font-medium mt-1 leading-snug">
                 Personal information
@@ -389,7 +389,7 @@ export const PatientDashboard: React.FC = () => {
             </div>
             <div>
               <h3 className="text-xs sm:text-sm font-black text-[var(--text-primary)] group-hover:text-amber-600 transition-colors">
-                My Progress
+                {t('My Progress')}
               </h3>
               <p className="text-[11px] text-[var(--text-secondary)] font-medium mt-1 leading-snug">
                 Track your improvement

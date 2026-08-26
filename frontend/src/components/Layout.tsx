@@ -93,7 +93,7 @@ export const Layout = () => {
                     location.pathname === '/patient' && !location.hash ? activeNavCls : inactiveNavCls
                   }`}
                 >
-                  Dashboard
+                  {t('Dashboard')}
                 </Link>
                 <Link
                   to="/patient/games"
@@ -101,7 +101,7 @@ export const Layout = () => {
                     location.pathname.startsWith('/patient/games') ? activeNavCls : inactiveNavCls
                   }`}
                 >
-                  Activities
+                  {t('Games')}
                 </Link>
                 <a
                   href="/patient#routine"
@@ -109,7 +109,7 @@ export const Layout = () => {
                     location.hash === '#routine' ? activeNavCls : inactiveNavCls
                   }`}
                 >
-                  Routine
+                  {t('My Schedule')}
                 </a>
                 <Link
                   to="/patient/memory-passport"
@@ -117,7 +117,7 @@ export const Layout = () => {
                     location.pathname.startsWith('/patient/memory-passport') ? activeNavCls : inactiveNavCls
                   }`}
                 >
-                  Memory
+                  {t('Memory Passport')}
                 </Link>
                 <Link
                   to="/patient/reports"
@@ -125,7 +125,7 @@ export const Layout = () => {
                     location.pathname.startsWith('/patient/reports') ? activeNavCls : inactiveNavCls
                   }`}
                 >
-                  Progress
+                  {t('My Progress')}
                 </Link>
               </>
             ) : (
@@ -136,7 +136,7 @@ export const Layout = () => {
                     location.pathname === '/caregiver' ? activeNavCls : inactiveNavCls
                   }`}
                 >
-                  Overview
+                  {t('Dashboard')}
                 </Link>
                 <Link
                   to="/patient/reports"
@@ -144,7 +144,7 @@ export const Layout = () => {
                     location.pathname.startsWith('/patient/reports') ? activeNavCls : inactiveNavCls
                   }`}
                 >
-                  Reports
+                  {t('My Reports')}
                 </Link>
                 <Link
                   to="/patient/memory-passport"
@@ -152,7 +152,7 @@ export const Layout = () => {
                     location.pathname.startsWith('/patient/memory-passport') ? activeNavCls : inactiveNavCls
                   }`}
                 >
-                  Memory Bank
+                  {t('Memory Passport')}
                 </Link>
                 <Link
                   to="/patient/reminders"
@@ -160,7 +160,7 @@ export const Layout = () => {
                     location.pathname.startsWith('/patient/reminders') ? activeNavCls : inactiveNavCls
                   }`}
                 >
-                  Reminders
+                  {t('Reminders')}
                 </Link>
               </>
             )}
@@ -273,15 +273,15 @@ export const Layout = () => {
         style={{ backgroundColor: isDark ? 'rgba(13,20,38,0.96)' : 'rgba(255,255,255,0.96)' }}
       >
         <Link
-          to="/patient"
+          to={isCaregiver ? '/caregiver' : '/patient'}
           className={`py-1 px-3 rounded-2xl flex flex-col items-center transition-all ${
-            location.pathname === '/patient' && !location.hash
+            (location.pathname === '/patient' || location.pathname === '/caregiver') && !location.hash
               ? 'text-purple-600 dark:text-purple-400 font-black scale-105'
               : 'text-[var(--text-muted)] font-bold'
           }`}
         >
           <span className="text-xl leading-none mb-1">🏠</span>
-          <span className="text-[10px] tracking-tight">Home</span>
+          <span className="text-[10px] tracking-tight">{t('Home')}</span>
         </Link>
 
         <Link
@@ -293,7 +293,7 @@ export const Layout = () => {
           }`}
         >
           <span className="text-xl leading-none mb-1">🎮</span>
-          <span className="text-[10px] tracking-tight">Activities</span>
+          <span className="text-[10px] tracking-tight">{t('Games')}</span>
         </Link>
 
         <a
@@ -305,7 +305,7 @@ export const Layout = () => {
           }`}
         >
           <span className="text-xl leading-none mb-1">📅</span>
-          <span className="text-[10px] tracking-tight">Routine</span>
+          <span className="text-[10px] tracking-tight">{t('My Schedule')}</span>
         </a>
 
         <Link
@@ -317,7 +317,7 @@ export const Layout = () => {
           }`}
         >
           <span className="text-xl leading-none mb-1">📖</span>
-          <span className="text-[10px] tracking-tight">Memory</span>
+          <span className="text-[10px] tracking-tight">{t('Memory Passport')}</span>
         </Link>
 
         <Link
@@ -329,7 +329,7 @@ export const Layout = () => {
           }`}
         >
           <span className="text-xl leading-none mb-1">📊</span>
-          <span className="text-[10px] tracking-tight">Progress</span>
+          <span className="text-[10px] tracking-tight">{t('My Progress')}</span>
         </Link>
       </nav>
 

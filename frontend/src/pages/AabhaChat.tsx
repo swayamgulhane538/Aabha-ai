@@ -160,13 +160,48 @@ export const AabhaChat: React.FC = () => {
         if (response.engine) engineName = response.engine === 'google-gemini' ? 'Google Gemini 1.5 Flash' : response.engine;
         if (response.conversationId) setConversationId(response.conversationId);
       } catch {
-        // 3. Smart Offline Fallback
-        if (shouldNavigate) {
-          aiText = "Starting your recommended Memory Match exercise (Level 2) in just a moment! Let's stimulate your brain together.";
+        // 3. Multi-Lingual Contextual Fallback
+        const cleanLang = (i18n.language || 'en').toLowerCase().split('-')[0];
+        const patName = user?.name || (cleanLang === 'mr' ? 'काका' : cleanLang === 'hi' ? 'जी' : '');
+
+        if (cleanLang === 'mr') {
+          aiText = shouldNavigate
+            ? "तुमच्यासाठी मेमरी मॅच (पातळी २) खेळ सुरू करत आहे! चला मेंदूचा छान सराव करूया."
+            : `नमस्कार ${patName}! मी आभा आहे, तुमची मैत्रीण. तुमचे दुपारचे औषध १:०० वाजता आहे. आपण एखादा छान खेळ खेळूया का?`;
+        } else if (cleanLang === 'hi') {
+          aiText = shouldNavigate
+            ? "आपके लिए मेमोरी मैच (लेवल 2) खेल शुरू किया जा रहा है! चलिए साथ में अभ्यास करते हैं।"
+            : `नमस्ते ${patName}! मैं आभा हूँ। आपकी अगली दवा का समय दोपहर 1:00 बजे है। क्या आप कोई मेमोरी गेम खेलना चाहेंगे?`;
+        } else if (cleanLang === 'bn') {
+          aiText = shouldNavigate
+            ? "আপনার জন্য মেমরি ম্যাচ খেলা শুরু হচ্ছে!"
+            : `নমস্কার! আমি আভা। আপনার পরবর্তী ওষুধের সময় দুপুর ১:০০ টায়।`;
+        } else if (cleanLang === 'gu') {
+          aiText = shouldNavigate
+            ? "તમારા માટે મેમરી મેચ ગેમ શરૂ થઈ રહી છે!"
+            : `નમસ્તે! હું આભા છું. તમારી આગામી દવાનો સમય બપોરે ૧:૦૦ વાગ્યે છે.`;
+        } else if (cleanLang === 'ta') {
+          aiText = shouldNavigate
+            ? "உங்களுக்காக நினைவாற்றல் விளையாட்டு தொடங்குகிறது!"
+            : `வணக்கம்! நான் ஆபா. உங்கள் அடுத்த மருந்து மதியம் 1:00 மணிக்கு உள்ளது.`;
+        } else if (cleanLang === 'te') {
+          aiText = shouldNavigate
+            ? "మీ కోసం మెమరీ మ్యాచ్ గేమ్ ప్రారంభమవుతోంది!"
+            : `నమస్కారం! నేను ఆభా. మీ తదుపరి మందు సమయం మధ్యాహ్నం 1:00 గంటలకు.`;
+        } else if (cleanLang === 'kn') {
+          aiText = shouldNavigate
+            ? "ನಿಮಗಾಗಿ ಮೆಮೊರಿ ಮ್ಯಾಚ್ ಆಟ ಪ್ರಾರಂಭವಾಗುತ್ತಿದೆ!"
+            : `ನಮಸ್ಕಾರ! ನಾನು ಆಭಾ. ನಿಮ್ಮ ಮುಂದಿನ ಔಷಧಿ ಮಧ್ಯಾಹ್ನ 1:00 ಗಂಟೆಗೆ ಇದೆ.`;
+        } else if (cleanLang === 'pa') {
+          aiText = shouldNavigate
+            ? "ਤੁਹਾਡੇ ਲਈ ਮੈਮੋਰੀ ਮੈਚ ਖੇਡ ਸ਼ੁਰੂ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ!"
+            : `ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! ਮੈਂ ਆਭਾ ਹਾਂ। ਤੁਹਾਡੀ ਅਗਲੀ ਦਵਾਈ ਦੁਪਹਿਰ 1:00 ਵਜੇ ਹੈ।`;
         } else {
-          aiText = `Namaste ${user?.name || 'Mr. Arun Das'}! I am right here with you. Your next scheduled medicine is Memantine (10mg) at 1:00 PM with water. Would you like to practice a memory exercise?`;
+          aiText = shouldNavigate
+            ? "Starting your recommended Memory Match exercise (Level 2) in just a moment! Let's stimulate your brain together."
+            : `Namaste ${user?.name || 'Mr. Arun Das'}! I am right here with you. Your next scheduled medicine is Memantine (10mg) at 1:00 PM with water. Would you like to practice a memory exercise?`;
         }
-        engineName = 'Aabha Offline Engine';
+        engineName = 'Aabha Intelligent Assistant';
       }
     }
 

@@ -204,27 +204,28 @@ export class GeminiService {
   ): Promise<string | null> {
     if (!this.hasApiKey()) return null;
 
-    const LANG_MAP: Record<string, string> = {
-      hi: 'Hindi (हिन्दी)',
-      mr: 'Marathi (मराठी)',
-      bn: 'Bengali (বাংলা)',
-      as: 'Assamese (অসমীয়া)',
-      gu: 'Gujarati (ગુજરાતી)',
-      ta: 'Tamil (தமிழ்)',
-      te: 'Telugu (తెలుగు)',
-      kn: 'Kannada (ಕನ್ನಡ)',
-      ml: 'Malayalam (മലയാളം)',
-      pa: 'Punjabi (ਪੰਜਾਬੀ)',
-      en: 'Indian English'
+    const LANG_MAP: Record<string, { name: string; native: string; script: string }> = {
+      hi: { name: 'Hindi', native: 'हिन्दी', script: 'Devanagari' },
+      mr: { name: 'Marathi', native: 'मराठी', script: 'Devanagari' },
+      bn: { name: 'Bengali', native: 'বাংলা', script: 'Bengali' },
+      as: { name: 'Assamese', native: 'অসমীয়া', script: 'Assamese' },
+      gu: { name: 'Gujarati', native: 'ગુજરાતી', script: 'Gujarati' },
+      ta: { name: 'Tamil', native: 'தமிழ்', script: 'Tamil' },
+      te: { name: 'Telugu', native: 'తెలుగు', script: 'Telugu' },
+      kn: { name: 'Kannada', native: 'ಕನ್ನಡ', script: 'Kannada' },
+      ml: { name: 'Malayalam', native: 'മലയാളം', script: 'Malayalam' },
+      pa: { name: 'Punjabi', native: 'ਪੰਜਾਬੀ', script: 'Gurmukhi' },
+      en: { name: 'Indian English', native: 'English', script: 'Latin' }
     };
 
     const cleanLang = language.toLowerCase().split('-')[0];
-    const targetLangName = LANG_MAP[cleanLang] || 'Indian English';
+    const targetMeta = LANG_MAP[cleanLang] || LANG_MAP.en;
 
     const systemPrompt = `You are AABHA AI (आभा एआई), a compassionate, warm, and highly intelligent cognitive and healthcare companion designed for Indian families, patients, seniors, and caregivers.
-MULTI-LINGUAL INSTRUCTION: You are fully fluent in Indian languages. You MUST respond fluently and naturally in ${targetLangName}. Use culturally respectful honorifics. Keep sentences clear, empathetic, and concise (2-3 sentences). Never diagnose medical conditions.
-Context: ${contextInfo}
-Target Language: ${targetLangName}`;
+MANDATORY RULE: You MUST reply 100% EXCLUSIVELY in ${targetMeta.name} (${targetMeta.native}) using ${targetMeta.script} script.
+Never use English or Latin letters when replying in Hindi (हिन्दी) or Marathi (मराठी).
+Keep responses clear, empathetic, culturally respectful, and concise (2-3 sentences).
+Context: ${contextInfo}`;
 
     const modelsToTry = [
       this.activeModel,
@@ -233,12 +234,15 @@ Target Language: ${targetLangName}`;
     ];
 
     const apiVersions = ['v1beta', 'v1'];
+    const userPromptWithLang = `[Reply strictly in ${targetMeta.name} (${targetMeta.native}) using ${targetMeta.script} script only]\n${message}`;
 
     for (const model of modelsToTry) {
       for (const ver of apiVersions) {
         try {
           const url = `https://generativelanguage.googleapis.com/${ver}/models/${model}:generateContent?key=${this.apiKey}`;
-          const response = await fetch(url, {
+          
+          // Try with systemInstruction first
+          let response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -248,7 +252,7 @@ Target Language: ${targetLangName}`;
               contents: [
                 {
                   role: 'user',
-                  parts: [{ text: message }]
+                  parts: [{ text: userPromptWithLang }]
                 }
               ],
               generationConfig: {
@@ -257,6 +261,26 @@ Target Language: ${targetLangName}`;
               }
             })
           });
+
+          // If systemInstruction is unsupported (HTTP 400), try without systemInstruction
+          if (!response.ok && response.status === 400) {
+            response = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [
+                  {
+                    role: 'user',
+                    parts: [{ text: `${systemPrompt}\n\nUser Question:\n${userPromptWithLang}` }]
+                  }
+                ],
+                generationConfig: {
+                  temperature: 0.7,
+                  maxOutputTokens: 250
+                }
+              })
+            });
+          }
 
           if (response.ok) {
             const data = await response.json();

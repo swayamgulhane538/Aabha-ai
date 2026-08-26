@@ -167,36 +167,8 @@ export const Layout = () => {
           </nav>
         </div>
 
-        {/* RIGHT: Compact Controls (Language, Notifications, Profile, Logout) */}
+        {/* RIGHT: Compact Controls (Language, Notifications, Profile, Logout) - ZERO CROWDING ON MOBILE */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-          {/* Offline Sync State Badge */}
-          <div className="hidden lg:block">
-            <OfflineIndicator />
-          </div>
-
-          {/* 1-Minute Automated Demo Button */}
-          <button
-            type="button"
-            onClick={() => setIsOneMinDemoOpen(true)}
-            className="px-2.5 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-cyan-500/20 border border-emerald-400/40 text-emerald-600 dark:text-emerald-300 text-xs font-black flex items-center gap-1 hover:scale-105 active:scale-95 transition cursor-pointer shadow-2xs"
-            title="1-Minute Automated AI Voice Demo"
-          >
-            <Play className="w-3 h-3 fill-current text-emerald-500" />
-            <span className="hidden sm:inline">1-Min Demo</span>
-            <span className="sm:hidden">Demo</span>
-          </button>
-
-          {/* Hackathon Tour Guide Button */}
-          <button
-            type="button"
-            onClick={() => setIsDemoModalOpen(true)}
-            className="hidden md:flex px-2.5 py-1.5 rounded-full bg-purple-500/15 border border-purple-400/30 text-purple-600 dark:text-purple-300 text-xs font-black items-center gap-1 hover:scale-105 active:scale-95 transition cursor-pointer shadow-2xs"
-            title="Interactive Scenario Guide"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>Tour</span>
-          </button>
-
           {/* 🌐 COMPACT SINGLE LANGUAGE BUTTON (Globe EN ▼) */}
           <LanguageSelector />
 
@@ -272,7 +244,30 @@ export const Layout = () => {
         <Outlet />
       </main>
 
-      {/* ─── 3. FIXED MOBILE BOTTOM NAVIGATION ──────────────────────────────── */}
+      {/* ─── 3. FLOATING HACKATHON DEMO PILL (ACCESSIBLE ON ALL DEVICES) ───── */}
+      <div className="fixed bottom-20 right-3.5 lg:bottom-6 lg:right-6 z-30 flex items-center gap-2 select-none animate-fade-in">
+        <button
+          type="button"
+          onClick={() => setIsOneMinDemoOpen(true)}
+          className="px-3.5 py-2 rounded-full bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white font-black text-xs shadow-xl hover:scale-105 active:scale-95 transition cursor-pointer border border-white/20 flex items-center gap-1.5"
+          title="1-Minute Automated Voice Demo for Judges"
+        >
+          <Play className="w-3.5 h-3.5 fill-current" />
+          <span>1-Min Demo</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setIsDemoModalOpen(true)}
+          className="p-2 sm:px-3 sm:py-2 rounded-full bg-[var(--bg-surface)] text-[var(--text-primary)] font-black text-xs shadow-lg hover:scale-105 active:scale-95 transition cursor-pointer border border-[var(--border)] flex items-center gap-1"
+          title="5-Minute Step-by-Step Scenario Tour"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+          <span className="hidden sm:inline">Tour</span>
+        </button>
+      </div>
+
+      {/* ─── 4. FIXED MOBILE BOTTOM NAVIGATION ──────────────────────────────── */}
       <nav
         className="lg:hidden fixed bottom-0 left-0 right-0 backdrop-blur-2xl px-3 py-2 flex justify-around items-center z-40 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.08)] border-t border-[var(--border)]"
         style={{ backgroundColor: isDark ? 'rgba(13,20,38,0.96)' : 'rgba(255,255,255,0.96)' }}

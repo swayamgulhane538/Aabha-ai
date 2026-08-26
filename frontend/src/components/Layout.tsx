@@ -9,7 +9,7 @@ import { OfflineIndicator } from './OfflineIndicator';
 import { HackathonDemoModal } from './HackathonDemoModal';
 import { AnimatedBackground } from './AnimatedBackground';
 import { Abha3DOrb } from './Abha3DOrb';
-import { Settings, Sparkles, LogOut, Compass, ShieldCheck } from 'lucide-react';
+import { Settings, Sparkles, LogOut, Bell, User, CheckCircle2, ShieldCheck, X } from 'lucide-react';
 
 export const Layout = () => {
   const { t } = useTranslation();
@@ -17,8 +17,10 @@ export const Layout = () => {
   const isDark = useThemeStore(s => s.getResolvedTheme()) === 'dark';
   const navigate = useNavigate();
   const location = useLocation();
+
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -27,162 +29,292 @@ export const Layout = () => {
 
   const isCaregiver = user?.role === 'CAREGIVER';
 
-  const activeNavCls = 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black shadow-md';
-  const inactiveNavCls = `text-[var(--nav-inactive-text)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-glass-bg-hover)]`;
+  const activeNavCls = 'bg-gradient-to-r from-purple-600 via-indigo-600 to-teal-500 text-white font-black shadow-sm';
+  const inactiveNavCls = 'text-[var(--nav-inactive-text)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-glass-bg-hover)] font-bold';
+
+  const notificationsList = [
+    { id: 1, title: 'Medication Due', desc: 'Memantine HCl (10mg) scheduled after lunch (01:00 PM)', time: '35 mins ago', unread: true },
+    { id: 2, title: 'Daily Hydration Check', desc: '4 of 6 glasses completed. Keep it up!', time: '1 hour ago', unread: true },
+    { id: 3, title: 'Memory Exercise Completed', desc: 'Memory Match scored 85% accuracy (Level 2)', time: '2 hours ago', unread: false }
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col w-full max-w-[100vw] overflow-x-hidden font-sans relative" style={{ backgroundColor: 'var(--bg-page)', color: 'var(--text-primary)' }}>
+    <div
+      className="min-h-screen flex flex-col w-full max-w-[100vw] overflow-x-hidden font-sans relative"
+      style={{ backgroundColor: 'var(--bg-page)', color: 'var(--text-primary)' }}
+    >
       <AnimatedBackground />
 
-      {/* Top Header */}
+      {/* ─── 1. TOP STICKY HEADER (CLEAN WHITE / BLURRED WITH PURPLE ACCENTS) ─ */}
       <header
-        className="backdrop-blur-xl px-2.5 py-2 sm:px-6 sm:py-3 shadow-md flex items-center justify-between z-30 sticky top-0 w-full min-w-0"
-        style={{ backgroundColor: 'var(--bg-header)', borderBottom: '1px solid var(--border)' }}
+        className="backdrop-blur-2xl px-3.5 py-2.5 sm:px-8 sm:py-3.5 shadow-sm flex items-center justify-between z-40 sticky top-0 w-full min-w-0 transition-all border-b border-[var(--border)]"
+        style={{ backgroundColor: 'var(--bg-header)' }}
       >
-        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+        {/* Left: Brand Logo */}
+        <div className="flex items-center gap-3 sm:gap-6 min-w-0">
           <Link
             to={isCaregiver ? '/caregiver' : '/patient'}
-            className="text-base sm:text-2xl font-black tracking-tight flex items-center gap-1.5 sm:gap-2.5 shrink-0"
-            style={{ color: 'var(--text-primary)' }}
+            className="text-lg sm:text-2xl font-black tracking-tight flex items-center gap-2 shrink-0 group"
           >
             <Abha3DOrb size="sm" state="IDLE" interactive={false} />
-            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent truncate">
-              AABHA AI
-            </span>
+            <div className="flex flex-col">
+              <span className="bg-gradient-to-r from-purple-600 via-indigo-600 to-teal-500 bg-clip-text text-transparent font-black tracking-tight leading-none">
+                AABHA AI
+              </span>
+              <span className="text-[9px] font-bold text-[var(--text-secondary)] tracking-wider uppercase mt-0.5">
+                Cognitive Care
+              </span>
+            </div>
           </Link>
 
-          {/* Offline Sync State Live Indicator */}
-          <div className="hidden sm:block">
-            <OfflineIndicator />
-          </div>
-
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1 text-xs font-bold">
+          <nav className="hidden lg:flex items-center gap-1.5 text-xs">
             {!isCaregiver ? (
               <>
-                <Link to="/patient" className={`px-3 py-1.5 rounded-xl transition ${location.pathname === '/patient' ? activeNavCls : inactiveNavCls}`}>
-                  🏠 Home
+                <Link
+                  to="/patient"
+                  className={`px-3.5 py-1.5 rounded-full transition-all ${
+                    location.pathname === '/patient' && !location.hash ? activeNavCls : inactiveNavCls
+                  }`}
+                >
+                  Dashboard
                 </Link>
-                <Link to="/patient/games" className={`px-3 py-1.5 rounded-xl transition ${location.pathname.startsWith('/patient/games') ? activeNavCls : inactiveNavCls}`}>
-                  🎮 Games
+                <Link
+                  to="/patient/games"
+                  className={`px-3.5 py-1.5 rounded-full transition-all ${
+                    location.pathname.startsWith('/patient/games') ? activeNavCls : inactiveNavCls
+                  }`}
+                >
+                  Activities
                 </Link>
-                <Link to="/patient/consultation" className={`px-3 py-1.5 rounded-xl transition ${location.pathname.startsWith('/patient/consultation') ? activeNavCls : inactiveNavCls}`}>
-                  📹 Consult
+                <a
+                  href="/patient#routine"
+                  className={`px-3.5 py-1.5 rounded-full transition-all ${
+                    location.hash === '#routine' ? activeNavCls : inactiveNavCls
+                  }`}
+                >
+                  Routine
+                </a>
+                <Link
+                  to="/patient/memory-passport"
+                  className={`px-3.5 py-1.5 rounded-full transition-all ${
+                    location.pathname.startsWith('/patient/memory-passport') ? activeNavCls : inactiveNavCls
+                  }`}
+                >
+                  Memory
                 </Link>
-                <Link to="/patient/reminders" className={`px-3 py-1.5 rounded-xl transition ${location.pathname.startsWith('/patient/reminders') ? activeNavCls : inactiveNavCls}`}>
-                  ⏰ Alarms
-                </Link>
-                <Link to="/patient/reports" className={`px-3 py-1.5 rounded-xl transition ${location.pathname.startsWith('/patient/reports') ? activeNavCls : inactiveNavCls}`}>
-                  📄 Reports
-                </Link>
-                <Link to="/patient/memory-passport" className={`px-3 py-1.5 rounded-xl transition ${location.pathname.startsWith('/patient/memory-passport') ? activeNavCls : inactiveNavCls}`}>
-                  📖 Passport
-                </Link>
-                <Link to="/aabha" className={`px-3 py-1.5 rounded-xl transition ${location.pathname === '/aabha' ? activeNavCls : inactiveNavCls}`}>
-                  🎤 Talk AABHA
+                <Link
+                  to="/patient/reports"
+                  className={`px-3.5 py-1.5 rounded-full transition-all ${
+                    location.pathname.startsWith('/patient/reports') ? activeNavCls : inactiveNavCls
+                  }`}
+                >
+                  Progress
                 </Link>
               </>
             ) : (
               <>
-                <Link to="/caregiver" className={`px-3 py-1.5 rounded-xl transition ${location.pathname === '/caregiver' ? activeNavCls : inactiveNavCls}`}>
-                  📊 Overview
+                <Link
+                  to="/caregiver"
+                  className={`px-3.5 py-1.5 rounded-full transition-all ${
+                    location.pathname === '/caregiver' ? activeNavCls : inactiveNavCls
+                  }`}
+                >
+                  Overview
                 </Link>
-                <Link to="/patient/reports" className={`px-3 py-1.5 rounded-xl transition ${location.pathname.startsWith('/patient/reports') ? activeNavCls : inactiveNavCls}`}>
-                  📄 Clinical Reports
+                <Link
+                  to="/patient/reports"
+                  className={`px-3.5 py-1.5 rounded-full transition-all ${
+                    location.pathname.startsWith('/patient/reports') ? activeNavCls : inactiveNavCls
+                  }`}
+                >
+                  Reports & Analytics
                 </Link>
-                <Link to="/patient/memory-passport" className={`px-3 py-1.5 rounded-xl transition ${location.pathname.startsWith('/patient/memory-passport') ? activeNavCls : inactiveNavCls}`}>
-                  📖 Memory Bank
+                <Link
+                  to="/patient/memory-passport"
+                  className={`px-3.5 py-1.5 rounded-full transition-all ${
+                    location.pathname.startsWith('/patient/memory-passport') ? activeNavCls : inactiveNavCls
+                  }`}
+                >
+                  Memory Bank
                 </Link>
-                <Link to="/patient/reminders" className={`px-3 py-1.5 rounded-xl transition ${location.pathname.startsWith('/patient/reminders') ? activeNavCls : inactiveNavCls}`}>
-                  ⏰ Reminders & Alarms
+                <Link
+                  to="/patient/reminders"
+                  className={`px-3.5 py-1.5 rounded-full transition-all ${
+                    location.pathname.startsWith('/patient/reminders') ? activeNavCls : inactiveNavCls
+                  }`}
+                >
+                  Reminders
                 </Link>
               </>
             )}
           </nav>
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-          {/* Hackathon Demo Tour Guide Button */}
+        {/* Right Action Icons & Profile */}
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          {/* Offline Sync State Badge */}
+          <div className="hidden md:block">
+            <OfflineIndicator />
+          </div>
+
+          {/* Hackathon Demo Tour Guide Trigger */}
           <button
             type="button"
             onClick={() => setIsDemoModalOpen(true)}
-            className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-gradient-to-r from-purple-600/30 to-indigo-600/30 border border-purple-400/40 text-purple-300 text-[11px] sm:text-xs font-black flex items-center gap-1 shadow-sm hover:scale-105 active:scale-95 transition cursor-pointer"
-            title="Open 5-Minute Hackathon Demo Tour Scenario"
+            className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-gradient-to-r from-purple-500/15 via-indigo-500/15 to-teal-500/15 border border-purple-400/30 text-purple-600 dark:text-purple-300 text-[11px] sm:text-xs font-black flex items-center gap-1 hover:scale-105 active:scale-95 transition cursor-pointer shadow-2xs"
+            title="5-Minute Hackathon Demo Tour"
           >
-            <Sparkles className="w-3.5 h-3.5 text-purple-300" />
-            <span className="hidden md:inline">Hackathon Tour</span>
-            <span className="md:hidden">Tour</span>
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span className="hidden sm:inline">Hackathon Tour</span>
+            <span className="sm:hidden">Tour</span>
           </button>
 
+          {/* Multilingual Selector */}
           <LanguageSelector />
 
-          {/* Settings Button */}
+          {/* Notifications Bell */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+              className="btn-glass p-2 sm:p-2.5 rounded-full relative hover:scale-105 active:scale-95 transition cursor-pointer flex items-center justify-center"
+              title="Notifications"
+            >
+              <Bell className="w-4 h-4 text-[var(--text-secondary)]" />
+              <span className="w-2 h-2 rounded-full bg-rose-500 absolute top-1.5 right-1.5 animate-pulse" />
+            </button>
+
+            {/* Notifications Popover */}
+            {isNotificationsOpen && (
+              <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[var(--bg-surface)] rounded-[24px] border border-[var(--border)] shadow-2xl p-4 z-50 animate-fade-in font-sans space-y-3">
+                <div className="flex items-center justify-between border-b border-[var(--border)] pb-2">
+                  <div className="flex items-center gap-1.5">
+                    <Bell className="w-4 h-4 text-purple-600" />
+                    <span className="text-xs font-black uppercase text-[var(--text-primary)]">Notifications</span>
+                  </div>
+                  <button onClick={() => setIsNotificationsOpen(false)} className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">✕</button>
+                </div>
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {notificationsList.map(n => (
+                    <div key={n.id} className="p-2.5 rounded-xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] text-xs space-y-0.5">
+                      <div className="flex items-center justify-between font-black text-[var(--text-primary)]">
+                        <span>{n.title}</span>
+                        <span className="text-[10px] text-[var(--text-muted)] font-normal">{n.time}</span>
+                      </div>
+                      <p className="text-[11px] text-[var(--text-secondary)] font-medium leading-relaxed">{n.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Profile & Settings Button */}
           <button
             type="button"
             onClick={() => setIsSettingsOpen(true)}
-            className="btn-glass p-2 sm:p-2.5 rounded-xl sm:rounded-2xl transition shadow-xs cursor-pointer flex items-center justify-center"
-            title="Settings"
-            aria-label="Settings"
+            className="btn-glass p-2 sm:p-2.5 rounded-full hover:scale-105 active:scale-95 transition cursor-pointer flex items-center justify-center gap-1.5"
+            title="Settings & Profile"
           >
-            <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
+            <User className="w-4 h-4 text-[var(--text-secondary)]" />
+            <span className="hidden xl:inline text-xs font-bold text-[var(--text-primary)]">
+              {user?.name?.split(' ')[0] || 'Profile'}
+            </span>
           </button>
 
           {/* Logout Button */}
           <button
             type="button"
             onClick={handleLogout}
-            className="px-2 py-1.5 sm:px-3.5 sm:py-2 font-bold text-[11px] sm:text-xs rounded-xl sm:rounded-2xl transition cursor-pointer flex items-center gap-1"
-            style={{ color: 'var(--badge-rose-text)', border: '1px solid var(--badge-rose-border)', backgroundColor: 'var(--badge-rose-bg)' }}
-            title={t('Logout')}
+            className="btn-glass p-2 sm:p-2.5 rounded-full text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/30 transition cursor-pointer flex items-center justify-center"
+            title="Sign Out"
           >
-            <LogOut className="w-3.5 h-3.5 sm:hidden" />
-            <span className="hidden sm:inline">{t('Logout')}</span>
+            <LogOut className="w-4 h-4 text-rose-500" />
           </button>
         </div>
       </header>
 
-      {/* Mobile Top Sub-bar for Offline state */}
-      <div className="sm:hidden px-3 py-1 bg-[var(--bg-surface-secondary)] border-b border-[var(--border)] flex justify-between items-center text-[10px]">
+      {/* Mobile Sub-header */}
+      <div className="sm:hidden px-3.5 py-1.5 bg-[var(--bg-surface-secondary)] border-b border-[var(--border)] flex justify-between items-center text-[11px]">
         <OfflineIndicator />
-        <span className="text-[var(--text-secondary)] font-mono">ID: {user?.patientId || 'PAT-DEMO-000001'}</span>
+        <span className="text-[var(--text-secondary)] font-mono font-bold">
+          ID: {user?.patientId || 'PAT-DEMO-000001'}
+        </span>
       </div>
-      
-      {/* Main Content Area */}
-      <main className="relative z-10 flex-1 w-full max-w-6xl mx-auto px-3.5 py-4 sm:p-6 md:p-8 pb-28 md:pb-8 overflow-x-hidden min-w-0">
+
+      {/* ─── 2. MAIN CONTENT AREA (CLEAN LIGHT PADDING & SPACIOUS LAYOUT) ───── */}
+      <main className="relative z-10 flex-1 w-full max-w-6xl mx-auto px-3.5 py-4 sm:px-6 sm:py-6 md:py-8 pb-32 md:pb-12 overflow-x-hidden min-w-0">
         <Outlet />
       </main>
 
-      {/* Mobile Bottom Nav */}
+      {/* ─── 3. FIXED MOBILE BOTTOM NAVIGATION (ACCESSIBLE & NOTCH SAFE) ───── */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 backdrop-blur-2xl px-2 py-1.5 flex justify-around items-center z-40 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.15)] border-t border-[var(--border)]"
-        style={{ backgroundColor: isDark ? 'rgba(13,20,38,0.95)' : 'rgba(255,255,255,0.96)' }}
+        className="lg:hidden fixed bottom-0 left-0 right-0 backdrop-blur-2xl px-3 py-2 flex justify-around items-center z-40 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.08)] border-t border-[var(--border)]"
+        style={{ backgroundColor: isDark ? 'rgba(13,20,38,0.96)' : 'rgba(255,255,255,0.96)' }}
       >
-        <Link to="/patient" className={`py-1 px-2 rounded-xl flex flex-col items-center transition ${location.pathname === '/patient' ? 'text-emerald-500 font-black scale-105' : 'font-medium'}`} style={location.pathname === '/patient' ? {} : { color: 'var(--text-muted)' }}>
-          <span className="text-lg leading-none mb-1">🏠</span>
+        <Link
+          to="/patient"
+          className={`py-1 px-3 rounded-2xl flex flex-col items-center transition-all ${
+            location.pathname === '/patient' && !location.hash
+              ? 'text-purple-600 dark:text-purple-400 font-black scale-105'
+              : 'text-[var(--text-muted)] font-bold'
+          }`}
+        >
+          <span className="text-xl leading-none mb-1">🏠</span>
           <span className="text-[10px] tracking-tight">Home</span>
         </Link>
 
-        <Link to="/patient/games" className={`py-1 px-2 rounded-xl flex flex-col items-center transition ${location.pathname.startsWith('/patient/games') ? 'text-emerald-500 font-black scale-105' : 'font-medium'}`} style={location.pathname.startsWith('/patient/games') ? {} : { color: 'var(--text-muted)' }}>
-          <span className="text-lg leading-none mb-1">🎮</span>
-          <span className="text-[10px] tracking-tight">Games</span>
+        <Link
+          to="/patient/games"
+          className={`py-1 px-3 rounded-2xl flex flex-col items-center transition-all ${
+            location.pathname.startsWith('/patient/games')
+              ? 'text-purple-600 dark:text-purple-400 font-black scale-105'
+              : 'text-[var(--text-muted)] font-bold'
+          }`}
+        >
+          <span className="text-xl leading-none mb-1">🎮</span>
+          <span className="text-[10px] tracking-tight">Activities</span>
         </Link>
 
-        <Link to="/aabha" className={`py-1 px-2 rounded-xl flex flex-col items-center transition ${location.pathname === '/aabha' ? 'text-emerald-500 font-black scale-105' : 'font-medium'}`} style={location.pathname === '/aabha' ? {} : { color: 'var(--text-muted)' }}>
-          <span className="text-lg leading-none mb-1">🎤</span>
-          <span className="text-[10px] tracking-tight">AABHA</span>
+        <a
+          href="/patient#routine"
+          className={`py-1 px-3 rounded-2xl flex flex-col items-center transition-all ${
+            location.hash === '#routine'
+              ? 'text-purple-600 dark:text-purple-400 font-black scale-105'
+              : 'text-[var(--text-muted)] font-bold'
+          }`}
+        >
+          <span className="text-xl leading-none mb-1">📅</span>
+          <span className="text-[10px] tracking-tight">Routine</span>
+        </a>
+
+        <Link
+          to="/patient/memory-passport"
+          className={`py-1 px-3 rounded-2xl flex flex-col items-center transition-all ${
+            location.pathname.startsWith('/patient/memory-passport')
+              ? 'text-purple-600 dark:text-purple-400 font-black scale-105'
+              : 'text-[var(--text-muted)] font-bold'
+          }`}
+        >
+          <span className="text-xl leading-none mb-1">📖</span>
+          <span className="text-[10px] tracking-tight">Memory</span>
         </Link>
 
-        <Link to="/patient/reminders" className={`py-1 px-2 rounded-xl flex flex-col items-center transition ${location.pathname.startsWith('/patient/reminders') ? 'text-emerald-500 font-black scale-105' : 'font-medium'}`} style={location.pathname.startsWith('/patient/reminders') ? {} : { color: 'var(--text-muted)' }}>
-          <span className="text-lg leading-none mb-1">⏰</span>
-          <span className="text-[10px] tracking-tight">Alarms</span>
-        </Link>
-
-        <Link to="/patient/memory-passport" className={`py-1 px-2 rounded-xl flex flex-col items-center transition ${location.pathname.startsWith('/patient/memory-passport') ? 'text-emerald-500 font-black scale-105' : 'font-medium'}`} style={location.pathname.startsWith('/patient/memory-passport') ? {} : { color: 'var(--text-muted)' }}>
-          <span className="text-lg leading-none mb-1">📖</span>
-          <span className="text-[10px] tracking-tight">Passport</span>
+        <Link
+          to="/patient/reports"
+          className={`py-1 px-3 rounded-2xl flex flex-col items-center transition-all ${
+            location.pathname.startsWith('/patient/reports')
+              ? 'text-purple-600 dark:text-purple-400 font-black scale-105'
+              : 'text-[var(--text-muted)] font-bold'
+          }`}
+        >
+          <span className="text-xl leading-none mb-1">📊</span>
+          <span className="text-[10px] tracking-tight">Progress</span>
         </Link>
       </nav>
 
+      {/* Settings & Demo Modals */}
       {isSettingsOpen && <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />}
       {isDemoModalOpen && <HackathonDemoModal isOpen={isDemoModalOpen} onClose={() => setIsDemoModalOpen(false)} />}
     </div>

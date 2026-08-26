@@ -4,6 +4,54 @@ import { db, AiConversationRecord } from '../store/persistentDatabase';
 import { chat as geminiChat } from '../services/aiService';
 
 const router = Router();
+
+// ─── 0. MULTI-LINGUAL NEURAL TTS STREAM PROXY (Public audio for all Indian languages) ─
+router.get('/tts', async (req, res) => {
+  try {
+    const text = (req.query.text as string || '').slice(0, 400).trim();
+    let lang = (req.query.lang as string || 'hi').toLowerCase().split('-')[0];
+
+    // Detect native language script
+    if (/[\u0900-\u097F]/.test(text)) {
+      if (lang !== 'mr') lang = 'hi';
+    } else if (/[\u0980-\u09FF]/.test(text)) {
+      lang = lang === 'as' ? 'as' : 'bn';
+    } else if (/[\u0A80-\u0AFF]/.test(text)) {
+      lang = 'gu';
+    } else if (/[\u0B80-\u0BFF]/.test(text)) {
+      lang = 'ta';
+    } else if (/[\u0C00-\u0C7F]/.test(text)) {
+      lang = 'te';
+    } else if (/[\u0C80-\u0CFF]/.test(text)) {
+      lang = 'kn';
+    } else if (/[\u0A00-\u0A7F]/.test(text)) {
+      lang = 'pa';
+    } else if (/[\u0D00-\u0D7F]/.test(text)) {
+      lang = 'ml';
+    }
+
+    if (!text) return res.status(400).send('Text required');
+
+    const googleTtsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${lang}&client=tw-ob`;
+    const response = await fetch(googleTtsUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    });
+
+    if (!response.ok) {
+      return res.status(response.status).send('TTS error');
+    }
+
+    res.setHeader('Content-Type', 'audio/mpeg');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    const buffer = Buffer.from(await response.arrayBuffer());
+    return res.send(buffer);
+  } catch (err: any) {
+    return res.status(500).send(err.message);
+  }
+});
+
 router.use(authenticate);
 
 // ─── 1. TALK TO ABHA AI (Powered by Google Gemini AI) ─────────────────────────

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Mic, MicOff, Volume2, VolumeX, Sparkles, Send, X, AlertTriangle, Play, RefreshCw, MessageSquare } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
+import { speechService } from '../services/speechService';
 import { Abha3DOrb, OrbState } from './Abha3DOrb';
 
 interface AbhaVoiceAssistantProps {
@@ -22,135 +23,60 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
   const [isMuted, setIsMuted] = useState(false);
   const [conversationHistory, setConversationHistory] = useState<Array<{ role: 'user' | 'assistant'; text: string }>>([]);
 
-  const recognitionRef = useRef<any>(null);
-  const synthRef = useRef<SpeechSynthesis | null>(null);
-
-  const getSpeechLang = (code: string) => {
-    const map: Record<string, string> = {
-      hi: 'hi-IN',
-      mr: 'mr-IN',
-      bn: 'bn-IN',
-      as: 'as-IN',
-      gu: 'gu-IN',
-      ta: 'ta-IN',
-      te: 'te-IN',
-      kn: 'kn-IN',
-      pa: 'pa-IN',
-      en: 'en-IN'
-    };
-    return map[code] || 'en-IN';
-  };
-
-  // Initialize Speech Synthesis & Speech Recognition
+  const isMutedRef = useRef(isMuted);
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      synthRef.current = window.speechSynthesis;
+    isMutedRef.current = isMuted;
+  }, [isMuted]);
 
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = true;
-        recognition.lang = getSpeechLang(language);
-
-        recognition.onstart = () => {
-          setState('LISTENING');
-        };
-
-        recognition.onresult = (event: any) => {
-          let currentTranscript = '';
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            currentTranscript += event.results[i][0].transcript;
-          }
-          setTranscript(currentTranscript);
-        };
-
-        recognition.onerror = (event: any) => {
-          console.warn('[ABHA AI Speech Error]', event.error);
-          if (event.error !== 'no-speech') {
-            setState('ERROR');
-          } else {
-            setState('IDLE');
-          }
-        };
-
-        recognition.onend = () => {
-          if (transcript.trim()) {
-            handleSendMessage(transcript);
-          } else {
-            setState('IDLE');
-          }
-        };
-
-        recognitionRef.current = recognition;
-      }
-    }
-
+  // Clean up on unmount
+  useEffect(() => {
     return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.abort();
-      }
-      if (synthRef.current) {
-        synthRef.current.cancel();
-      }
+      speechService.stopListening();
+      speechService.stopSpeaking();
     };
-  }, [language, transcript]);
+  }, []);
 
-  // Text-To-Speech Function
+  // Text-To-Speech Function via Robust Dual-Engine SpeechService
   const speakText = (text: string) => {
-    if (isMuted || !synthRef.current) {
+    if (isMutedRef.current) {
       setState('IDLE');
       return;
     }
 
-    synthRef.current.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = getSpeechLang(language);
-    utterance.rate = 0.92; // Slightly slower for elderly comprehension
-    utterance.pitch = 1.05; // Warm, friendly tone
-
-    // Try finding matching native voice
-    const voices = synthRef.current.getVoices();
-    const targetVoice = voices.find(v => v.lang.includes(language) || v.lang.includes(getSpeechLang(language)));
-    if (targetVoice) {
-      utterance.voice = targetVoice;
-    }
-
-    utterance.onstart = () => {
-      setState('SPEAKING');
-    };
-
-    utterance.onend = () => {
+    setState('SPEAKING');
+    speechService.speak(text, language, () => {
       setState('IDLE');
-    };
-
-    utterance.onerror = () => {
-      setState('IDLE');
-    };
-
-    synthRef.current.speak(utterance);
+    });
   };
 
   const startListening = () => {
-    if (synthRef.current) synthRef.current.cancel();
+    speechService.stopSpeaking();
     setTranscript('');
     setState('LISTENING');
 
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.start();
-      } catch (err) {
-        console.warn('Recognition start caught error:', err);
-      }
-    }
+    speechService.startListening(
+      (text: string) => {
+        setTranscript(text);
+        if (text.trim()) {
+          handleSendMessage(text.trim());
+        } else {
+          setState('IDLE');
+        }
+      },
+      (err: any) => {
+        console.warn('[ABHA Voice Speech Error]', err);
+        if (err !== 'no-speech') {
+          setState('ERROR');
+        } else {
+          setState('IDLE');
+        }
+      },
+      language
+    );
   };
 
   const stopListening = () => {
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop();
-      } catch {}
-    }
+    speechService.stopListening();
     setState('IDLE');
   };
 
@@ -159,11 +85,7 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
     const query = (customMessage || inputText || transcript).trim();
     if (!query) return;
 
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop();
-      } catch {}
-    }
+    speechService.stopListening();
 
     // Append to local history
     setConversationHistory(prev => [...prev, { role: 'user', text: query }]);
@@ -294,7 +216,7 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
                 {/* Mute Toggle */}
                 <button
                   onClick={() => {
-                    if (!isMuted && synthRef.current) synthRef.current.cancel();
+                    if (!isMuted) speechService.stopSpeaking();
                     setIsMuted(!isMuted);
                   }}
                   className="p-2 rounded-xl border border-gray-300 hover:bg-gray-100 transition text-black"
@@ -307,7 +229,7 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
                 <button
                   onClick={() => {
                     stopListening();
-                    if (synthRef.current) synthRef.current.cancel();
+                    speechService.stopSpeaking();
                     setIsOpen(false);
                   }}
                   className="p-2 rounded-xl border-2 border-black hover:bg-gray-100 transition text-black"

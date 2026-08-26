@@ -21,7 +21,10 @@ import {
   Lock,
   Layers,
   User,
-  Heart
+  Heart,
+  PhoneIncoming,
+  RotateCcw,
+  Loader2
 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { api } from '../services/api';
@@ -45,6 +48,7 @@ import {
   SignBridgeLiveMessage
 } from '../services/realTimeSignCommunicationService';
 import { webrtcService, CallConnectionState } from '../services/webrtcService';
+import { signalingClient, DoctorPresence } from '../services/signalingClient';
 import { ISLAvatarPlayer } from '../components/ISLAvatarPlayer';
 
 export const SignBridgePatientView: React.FC = () => {
@@ -52,18 +56,30 @@ export const SignBridgePatientView: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
-  const patientVideoRef = useRef<HTMLVideoElement | null>(null);
-  const roomId = 'aabha-signbridge-room';
+  const patientLocalVideoRef = useRef<HTMLVideoElement | null>(null);
+  const doctorRemoteVideoRef = useRef<HTMLVideoElement | null>(null);
 
   // Privacy Consent Modal
   const [consentGiven, setConsentGiven] = useState(false);
   const [showConsentModal, setShowConsentModal] = useState(true);
 
-  // Call & WebRTC State
-  const [callActive, setCallActive] = useState(false);
+  // Available Doctors List & Selected Doctor
+  const [doctorsList, setDoctorsList] = useState<DoctorPresence[]>([
+    {
+      doctorId: 'uuid-demo-nurse',
+      doctorName: 'Dr. Anita Verma',
+      specialty: 'Chief Cognitive Neurologist',
+      status: 'AVAILABLE'
+    }
+  ]);
+  const [selectedDoctorId, setSelectedDoctorId] = useState<string>('uuid-demo-nurse');
+
+  // Real WebRTC Call State
   const [callState, setCallState] = useState<CallConnectionState>('IDLE');
-  const [isVideoOff, setIsVideoOff] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isVideoOff, setIsVideoOff] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   // Doctor Spoken Sentence & ISL Animated Sequence (FOR PATIENT VISUAL RECEPTION)
   const [doctorSentence, setDoctorSentence] = useState<string>('Can you show me where you are feeling pain?');
@@ -80,29 +96,74 @@ export const SignBridgePatientView: React.FC = () => {
   const [showVisualConfirmation, setShowVisualConfirmation] = useState<boolean>(false);
   const [isEmergencyActive, setIsEmergencyActive] = useState<boolean>(false);
 
-  // ─── 1. INITIALIZE TWO-WAY COMMUNICATION & SIGN LISTENER ──────────────────
+  // ─── 1. INITIALIZE SIGNALING & REAL WEBRTC LISTENERS ───────────────────────
   useEffect(() => {
     signRecognitionService.setActiveRole('PATIENT');
-    realTimeSignCommunicationService.setRoomId(roomId);
-    realTimeSignCommunicationService.startPolling(2000);
 
+    // Register Patient with signaling server
+    signalingClient.registerUser(
+      user?.id || 'uuid-demo-patient',
+      'PATIENT',
+      user?.name || 'Demo Patient'
+    );
+
+    // Fetch initial doctors list
+    (api.get('/consultations/doctors') as Promise<DoctorPresence[]>)
+      .then(res => {
+        if (Array.isArray(res) && res.length > 0) {
+          setDoctorsList(res);
+          setSelectedDoctorId(res[0].doctorId);
+        }
+      })
+      .catch(() => {});
+
+    // WebRTC Service Handlers
     webrtcService.setHandlers({
       onLocalStream: (stream) => {
-        if (patientVideoRef.current) {
-          patientVideoRef.current.srcObject = stream;
-          patientVideoRef.current.play().catch(() => {});
-          signRecognitionService.setVideoSource(patientVideoRef.current);
+        if (patientLocalVideoRef.current) {
+          patientLocalVideoRef.current.srcObject = stream;
+          patientLocalVideoRef.current.play().catch(() => {});
+          signRecognitionService.setVideoSource(patientLocalVideoRef.current);
+          signRecognitionService.startAnalysis();
         }
       },
-      onStateChange: (state) => {
-        setCallState(state);
-        if (state === 'CONNECTED') {
-          setCallActive(true);
-          signRecognitionService.startAnalysis();
-        } else if (state === 'DISCONNECTED' || state === 'PERMISSION_DENIED') {
-          setCallActive(false);
+      onRemoteStream: (stream) => {
+        console.log('[PatientView] Attaching doctor remote stream to video element');
+        if (doctorRemoteVideoRef.current) {
+          doctorRemoteVideoRef.current.srcObject = stream;
+          doctorRemoteVideoRef.current.play().catch(() => {});
+        }
+      },
+      onStateChange: (st) => {
+        setCallState(st);
+        if (st === 'CONNECTED') {
+          setErrorMessage('');
+        } else if (st === 'ENDED' || st === 'REJECTED' || st === 'FAILED') {
           signRecognitionService.stopAnalysis();
         }
+      },
+      onError: (err) => {
+        setErrorMessage(err);
+      },
+      onAudioStateChange: (muted) => setIsMuted(muted),
+      onVideoStateChange: (off) => setIsVideoOff(off)
+    });
+
+    // Signaling Client Callbacks
+    signalingClient.setCallbacks({
+      onDoctorListUpdate: (docs) => {
+        setDoctorsList(docs);
+      },
+      onISLSequence: (data) => {
+        if (data.sequence) {
+          setDoctorSentence(data.sequence.originalText || 'Doctor speaking');
+          if (data.sequence.tokens) {
+            setIslAnimationSequence(data.sequence.tokens);
+          }
+        }
+      },
+      onCallRejected: (data) => {
+        setErrorMessage(data.reason || 'Doctor is unable to accept the consultation right now.');
       }
     });
 
@@ -121,21 +182,18 @@ export const SignBridgePatientView: React.FC = () => {
         setIsEmergencyActive(true);
       }
 
-      // Broadcast to doctor screen
+      // Broadcast sign to doctor in real-time
+      const activeCallId = webrtcService.getActiveCallId() || 'aabha-signbridge-room';
+      signalingClient.broadcastSign(activeCallId, res);
       realTimeSignCommunicationService.sendPatientSign(res, user?.name || 'Patient');
     });
 
-    // Subscribe to incoming messages from DOCTOR (VOICE -> ISL AVATAR)
+    // BroadcastChannel fallback for same-browser testing
     const unsubscribe = realTimeSignCommunicationService.subscribe((msg: SignBridgeLiveMessage) => {
       if (msg.senderRole === 'DOCTOR' || msg.senderRole === 'CAREGIVER') {
-        if (msg.type === 'DOCTOR_VOICE_TO_ISL_SEQUENCE') {
+        if (msg.type === 'DOCTOR_VOICE_TO_ISL_SEQUENCE' && msg.islTokens) {
           setDoctorSentence(msg.text);
-          if (msg.islTokens && msg.islTokens.length > 0) {
-            setIslAnimationSequence(msg.islTokens);
-          } else {
-            const translation = textToISLService.translateToISL(msg.text);
-            setIslAnimationSequence(translation.tokens);
-          }
+          setIslAnimationSequence(msg.islTokens);
         } else if (msg.type === 'DOCTOR_SPEECH_SUBTITLE') {
           setDoctorSentence(msg.text);
           const translation = textToISLService.translateToISL(msg.text);
@@ -146,45 +204,60 @@ export const SignBridgePatientView: React.FC = () => {
 
     return () => {
       unsubscribe();
-      realTimeSignCommunicationService.stopPolling();
       webrtcService.endCall();
       signRecognitionService.stopAnalysis();
     };
   }, [user]);
 
-  // Call duration timer
+  // Call timer
   useEffect(() => {
     let timer: any = null;
-    if (callActive) {
+    if (callState === 'CONNECTED') {
       timer = setInterval(() => setCallDuration(d => d + 1), 1000);
+    } else {
+      setCallDuration(0);
     }
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [callActive]);
+  }, [callState]);
 
-  // ─── 2. HANDLERS ───────────────────────────────────────────────────────────
-  const handleStartConsultation = async () => {
+  // ─── 2. USER ACTIONS ───────────────────────────────────────────────────────
+  const handleStartRealCall = async () => {
+    setErrorMessage('');
     setShowConsentModal(false);
     setConsentGiven(true);
+
+    const doc = doctorsList.find(d => d.doctorId === selectedDoctorId) || doctorsList[0];
+    if (!doc) {
+      setErrorMessage('No doctor available to connect.');
+      return;
+    }
+
     try {
       await api.post('/signbridge/consent', { consentGiven: true });
     } catch {}
 
-    const stream = await webrtcService.startCall(roomId);
-    if (stream && patientVideoRef.current) {
-      patientVideoRef.current.srcObject = stream;
-      patientVideoRef.current.play().catch(() => {});
-      signRecognitionService.setVideoSource(patientVideoRef.current);
-      signRecognitionService.startAnalysis();
-    }
+    // Initiate real WebRTC call over network
+    await webrtcService.startOutgoingCall(
+      doc.doctorId,
+      user?.id || 'uuid-demo-patient',
+      user?.name || 'Demo Patient'
+    );
   };
 
-  const handleEndConsultation = () => {
+  const handleEndCall = () => {
     webrtcService.endCall();
     signRecognitionService.stopAnalysis();
-    setCallActive(false);
-    navigate('/patient');
+    setCallState('IDLE');
+  };
+
+  const handleToggleMute = () => {
+    webrtcService.toggleAudio();
+  };
+
+  const handleToggleCamera = () => {
+    webrtcService.toggleVideo();
   };
 
   // 1-Tap Visual Patient Shortcut Trigger
@@ -201,6 +274,8 @@ export const SignBridgePatientView: React.FC = () => {
         setIsEmergencyActive(true);
       }
 
+      const activeCallId = webrtcService.getActiveCallId() || 'aabha-signbridge-room';
+      signalingClient.broadcastSign(activeCallId, res);
       realTimeSignCommunicationService.sendPatientSign(res, user?.name || 'Patient');
     }
   };
@@ -211,10 +286,12 @@ export const SignBridgePatientView: React.FC = () => {
     return `${mins.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  const currentDoctor = doctorsList.find(d => d.doctorId === selectedDoctorId) || doctorsList[0];
+
   return (
     <div className="w-full max-w-7xl mx-auto space-y-6 font-sans p-3 sm:p-6 pb-24 text-[var(--text-primary)] select-none">
       {/* ─── 1. TOP STATUS & EMERGENCY BAR ────────────────────────────────────── */}
-      <div className="flex items-center justify-between p-4 sm:p-5 card-3d rounded-[28px] border border-[var(--border)]" style={{ backgroundColor: 'var(--bg-surface)' }}>
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 sm:p-5 card-3d rounded-[28px] border border-[var(--border)]" style={{ backgroundColor: 'var(--bg-surface)' }}>
         <div className="flex items-center gap-3">
           <Link
             to="/patient"
@@ -224,32 +301,115 @@ export const SignBridgePatientView: React.FC = () => {
           </Link>
 
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-400/40 text-xs font-black uppercase tracking-wider">
-                🤟 Doctor Consultation & Sign Room
+                🤟 Real WebRTC Video Consultation & SignBridge
               </span>
-              <span className="px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold">
-                {callActive ? `LIVE CALL • ${formatCallTime(callDuration)}` : 'READY'}
+
+              {/* Call State Pill */}
+              <span className={`px-3 py-1 rounded-full border text-xs font-mono font-bold flex items-center gap-1.5 ${
+                callState === 'CONNECTED'
+                  ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400'
+                  : callState === 'RINGING' || callState === 'CALLING' || callState === 'CONNECTING'
+                  ? 'bg-amber-500/15 border-amber-500/40 text-amber-300 animate-pulse'
+                  : 'bg-slate-700/30 border-slate-600 text-slate-400'
+              }`}>
+                {callState === 'CONNECTED' && <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />}
+                <span>{callState === 'CONNECTED' ? `🟢 CONNECTED • ${formatCallTime(callDuration)}` : `STATUS: ${callState}`}</span>
               </span>
             </div>
+
             <h1 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] mt-0.5">
               Live Doctor & Indian Sign Language Consultation
             </h1>
           </div>
         </div>
 
-        {/* Large 1-Tap SOS Button */}
-        <button
-          type="button"
-          onClick={() => handleSelectPatientVisualSign('p_emergency')}
-          className="px-5 py-3 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-black flex items-center gap-2 text-sm shadow-xl cursor-pointer active:scale-95 animate-pulse shrink-0"
-        >
-          <span className="text-xl">🚨</span>
-          <span className="hidden sm:inline">EMERGENCY SOS</span>
-        </button>
+        {/* Doctor Availability & Start Consultation Action */}
+        <div className="flex items-center gap-3 w-full md:w-auto justify-end flex-wrap">
+          {callState === 'IDLE' || callState === 'ENDED' || callState === 'REJECTED' || callState === 'FAILED' ? (
+            <button
+              type="button"
+              onClick={handleStartRealCall}
+              disabled={currentDoctor?.status === 'IN_CONSULTATION' || currentDoctor?.status === 'OFFLINE'}
+              className="btn-glow px-6 py-3 rounded-2xl text-xs sm:text-sm font-black flex items-center gap-2 shadow-xl cursor-pointer disabled:opacity-50"
+            >
+              <PhoneCall className="w-4 h-4" />
+              <span>Start Real Video Call with {currentDoctor?.doctorName || 'Doctor'}</span>
+            </button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleToggleMute}
+                className={`p-3 rounded-2xl border transition cursor-pointer ${
+                  isMuted ? 'bg-rose-500/20 border-rose-500 text-rose-300' : 'btn-glass text-[var(--text-primary)]'
+                }`}
+                title={isMuted ? 'Unmute' : 'Mute'}
+              >
+                {isMuted ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleToggleCamera}
+                className={`p-3 rounded-2xl border transition cursor-pointer ${
+                  isVideoOff ? 'bg-rose-500/20 border-rose-500 text-rose-300' : 'btn-glass text-[var(--text-primary)]'
+                }`}
+                title={isVideoOff ? 'Turn Camera On' : 'Turn Camera Off'}
+              >
+                {isVideoOff ? <VideoOff className="w-4 h-4" /> : <Video className="w-4 h-4" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleEndCall}
+                className="px-5 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black flex items-center gap-2 cursor-pointer shadow-md active:scale-95"
+              >
+                <PhoneOff className="w-4 h-4" />
+                <span>End Call</span>
+              </button>
+            </div>
+          )}
+
+          {/* Emergency SOS Button */}
+          <button
+            type="button"
+            onClick={() => handleSelectPatientVisualSign('p_emergency')}
+            className="px-5 py-3 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-black flex items-center gap-2 text-xs sm:text-sm shadow-xl cursor-pointer active:scale-95 animate-pulse"
+          >
+            <span className="text-lg">🚨</span>
+            <span className="hidden sm:inline">SOS</span>
+          </button>
+        </div>
       </div>
 
-      {/* ─── 2. EMERGENCY ACTIVE WARNING BANNER ───────────────────────────────── */}
+      {/* ─── 2. CALL STATE BANNER / ERROR ALERTS ─────────────────────────────── */}
+      {errorMessage && (
+        <div className="p-4 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-200 text-xs sm:text-sm font-bold flex items-center justify-between animate-fade-in">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+          <button onClick={() => setErrorMessage('')} className="text-xs text-rose-300 hover:underline">
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {(callState === 'CALLING' || callState === 'RINGING' || callState === 'CONNECTING') && (
+        <div className="p-4 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-200 text-xs sm:text-sm font-bold flex items-center gap-3 animate-fade-in">
+          <Loader2 className="w-5 h-5 text-amber-300 animate-spin shrink-0" />
+          <div>
+            <div>Calling {currentDoctor?.doctorName || 'Doctor'}...</div>
+            <div className="text-[11px] text-amber-300/80 font-normal">
+              Waiting for doctor to accept consultation on their device.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── 3. EMERGENCY ACTIVE WARNING BANNER ───────────────────────────────── */}
       {isEmergencyActive && (
         <div className="p-5 rounded-[24px] bg-gradient-to-r from-rose-600/30 via-red-500/20 to-orange-500/20 border-2 border-rose-500 text-white flex flex-col md:flex-row items-center justify-between gap-4 animate-fade-in shadow-2xl">
           <div className="flex items-center gap-4">
@@ -284,39 +444,61 @@ export const SignBridgePatientView: React.FC = () => {
         </div>
       )}
 
-      {/* ─── 3. TOP SECTION: DOCTOR LIVE VIDEO STREAM & ISL AVATAR PLAYER ──────── */}
+      {/* ─── 4. MAIN SPLIT: DOCTOR REAL LIVE VIDEO & ISL AVATAR PLAYER ────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* LEFT 6 COLS: DOCTOR LIVE VIDEO STREAM (PROMINENTLY VISIBLE) */}
+        {/* LEFT 6 COLS: REAL DOCTOR VIDEO STREAM CONTAINER */}
         <div className="lg:col-span-6 space-y-3">
           <div className="relative rounded-[28px] overflow-hidden bg-gradient-to-tr from-slate-950 via-slate-900 to-indigo-950 border-2 border-emerald-500/50 shadow-2xl min-h-[380px] sm:min-h-[420px] flex flex-col items-center justify-center p-6 text-center">
-            {/* Real Doctor Avatar / Stream */}
-            <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 border-4 border-white shadow-2xl flex items-center justify-center text-6xl mb-3 relative animate-pulse">
-              👩‍⚕️
-              <span className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-emerald-400 border-2 border-white ring-2 ring-emerald-500" />
-            </div>
+            {/* Real WebRTC Remote Video Element */}
+            <video
+              ref={doctorRemoteVideoRef}
+              autoPlay
+              playsInline
+              className={`w-full h-full object-cover min-h-[380px] sm:min-h-[420px] ${callState === 'CONNECTED' ? 'block' : 'hidden'}`}
+            />
 
-            <h3 className="text-xl sm:text-2xl font-black text-white">
-              Dr. Anita Verma
-            </h3>
-            <p className="text-xs sm:text-sm text-emerald-300 font-bold">
-              Chief Clinical Neurologist • Apollo Memory Care
-            </p>
+            {/* Fallback Doctor Placeholder when call not yet connected */}
+            {callState !== 'CONNECTED' && (
+              <div className="flex flex-col items-center justify-center space-y-3">
+                <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 border-4 border-white shadow-2xl flex items-center justify-center text-6xl relative animate-pulse">
+                  👩‍⚕️
+                  <span className={`absolute bottom-1 right-1 w-6 h-6 rounded-full border-2 border-white ring-2 ${
+                    currentDoctor?.status === 'AVAILABLE'
+                      ? 'bg-emerald-400 ring-emerald-500'
+                      : currentDoctor?.status === 'IN_CONSULTATION'
+                      ? 'bg-amber-400 ring-amber-500'
+                      : 'bg-rose-500 ring-rose-600'
+                  }`} />
+                </div>
 
-            {/* Doctor Speaking Live Indicator */}
-            <div className="mt-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-black shadow-md">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-              <span>Doctor is speaking to you live</span>
-            </div>
+                <h3 className="text-xl sm:text-2xl font-black text-white">
+                  {currentDoctor?.doctorName || 'Dr. Anita Verma'}
+                </h3>
+                <p className="text-xs sm:text-sm text-emerald-300 font-bold">
+                  {currentDoctor?.specialty || 'Chief Clinical Neurologist'}
+                </p>
 
-            {/* Doctor Overlay Bar */}
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                  currentDoctor?.status === 'AVAILABLE'
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40'
+                    : currentDoctor?.status === 'IN_CONSULTATION'
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-400/40'
+                    : 'bg-rose-500/20 text-rose-300 border border-rose-400/40'
+                }`}>
+                  Status: {currentDoctor?.status || 'AVAILABLE'}
+                </span>
+              </div>
+            )}
+
+            {/* Top Overlay Badge */}
             <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-10">
               <div className="px-3 py-1.5 rounded-xl bg-black/80 backdrop-blur-md border border-white/20 text-white text-xs font-black flex items-center gap-1.5 shadow-md">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                <span>DOCTOR LIVE STREAM</span>
+                <span className={`w-2 h-2 rounded-full ${callState === 'CONNECTED' ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'}`} />
+                <span>DOCTOR LIVE STREAM ({callState === 'CONNECTED' ? 'REAL WEBRTC' : 'READY'})</span>
               </div>
 
               <span className="px-3 py-1.5 rounded-xl bg-emerald-500/80 border border-emerald-400 text-white text-xs font-black shadow-md">
-                Encrypted Call
+                STUN / WebRTC
               </span>
             </div>
           </div>
@@ -333,13 +515,14 @@ export const SignBridgePatientView: React.FC = () => {
         </div>
       </div>
 
-      {/* ─── 4. BOTTOM SECTION: PATIENT SIGN CAMERA & DETECTED SIGN FEEDBACK ──── */}
+      {/* ─── 5. BOTTOM SECTION: REAL PATIENT CAMERA & DETECTED SIGN FEEDBACK ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* LEFT 6 COLS: PATIENT SIGN CAMERA STREAM CONTAINER */}
+        {/* LEFT 6 COLS: REAL PATIENT LOCAL CAMERA STREAM CONTAINER */}
         <div className="lg:col-span-6 space-y-3">
           <div className="relative rounded-[28px] overflow-hidden bg-slate-950 border-2 border-[var(--border)] shadow-2xl min-h-[320px] sm:min-h-[360px] flex items-center justify-center">
+            {/* Real HTMLVideoElement for Patient Local Camera */}
             <video
-              ref={patientVideoRef}
+              ref={patientLocalVideoRef}
               autoPlay
               playsInline
               muted
@@ -357,7 +540,7 @@ export const SignBridgePatientView: React.FC = () => {
             <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none z-10">
               <div className="px-3 py-1.5 rounded-xl bg-black/80 backdrop-blur-md border border-white/20 text-white text-xs font-black flex items-center gap-1.5 shadow-md">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                <span>PATIENT CAMERA (YOU)</span>
+                <span>MY SIGN CAMERA (LOCAL STREAM)</span>
               </div>
 
               <span className="px-3 py-1.5 rounded-xl bg-purple-500/80 border border-purple-400 text-white text-xs font-black shadow-md">
@@ -385,7 +568,7 @@ export const SignBridgePatientView: React.FC = () => {
             <div className="absolute inset-x-8 inset-y-12 border-2 border-dashed border-emerald-400/40 rounded-3xl pointer-events-none flex flex-col justify-between p-2">
               <div className="flex justify-between text-[9px] font-mono text-emerald-400/80">
                 <span>SHOW_SIGN_HERE</span>
-                <span>ISL_OPTICAL_TRACKING</span>
+                <span>REAL_OPTICAL_TRACKING</span>
               </div>
               <div className="flex justify-between text-[9px] font-mono text-emerald-400/80">
                 <span>ACTIVE</span>
@@ -395,16 +578,16 @@ export const SignBridgePatientView: React.FC = () => {
           </div>
         </div>
 
-        {/* RIGHT 6 COLS: DETECTED SIGN CARD & CONTROLS */}
+        {/* RIGHT 6 COLS: DETECTED SIGN CARD & QUICK CONTROLS */}
         <div className="lg:col-span-6 space-y-4">
           <div className="p-6 rounded-[28px] card-3d border-2 border-emerald-500/50 bg-[var(--bg-surface)] space-y-3 shadow-xl">
             <div className="flex items-center justify-between">
               <div className="text-xs font-black uppercase text-[var(--text-secondary)] tracking-wider flex items-center gap-2">
                 <HandMetal className="w-4 h-4 text-emerald-400" />
-                <span>You are saying to Dr. Anita Verma:</span>
+                <span>You are saying to {currentDoctor?.doctorName || 'Doctor'}:</span>
               </div>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-400/30 text-xs font-mono font-bold">
-                Live Broadcast
+                Real-Time Data
               </span>
             </div>
 
@@ -413,7 +596,7 @@ export const SignBridgePatientView: React.FC = () => {
                 "{detectedPatientSign}"
               </div>
               <div className="text-xs text-[var(--text-secondary)] font-medium">
-                The doctor sees your live video, reads this translated sign, and hears the audio synthesis.
+                The doctor sees your live video, reads this translated sign, and hears the speech synthesis over the internet.
               </div>
             </div>
 
@@ -423,22 +606,11 @@ export const SignBridgePatientView: React.FC = () => {
                 <span>Sign unclear. Please repeat or tap the big buttons below.</span>
               </div>
             )}
-
-            <div className="flex items-center gap-3 pt-2">
-              <button
-                type="button"
-                onClick={handleEndConsultation}
-                className="px-5 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black flex items-center gap-2 cursor-pointer transition active:scale-95 shadow-md"
-              >
-                <PhoneOff className="w-4 h-4" />
-                <span>End Consultation</span>
-              </button>
-            </div>
           </div>
         </div>
       </div>
 
-      {/* ─── 5. ULTRA-LARGE ACCESSIBILITY TOUCH CHIPS (NO READING REQUIRED) ─────── */}
+      {/* ─── 6. ULTRA-LARGE ACCESSIBILITY TOUCH CHIPS (NO READING REQUIRED) ─────── */}
       <div className="card-3d p-6 rounded-[28px] border border-[var(--border)] space-y-4 shadow-xl" style={{ backgroundColor: 'var(--bg-surface)' }}>
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
@@ -448,7 +620,7 @@ export const SignBridgePatientView: React.FC = () => {
             </h2>
           </div>
           <span className="text-xs text-[var(--text-secondary)] font-bold">
-            Tap any sign to transmit to Dr. Anita Verma immediately
+            Tap any sign to transmit to {currentDoctor?.doctorName || 'Doctor'} immediately
           </span>
         </div>
 
@@ -477,7 +649,7 @@ export const SignBridgePatientView: React.FC = () => {
         </div>
       </div>
 
-      {/* ─── 6. PRIVACY & CAMERA CONSENT MODAL ───────────────────────────────── */}
+      {/* ─── 7. PRIVACY & CAMERA CONSENT MODAL ───────────────────────────────── */}
       {showConsentModal && (
         <div className="fixed inset-0 z-[99999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
           <div className="card-3d max-w-lg w-full p-6 sm:p-8 rounded-[28px] border-2 border-purple-500/60 space-y-5 shadow-2xl text-left" style={{ backgroundColor: 'var(--bg-surface)' }}>
@@ -487,10 +659,10 @@ export const SignBridgePatientView: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-lg sm:text-xl font-black text-[var(--text-primary)]">
-                  Doctor Video & Sign Consultation Room
+                  Doctor Video & Indian Sign Language Consultation
                 </h3>
                 <p className="text-xs text-[var(--text-secondary)] font-medium">
-                  Two-Way Indian Sign Language (ISL) Video Telehealth
+                  Real WebRTC Telehealth with Two-Way ISL
                 </p>
               </div>
             </div>
@@ -499,13 +671,13 @@ export const SignBridgePatientView: React.FC = () => {
               <div className="flex items-start gap-2">
                 <Shield className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                 <span>
-                  <strong>Live Doctor Stream:</strong> You will see Dr. Anita Verma live, and her speech will be automatically translated into animated Indian Sign Language avatars.
+                  <strong>Real Video & Audio:</strong> You will connect with {currentDoctor?.doctorName || 'Dr. Anita Verma'} over an encrypted WebRTC connection.
                 </span>
               </div>
               <div className="flex items-start gap-2">
                 <Lock className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
                 <span>
-                  <strong>On-Device Sign Camera:</strong> Your camera detects your hand signs locally in real-time and transmits the translated meaning to the doctor.
+                  <strong>Visual Sign Reception:</strong> The doctor's speech is automatically converted into animated Indian Sign Language avatars in real-time.
                 </span>
               </div>
             </div>
@@ -513,11 +685,11 @@ export const SignBridgePatientView: React.FC = () => {
             <div className="flex items-center gap-3 pt-2">
               <button
                 type="button"
-                onClick={handleStartConsultation}
+                onClick={handleStartRealCall}
                 className="btn-glow flex-1 py-3.5 rounded-2xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-xl cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Enter Room with Doctor & Signs</span>
+                <span>Grant Permissions & Start Call</span>
               </button>
 
               <button

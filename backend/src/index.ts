@@ -1,4 +1,5 @@
 import express from 'express';
+import http from 'http';
 import cors from 'cors';
 import helmet from 'helmet';
 import path from 'path';
@@ -6,6 +7,8 @@ import fs from 'fs';
 import { env } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
 import { apiLimiter } from './middleware/rateLimiter';
+import { signalingService } from './services/signalingService';
+import consultationsRoutes from './routes/consultations.routes';
 
 import authRoutes from './routes/auth.routes';
 import patientsRoutes from './routes/patients.routes';
@@ -87,6 +90,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/messages', familyMessagesRoutes);
 app.use('/api/sync', syncRoutes);
 app.use('/api/signbridge', signbridgeRoutes);
+app.use('/api/consultations', consultationsRoutes);
 
 // Serve Frontend Static Production Build (if present in unified deploy)
 const possibleFrontendPaths = [
@@ -115,8 +119,13 @@ if (frontendDistPath) {
 
 app.use(errorHandler);
 
-const server = app.listen(env.PORT, () => {
-  console.log(`Server running on port ${env.PORT} in ${env.NODE_ENV} mode`);
+const httpServer = http.createServer(app);
+
+// Initialize real-time WebRTC Socket.IO signaling
+signalingService.init(httpServer, env.FRONTEND_URL);
+
+const server = httpServer.listen(env.PORT, () => {
+  console.log(`Server running on port ${env.PORT} in ${env.NODE_ENV} mode with Socket.IO signaling`);
 });
 
 process.on('SIGTERM', () => {

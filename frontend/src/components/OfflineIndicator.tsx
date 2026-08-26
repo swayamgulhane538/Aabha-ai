@@ -1,93 +1,64 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { WifiOff, CheckCircle2, RefreshCw, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useOnlineStatus, OfflineSyncManager } from '../services/offlineService';
+import { Wifi, WifiOff, RefreshCw, CheckCircle2 } from 'lucide-react';
 
 export const OfflineIndicator: React.FC = () => {
-  const [isOnline, setIsOnline] = useState<boolean>(
-    typeof navigator !== 'undefined' ? navigator.onLine : true
-  );
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [toastType, setToastType] = useState<'offline' | 'online' | 'synced'>('offline');
-
-  // Track if we actually experienced an offline transition during this session
-  const wasOfflineRef = useRef<boolean>(false);
-  const timerRef = useRef<any>(null);
+  const isOnline = useOnlineStatus();
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [queueLength, setQueueLength] = useState(0);
 
   useEffect(() => {
-    const handleOnline = () => {
-      setIsOnline(true);
-
-      // Only show "Back online" if the user was actually offline during this session!
-      if (wasOfflineRef.current) {
-        wasOfflineRef.current = false;
-        setToastType('online');
-        setToastMessage('✓ Back online — all features restored');
-
-        if (timerRef.current) clearTimeout(timerRef.current);
-        timerRef.current = setTimeout(() => {
-          setToastMessage(null);
-        }, 3500);
-      }
+    const checkQueue = () => {
+      setQueueLength(OfflineSyncManager.getQueue().length);
     };
-
-    const handleOffline = () => {
-      wasOfflineRef.current = true;
-      setIsOnline(false);
-      setToastType('offline');
-      setToastMessage("⚠️ You're offline — cached records available");
-
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
+    checkQueue();
+    const interval = setInterval(checkQueue, 3000);
+    return () => clearInterval(interval);
   }, []);
 
-  // When online and no transition toast active, render nothing
-  if (isOnline && !toastMessage) {
-    return null;
+  const handleManualSync = async () => {
+    if (!isOnline) return;
+    setIsSyncing(true);
+    await OfflineSyncManager.processQueue();
+    setQueueLength(OfflineSyncManager.getQueue().length);
+    setIsSyncing(false);
+  };
+
+  if (!isOnline) {
+    return (
+      <div
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[11px] font-black shadow-sm animate-pulse"
+        title="Offline Mode — All games and routines are saved locally and will auto-sync when online"
+      >
+        <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+        <WifiOff className="w-3.5 h-3.5" />
+        <span>🔴 Offline (Local Vault)</span>
+      </div>
+    );
+  }
+
+  if (isSyncing || queueLength > 0) {
+    return (
+      <button
+        onClick={handleManualSync}
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[11px] font-black shadow-sm cursor-pointer"
+        title="Click to sync pending offline actions"
+      >
+        <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+        <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+        <span>🟠 Syncing ({queueLength})</span>
+      </button>
+    );
   }
 
   return (
     <div
-      role="status"
-      aria-live="polite"
-      className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-[999] max-w-sm pointer-events-auto animate-fade-in"
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-black shadow-2xs"
+      title="Connected & All Data Synchronized"
     >
-      <div
-        className={`px-4 py-2.5 rounded-2xl border-2 shadow-lg flex items-center gap-3 text-xs font-black transition-all ${
-          !isOnline
-            ? 'bg-amber-50 border-amber-600 text-amber-950 shadow-amber-200/50'
-            : toastType === 'online'
-            ? 'bg-emerald-50 border-emerald-600 text-emerald-950 shadow-emerald-200/50'
-            : 'bg-black border-black text-white'
-        }`}
-      >
-        {!isOnline ? (
-          <WifiOff className="w-4 h-4 text-amber-600 shrink-0 animate-pulse" />
-        ) : (
-          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-        )}
-
-        <span className="leading-tight">
-          {!isOnline ? "⚠️ You're offline" : toastMessage}
-        </span>
-
-        {isOnline && (
-          <button
-            onClick={() => setToastMessage(null)}
-            className="p-1 rounded-md hover:bg-black/10 transition ml-1"
-            title="Dismiss notification"
-          >
-            <X className="w-3.5 h-3.5 text-current" />
-          </button>
-        )}
-      </div>
+      <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+      <span>🟢 Synced</span>
     </div>
   );
 };

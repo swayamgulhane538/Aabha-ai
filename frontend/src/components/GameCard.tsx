@@ -6,13 +6,13 @@ export interface GameItem {
   icon: string;
   title: string;
   description: string;
-  category: 'quiz' | 'therapy' | 'memory' | 'physio' | 'fun' | '2-player' | 'cognitive' | 'all';
+  category: 'quiz' | 'therapy' | 'memory' | 'physio' | 'fun' | '2-player' | 'cognitive' | 'sih-core' | 'all';
   badge?: string;
   tag?: 'NEW' | 'TRENDING' | 'FEATURED' | string;
   is_featured?: boolean;
 }
 
-interface GameCardProps {
+export interface GameCardProps {
   game: GameItem;
   onPlay: (gameId: string) => void;
   className?: string;
@@ -21,6 +21,7 @@ interface GameCardProps {
 export const GameCard: React.FC<GameCardProps> = ({ game, onPlay, className = '' }) => {
   const getBadgeColors = (badge = '') => {
     const b = badge.toLowerCase();
+    if (b.includes('sih') || b.includes('core')) return 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40';
     if (b.includes('hot') || b.includes('trending')) return 'bg-rose-500/20 text-rose-300 border-rose-400/40';
     if (b.includes('therapy') || b.includes('relax')) return 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40';
     if (b.includes('physio') || b.includes('speed')) return 'bg-cyan-500/20 text-cyan-300 border-cyan-400/40';
@@ -31,6 +32,8 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onPlay, className = ''
 
   const getCategoryLabel = (cat: string) => {
     switch (cat) {
+      case 'sih-core':
+        return 'SIH CORE';
       case 'quiz':
       case '2-player':
         return '2-PLAYER';
@@ -42,7 +45,7 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onPlay, className = ''
       case 'cognitive':
         return 'MEMORY';
       case 'fun':
-        return 'FUN & SOCIAL';
+        return 'FAMILY';
       default:
         return 'GAME';
     }
@@ -51,50 +54,47 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onPlay, className = ''
   return (
     <div
       onClick={() => onPlay(game.id)}
-      className={`card-3d-interactive card-3d bg-[var(--card-bg-inline)] backdrop-blur-xl p-5 sm:p-6 rounded-[24px] text-left flex flex-col justify-between group cursor-pointer transition-all duration-300 relative select-none overflow-hidden border border-[var(--card-border-inline)] ${className}`}
+      className={`card-3d bg-[var(--card-bg-inline)] backdrop-blur-xl p-5 sm:p-6 rounded-[24px] border border-[var(--card-border-inline)] hover:border-emerald-400/50 hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between group select-none relative overflow-hidden ${className}`}
     >
-      {/* Subtle Ambient Radial Light */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-xl pointer-events-none group-hover:scale-150 transition-transform" />
-
-      <div className="relative z-10">
-        {/* Top Header: Icon (Left) & Category Tag/Badge (Right) */}
-        <div className="flex items-start justify-between gap-2 mb-3">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[18px] bg-[var(--bg-surface-secondary)] border border-[var(--border)] flex items-center justify-center text-3xl sm:text-4xl shadow-inner group-hover:scale-115 group-hover:-rotate-6 transition-transform duration-300 shrink-0">
+      <div className="space-y-3">
+        {/* Top Header inside card */}
+        <div className="flex items-start justify-between gap-2">
+          <div className="w-12 h-12 rounded-2xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] flex items-center justify-center text-2xl shadow-inner group-hover:scale-110 transition-transform">
             {game.icon}
           </div>
 
-          <div className="flex flex-col items-end gap-1">
+          <div className="flex items-center gap-1.5 flex-wrap justify-end">
             {game.badge && (
-              <span className={`text-[10px] sm:text-[11px] font-black uppercase px-2.5 py-0.5 rounded-full border shadow-2xs animate-badge-glow ${getBadgeColors(game.badge)}`}>
+              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-2xs ${getBadgeColors(game.badge)}`}>
                 {game.badge}
               </span>
             )}
-            <span className="text-[9px] font-black uppercase text-[var(--text-secondary)] tracking-wider">
+            <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-[var(--bg-surface-secondary)] text-[var(--text-muted)] border border-[var(--border)]">
               {getCategoryLabel(game.category)}
             </span>
           </div>
         </div>
 
-        {/* Game Title */}
-        <h3 className="text-lg sm:text-xl font-black text-[var(--text-primary)] group-hover:text-emerald-400 transition mb-1 leading-snug">
-          {game.title}
-        </h3>
-
-        {/* Short Description */}
-        <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium leading-relaxed line-clamp-2">
-          {game.description}
-        </p>
+        {/* Title & Description */}
+        <div className="space-y-1">
+          <h3 className="font-black text-sm sm:text-base text-[var(--text-primary)] group-hover:text-emerald-400 transition-colors flex items-center gap-1.5">
+            <span>{game.title}</span>
+          </h3>
+          <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed line-clamp-2">
+            {game.description}
+          </p>
+        </div>
       </div>
 
-      {/* Footer "Play Now →" Button */}
-      <div className="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between">
-        <span className="text-xs font-black text-[var(--text-secondary)] group-hover:text-emerald-400 transition flex items-center gap-1">
-          <span>Play Now</span>
-          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+      {/* Bottom Action Strip */}
+      <div className="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-black text-emerald-400">
+        <span className="flex items-center gap-1 text-[11px] text-[var(--text-muted)]">
+          <Sparkles className="w-3 h-3 text-emerald-400" />
+          <span>Adaptive AI</span>
         </span>
-
-        <span className="w-8 h-8 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white flex items-center justify-center text-xs group-hover:scale-110 transition shadow-lg">
-          ▶
+        <span className="flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+          <span>Start Game</span>
+          <ArrowRight className="w-3.5 h-3.5" />
         </span>
       </div>
     </div>

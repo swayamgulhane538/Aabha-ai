@@ -5,6 +5,8 @@ import { Globe } from 'lucide-react';
 const LANGUAGES = [
   { code: 'en', label: 'English', short: 'EN' },
   { code: 'hi', label: 'हिंदी', short: 'हिं' },
+  { code: 'bn', label: 'বাংলা', short: 'বাং' },
+  { code: 'as', label: 'অসমীয়া', short: 'অস' },
   { code: 'mr', label: 'मराठी', short: 'मरा' }
 ];
 
@@ -41,20 +43,21 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       )}
 
       {LANGUAGES.map((lang) => {
-        const isSelected = currentLang === lang.code || (lang.code === 'en' && !['hi', 'mr'].includes(currentLang));
+        const isSelected = currentLang === lang.code || (lang.code === 'en' && !['hi', 'bn', 'as', 'mr'].includes(currentLang));
         return (
           <button
             key={lang.code}
             type="button"
             onClick={() => handleLanguageChange(lang.code)}
-            className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-black transition-all cursor-pointer ${
+            className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-black transition-all cursor-pointer ${
               isSelected
                 ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm ring-1 ring-emerald-400/50 scale-100'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-secondary)] active:scale-95'
             }`}
+            title={lang.label}
           >
-            <span className="inline sm:hidden">{lang.short}</span>
-            <span className="hidden sm:inline">{lang.label}</span>
+            <span className="inline lg:hidden">{lang.short}</span>
+            <span className="hidden lg:inline">{lang.label}</span>
           </button>
         );
       })}

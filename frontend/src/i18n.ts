@@ -3,8 +3,12 @@ import { initReactI18next } from 'react-i18next';
 import enTranslations from './locales/en.json';
 import hiTranslations from './locales/hi.json';
 import mrTranslations from './locales/mr.json';
+import bnTranslations from './locales/bn.json';
+import asTranslations from './locales/as.json';
 
-const savedLanguage = (typeof window !== 'undefined' && localStorage.getItem('i18nextLng')) || 'en';
+const savedLanguage = (typeof window !== 'undefined' && (localStorage.getItem('i18nextLng') || localStorage.getItem('aabha_lang'))) || 'en';
+
+const supportedLanguages = ['en', 'hi', 'bn', 'as', 'mr'];
 
 i18n
   .use(initReactI18next)
@@ -12,9 +16,11 @@ i18n
     resources: {
       en: { translation: enTranslations },
       hi: { translation: hiTranslations },
+      bn: { translation: bnTranslations },
+      as: { translation: asTranslations },
       mr: { translation: mrTranslations }
     },
-    lng: ['en', 'hi', 'mr'].includes(savedLanguage) ? savedLanguage : 'en',
+    lng: supportedLanguages.includes(savedLanguage) ? savedLanguage : 'en',
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false

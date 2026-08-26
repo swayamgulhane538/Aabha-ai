@@ -1791,6 +1791,28 @@
   ],
   "auditLogs": [
     {
+      "id": "aud-1787634584682-692",
+      "userId": "uuid-demo-patient",
+      "userName": "Demo Patient",
+      "action": "LOGIN_SUCCESS",
+      "targetType": "USER",
+      "targetId": "uuid-demo-patient",
+      "details": "User signed in successfully via Email (PAT-DEMO-000001)",
+      "timestamp": "2026-08-25T05:09:44.682Z",
+      "ipAddress": "::1"
+    },
+    {
+      "id": "aud-1787633618414-408",
+      "userId": "uuid-demo-patient",
+      "userName": "Demo Patient",
+      "action": "LOGIN_SUCCESS",
+      "targetType": "USER",
+      "targetId": "uuid-demo-patient",
+      "details": "User signed in successfully via Email (PAT-DEMO-000001)",
+      "timestamp": "2026-08-25T04:53:38.414Z",
+      "ipAddress": "::1"
+    },
+    {
       "id": "aud-1787633247762-932",
       "userId": "uuid-demo-patient",
       "userName": "Demo Patient",

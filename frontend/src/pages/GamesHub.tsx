@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Play, Sparkles, Users, Brain, Heart, Zap, Flame, Trophy, RefreshCw, Clock, ArrowRight } from 'lucide-react';
+import { Play, Sparkles, Users, Brain, Heart, Zap, Flame, Trophy, RefreshCw, Clock, ArrowRight, Shield } from 'lucide-react';
 import { api } from '../services/api';
 import { GameCard, GameItem } from '../components/GameCard';
+import { PersonalizationEngine, DailyRecommendation } from '../services/personalizationEngine';
+import { AdaptiveAIEngine } from '../services/adaptiveAIEngine';
 
 interface DailyChallengeData {
   date: string;
@@ -16,37 +18,35 @@ interface DailyChallengeData {
   streak_days: number;
 }
 
-const MASTER_FALLBACK_GAMES: GameItem[] = [
-  // 2-Player Battles
-  { id: 'quiz-battle', icon: '🎯', title: '2-Player Quiz Battle', description: 'Fastest & correct answer gets points in real-time!', category: 'quiz', badge: 'Hot 1v1' },
+const SIH_CORE_GAMES: GameItem[] = [
+  { id: 'memory-match', icon: '🎴', title: '1. Memory Match', description: 'Remember and match pairs of words and pictures. Tracks accuracy, attempts & time.', category: 'sih-core', badge: 'SIH Core #1' },
+  { id: 'remember-objects', icon: '🔍', title: '2. Remember the Objects', description: 'Look at objects briefly, then identify remembered items. Measures recall retention.', category: 'sih-core', badge: 'SIH Core #2' },
+  { id: 'attention-challenge', icon: '👁️', title: '3. Attention Finder', description: 'Spot target items amid distractors. Tracks reaction speed, focus & mistakes.', category: 'sih-core', badge: 'SIH Core #3' },
+  { id: 'sequence-recall', icon: '🔢', title: '4. Pattern Recall', description: 'Watch the flashing sequence and reproduce it. Exercises sequential attention.', category: 'sih-core', badge: 'SIH Core #4' },
+  { id: 'routine-ordering', icon: '📅', title: '5. Daily Routine Ordering', description: 'Arrange daily activities in the correct chronological order from morning to night.', category: 'sih-core', badge: 'SIH Core #5' },
+  { id: 'familiar-objects', icon: '🍵', title: '6. Familiar Object Recognition', description: 'Identify everyday household objects and their purposes with gentle hints.', category: 'sih-core', badge: 'SIH Core #6' }
+];
+
+const OTHER_GAMES: GameItem[] = [
+  // Therapy & Relax
+  { id: 'breathing-exercise', icon: '🌬️', title: 'Guided Box Breathing', description: 'Biofeedback breathing to lower pulse, relieve stress & stabilize mood.', category: 'therapy', badge: 'Therapy' },
+  { id: 'coloring-therapy', icon: '🎨', title: 'Art & Mandala Therapy', description: 'Mindful coloring for calming emotional release and fine motor joy.', category: 'therapy', badge: 'Relaxing' },
+  { id: 'physiotherapy-hand', icon: '🖐️', title: 'Physiotherapy Hand Movement', description: 'Finger tap dexterity training to strengthen motor reflexes.', category: 'therapy', badge: 'Physio' },
+
+  // 2-Player Battles & Social
+  { id: 'quiz-battle', icon: '🎯', title: '2-Player Quiz Battle', description: 'Fastest & correct answer gets points in real-time!', category: 'quiz', badge: '1v1 Battle' },
   { id: 'quick-tap-battle', icon: '⚡', title: 'Quick Tap Battle', description: 'A target appears randomly; whoever taps fastest wins!', category: 'quiz', badge: 'Speed' },
   { id: 'tic-tac-toe', icon: '❌⭕', title: 'Tic-Tac-Toe Classic', description: 'Classic 1v1 with local 2-player or AABHA AI mode.', category: 'quiz', badge: 'Strategy' },
   { id: 'word-battle', icon: '🔤', title: 'Word Battle', description: 'Given a letter, both make words; longer words score more!', category: 'quiz', badge: 'Vocabulary' },
   { id: 'card-battle', icon: '🃏', title: 'Card Power Battle', description: 'Each player gets animal power cards and battles round-by-round!', category: 'quiz', badge: 'Tactical' },
   { id: 'mini-racing', icon: '🏃', title: 'Mini Racing Track', description: '2-player sprint race with rapid tap acceleration!', category: 'quiz', badge: 'Racing' },
-  { id: 'aim-challenge', icon: '🎯', title: 'Aim Challenge', description: 'Hit moving targets to sharpen hand-eye coordination!', category: 'quiz', badge: 'Reflex' },
-
-  // Therapy & Health
-  { id: 'breathing-exercise', icon: '🌬️', title: 'Guided Box Breathing', description: 'Interactive biofeedback breathing to lower pulse, relieve stress & stabilize mood.', category: 'therapy', badge: 'Therapy' },
-  { id: 'coloring-therapy', icon: '🎨', title: 'Art & Mandala Therapy', description: 'Mindful coloring for calming emotional release, focus & fine motor joy.', category: 'therapy', badge: 'Relaxing' },
-  { id: 'physiotherapy-hand', icon: '🖐️', title: 'Physiotherapy Hand Movement', description: 'Finger tap coordination and dexterity training to strengthen motor reflexes.', category: 'therapy', badge: 'Physio' },
-
-  // Memory & Brain
-  { id: 'memory-match', icon: '🧠', title: 'Memory Match', description: 'Flip cards and find matching pairs of words & pictures.', category: 'memory', badge: 'Classic' },
-  { id: 'sequence-recall', icon: '🔢', title: 'Sequence Recall', description: 'Watch the sequence and repeat it in the correct order.', category: 'memory', badge: 'Focus' },
-  { id: 'picture-recognition', icon: '🖼️', title: 'Picture Recognition', description: 'Identify family, fruits and famous places.', category: 'memory', badge: 'Visual' },
-  { id: 'attention-challenge', icon: '👁️', title: 'Attention Challenge', description: 'Find the target items in the grid as fast as you can.', category: 'memory', badge: 'Reflex' },
-  { id: 'daily-memory-story', icon: '📖', title: 'Daily Memory Story', description: 'Read today’s personal memory story and test comprehension!', category: 'memory', badge: 'Personal' },
+  { id: 'daily-memory-story', icon: '📖', title: 'Daily Memory Story', description: 'Read today’s personal memory story and test recall!', category: 'memory', badge: 'Story' },
   { id: 'puzzle-race', icon: '🧩', title: 'Puzzle Sliding Race', description: 'Slide the tiles into sequential order from 1 to 8!', category: 'memory', badge: 'Puzzle' },
-  { id: 'remember-objects', icon: '🎯', title: 'Remember Objects', description: 'Look at the objects carefully, then pick the ones you remember.', category: 'memory', badge: 'Recall' },
-
-  // Fun & Social
-  { id: 'truth-or-dare', icon: '😂', title: 'Truth or Dare Duo', description: 'Wholesome, heartwarming fun questions and challenges for family.', category: 'fun', badge: 'Family Fun' },
+  { id: 'truth-or-dare', icon: '😂', title: 'Truth or Dare Duo', description: 'Wholesome, heartwarming fun questions and challenges for family.', category: 'fun', badge: 'Social' },
   { id: 'would-you-rather', icon: '🔥', title: 'Would You Rather?', description: 'Both choose an option and compare your favorite choices.', category: 'fun', badge: 'Social' },
   { id: 'guess-the-song', icon: '🎵', title: 'Guess the Song', description: 'Listen to the musical notes and identify the famous tune!', category: 'fun', badge: 'Music' },
   { id: 'who-am-i', icon: '🕵️', title: 'Who Am I?', description: 'Read clues and guess the famous historical or cultural personality.', category: 'fun', badge: 'Trivia' },
-  { id: 'draw-and-guess', icon: '✏️', title: 'Draw & Guess Duo', description: 'Draw on the interactive canvas and guess the secret word!', category: 'fun', badge: 'Creative' },
-  { id: 'dare-challenge', icon: '😈', title: 'Dare Challenge', description: 'Delightful, cheerful activities to bring smiles and laughter together!', category: 'fun', badge: 'Activities' }
+  { id: 'draw-and-guess', icon: '✏️', title: 'Draw & Guess Duo', description: 'Draw on the interactive canvas and guess the secret word!', category: 'fun', badge: 'Creative' }
 ];
 
 export const GamesHub: React.FC = () => {
@@ -54,154 +54,130 @@ export const GamesHub: React.FC = () => {
   const navigate = useNavigate();
 
   const [activeCategory, setActiveCategory] = useState<string>('all');
-  const [games, setGames] = useState<GameItem[]>(MASTER_FALLBACK_GAMES);
-  const [loading, setLoading] = useState(false);
-  const [recentGames, setRecentGames] = useState<GameItem[]>([]);
-  const [dailyChallenge, setDailyChallenge] = useState<DailyChallengeData>({
-    date: new Date().toISOString().split('T')[0],
+  const [recommendations, setRecommendations] = useState<DailyRecommendation[]>([]);
+  const [dailyChallenge] = useState<DailyChallengeData>({
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
     featured_game_id: 'memory-match',
-    featured_game_title: 'Memory Match Champions',
-    special_challenge: 'Complete 8 matching pairs in under 60 seconds with 0 hints',
-    reward_points: 150,
-    badge_title: '🌟 Mind Master',
+    featured_game_title: 'Memory Match — Daily Challenge',
+    special_challenge: 'Complete in under 30 seconds with 85%+ accuracy',
+    reward_points: 50,
+    badge_title: '🧠 Memory Master (+50 pts)',
     is_completed: false,
-    streak_days: 4
+    streak_days: 5
   });
 
   useEffect(() => {
-    loadGamesAndChallenges();
+    setRecommendations(PersonalizationEngine.getDailyRecommendations());
   }, []);
 
-  const loadGamesAndChallenges = async () => {
-    setLoading(true);
-    try {
-      const response: any = await api.get('/games/feed').catch(() => null);
-      if (response && response.games && response.games.length > 0) {
-        setGames(response.games);
-        if (response.dailyChallenge) {
-          setDailyChallenge(response.dailyChallenge);
-        }
-        if (response.recentGames) {
-          setRecentGames(response.recentGames);
-        }
-      } else {
-        // Dynamic Shuffle
-        const shuffled = [...MASTER_FALLBACK_GAMES].sort(() => Math.random() - 0.5);
-        setGames(shuffled);
-      }
-    } catch (e) {
-      const shuffled = [...MASTER_FALLBACK_GAMES].sort(() => Math.random() - 0.5);
-      setGames(shuffled);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const allGames = [...SIH_CORE_GAMES, ...OTHER_GAMES];
 
-  const handlePlayGame = (gameId: string) => {
-    navigate(`/patient/games/${gameId}`);
-  };
-
-  const filteredGames = games.filter(g => {
+  const filteredGames = allGames.filter(g => {
     if (activeCategory === 'all') return true;
-    if (activeCategory === '2-player') return g.category === 'quiz' || g.category === '2-player';
-    return g.category === activeCategory;
+    if (activeCategory === 'sih-core') return g.category === 'sih-core';
+    if (activeCategory === 'therapy') return g.category === 'therapy';
+    if (activeCategory === 'quiz') return g.category === 'quiz';
+    if (activeCategory === 'memory') return g.category === 'memory' || g.category === 'sih-core';
+    if (activeCategory === 'fun') return g.category === 'fun';
+    return true;
   });
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-6 font-sans pb-24 text-[var(--text-primary)]">
-      {/* ─── 1. HEADER SECTION ────────────────────────────────────────────── */}
-      <header className="card-3d bg-[var(--card-bg-inline)] backdrop-blur-xl p-6 sm:p-8 rounded-[24px] flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-[var(--card-border-inline)]">
+    <div className="w-full max-w-6xl mx-auto space-y-6 font-sans text-[var(--text-primary)] pb-20">
+      {/* ─── 1. HERO HEADER ─────────────────────────────────────────────────── */}
+      <div className="card-3d bg-[var(--card-bg-inline)] backdrop-blur-2xl p-6 sm:p-8 rounded-[28px] border border-[var(--card-border-inline)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="px-3 py-0.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 font-black text-xs rounded-full uppercase">
-              18+ Cognitive Exercises
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span className="px-3 py-1 bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-xs font-black rounded-full flex items-center gap-1.5">
+              <Brain className="w-3.5 h-3.5" />
+              <span>SIH26003 Cognitive Hub</span>
             </span>
-            <span className="text-xs font-bold text-[var(--text-secondary)]">Randomized Rotation Active</span>
+            <span className="px-3 py-1 bg-cyan-500/15 border border-cyan-400/30 text-cyan-300 text-xs font-black rounded-full flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Adaptive Difficulty (1–5)</span>
+            </span>
           </div>
-          <h1 className="text-2xl sm:text-4xl font-black text-[var(--text-primary)] tracking-tight flex items-center gap-2">
-            <span>🎮</span> {t('Games & 2-Player Battles')}
+          <h1 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)] tracking-tight">
+            Cognitive & Memory Exercises 🧠
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium mt-1">
-            Interactive cognitive therapy, 2-player battles, and wholesome family games!
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium mt-1 max-w-2xl">
+            Scientifically curated memory, attention, reaction, and routine sequencing activities. Difficulty dynamically adjusts to your comfort level.
           </p>
         </div>
 
-        <button
-          onClick={loadGamesAndChallenges}
-          className="btn-glass px-4 py-2.5 text-xs font-bold flex items-center gap-2 transition cursor-pointer self-start sm:self-auto active:scale-95"
-          title="Shuffle game library"
-        >
-          <RefreshCw className={`w-4 h-4 text-emerald-400 ${loading ? 'animate-spin' : ''}`} />
-          <span>🔀 Shuffle Library</span>
-        </button>
-      </header>
-
-      {/* ─── 2. DAILY CHALLENGE HERO BANNER ────────────────────────────── */}
-      <div className="card-3d bg-gradient-to-r from-amber-500/15 via-[var(--bg-surface)] to-emerald-500/15 p-6 sm:p-8 rounded-[24px] border border-amber-400/30 relative overflow-hidden space-y-4 shadow-2xl">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 z-10 relative">
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-[18px] bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-2xl shadow-lg">
-              <Flame className="w-6 h-6 text-amber-400 fill-current animate-bounce" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 bg-amber-400/20 border border-amber-400/40 text-amber-300 text-[10px] font-black uppercase rounded-md">
-                  Daily Challenge
-                </span>
-                <span className="text-xs font-black text-amber-300 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/30">
-                  🔥 {dailyChallenge.streak_days}-Day Streak
-                </span>
-              </div>
-              <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] mt-1">
-                {dailyChallenge.featured_game_title}
-              </h2>
-            </div>
+        {/* Non-Diagnostic Clinical Notice */}
+        <div className="p-3.5 bg-[var(--bg-surface-secondary)] border border-[var(--border)] rounded-2xl text-[11px] text-[var(--text-secondary)] font-medium max-w-xs space-y-1">
+          <div className="flex items-center gap-1.5 text-emerald-400 font-bold">
+            <Shield className="w-3.5 h-3.5" />
+            <span>Non-Diagnostic Indicator</span>
           </div>
-
-          <div className="flex items-center gap-2">
-            <span className="px-3.5 py-1.5 bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 font-bold text-xs rounded-2xl shadow-md flex items-center gap-1.5">
-              <Trophy className="w-4 h-4 text-amber-400" />
-              <span>+{dailyChallenge.reward_points} Bonus Points</span>
-            </span>
-          </div>
-        </div>
-
-        <p className="text-xs sm:text-sm font-medium text-[var(--text-secondary)] z-10 relative max-w-xl">
-          🎯 <strong>Goal:</strong> {dailyChallenge.special_challenge}
-        </p>
-
-        <div className="pt-2 flex items-center justify-between z-10 relative flex-wrap gap-2 border-t border-[var(--border)]">
-          <span className="text-xs font-bold text-[var(--text-secondary)]">
-            Reward Badge: <strong className="text-[var(--text-primary)]">{dailyChallenge.badge_title}</strong>
-          </span>
-
-          <button
-            onClick={() => handlePlayGame(dailyChallenge.featured_game_id)}
-            className="btn-glow px-6 py-3 text-xs sm:text-sm font-black flex items-center gap-2 cursor-pointer active:scale-95"
-          >
-            <span>Play Daily Challenge</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          <p>
+            Exercises track engagement & memory activity. Designed for cognitive stimulation, not clinical diagnosis.
+          </p>
         </div>
       </div>
 
-      {/* ─── 3. CATEGORIES FILTER TABS ───────────────────────────────────── */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+      {/* ─── 2. PERSONALIZED AI RECOMMENDATIONS CAROUSEL ──────────────────── */}
+      <div className="card-3d bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-cyan-500/15 p-6 rounded-[28px] border border-emerald-400/25 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">✨</span>
+            <h2 className="text-base sm:text-lg font-black text-[var(--text-primary)]">
+              Personalized for You Today (AI Recommendations)
+            </h2>
+          </div>
+          <span className="text-xs font-black text-emerald-300 uppercase tracking-wider">
+            Tailored Daily Routine
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+          {recommendations.map(rec => (
+            <div
+              key={rec.gameId}
+              onClick={() => navigate(`/patient/games/${rec.gameId}`)}
+              className="p-4 bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl hover:border-emerald-400/50 transition cursor-pointer flex flex-col justify-between group shadow-sm"
+            >
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl">{rec.icon}</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/15 text-emerald-300 border border-emerald-400/30">
+                    {rec.difficultyLabel} (Lvl {rec.difficultyLevel})
+                  </span>
+                </div>
+                <h3 className="font-black text-sm text-[var(--text-primary)] group-hover:text-emerald-300 transition-colors">
+                  {rec.title}
+                </h3>
+                <p className="text-[11px] text-[var(--text-secondary)] font-medium leading-relaxed">
+                  {rec.reason}
+                </p>
+              </div>
+
+              <div className="mt-3 pt-2 border-t border-[var(--border)] flex items-center justify-between text-[11px] font-black text-emerald-400">
+                <span>⏱️ ~{rec.estimatedMinutes} mins</span>
+                <span className="group-hover:translate-x-1 transition-transform">Play Activity →</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ─── 3. CATEGORY FILTER TABS ──────────────────────────────────────── */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
         {[
-          { id: 'all', label: `All Games (${games.length})` },
-          { id: '2-player', label: '🎯 2-Player Battles' },
-          { id: 'memory', label: '🧠 Memory & Brain' },
-          { id: 'fun', label: '😂 Fun & Social' },
-          { id: 'therapy', label: '🧘 Therapy & Health' }
+          { id: 'all', label: '🌟 All Games & Activities' },
+          { id: 'sih-core', label: '🧠 6 SIH Core Games' },
+          { id: 'memory', label: '🎴 Memory & Recall' },
+          { id: 'therapy', label: '🌬️ Therapy & Relaxation' },
+          { id: 'quiz', label: '⚔️ 2-Player Battles' },
+          { id: 'fun', label: '🎉 Fun & Family' }
         ].map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveCategory(tab.id)}
-            className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition cursor-pointer ${
+            className={`px-4 py-2 rounded-2xl text-xs font-black transition whitespace-nowrap cursor-pointer ${
               activeCategory === tab.id
-                ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black shadow-md ring-1 ring-emerald-400/50 scale-100'
+                ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md'
                 : 'btn-glass text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`}
           >
@@ -210,31 +186,16 @@ export const GamesHub: React.FC = () => {
         ))}
       </div>
 
-      {/* ─── 4. GAME CARDS GRID (2-3 Cards Per Row) ────────────────────────── */}
-      {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className="card-3d bg-[var(--card-bg-inline)] p-6 rounded-[24px] space-y-4 animate-pulse border border-[var(--card-border-inline)]">
-              <div className="flex justify-between items-center">
-                <div className="w-14 h-14 bg-[var(--bg-surface-secondary)] rounded-2xl" />
-                <div className="w-16 h-5 bg-[var(--bg-surface-secondary)] rounded-full" />
-              </div>
-              <div className="w-3/4 h-5 bg-[var(--bg-surface-secondary)] rounded" />
-              <div className="w-full h-10 bg-[var(--bg-surface-secondary)] rounded" />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {filteredGames.map(game => (
-            <GameCard
-              key={game.id}
-              game={game}
-              onPlay={handlePlayGame}
-            />
-          ))}
-        </div>
-      )}
+      {/* ─── 4. GAMES GRID ─────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredGames.map(game => (
+          <GameCard
+            key={game.id}
+            game={game}
+            onPlay={() => navigate(`/patient/games/${game.id}`)}
+          />
+        ))}
+      </div>
     </div>
   );
 };

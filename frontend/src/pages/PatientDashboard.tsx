@@ -4,37 +4,64 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/authStore';
 import { api } from '../services/api';
 import { Abha3DOrb } from '../components/Abha3DOrb';
-import { Health3DWidget } from '../components/Health3DWidget';
+import { AdaptiveAIEngine, CognitivePerformanceIndicators } from '../services/adaptiveAIEngine';
 import {
-  Video,
-  Gamepad2,
-  Bell,
+  Mic,
+  Brain,
   Calendar,
-  FileText,
+  Pill,
   BookOpen,
+  Droplets,
+  CheckCircle2,
+  Clock,
   Sparkles,
   ArrowRight,
   Copy,
   Check,
   Edit,
-  ShieldCheck,
-  Pill,
+  Shield,
   Smile,
-  Zap,
-  PhoneCall,
-  CheckCircle2,
-  Clock,
-  Heart
+  AlertTriangle,
+  RotateCcw,
+  CheckCircle
 } from 'lucide-react';
 
+interface RoutineItem {
+  id: string;
+  time: string;
+  title: string;
+  category: 'MEAL' | 'MEDICINE' | 'ACTIVITY' | 'HYDRATION' | 'REST';
+  completed: boolean;
+}
+
 export const PatientDashboard: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { user, updateProfile } = useAuthStore();
 
-  const [medications, setMedications] = useState<any[]>([]);
-  const [appointmentsCount, setAppointmentsCount] = useState(1);
-  const [reportsCount, setReportsCount] = useState(3);
+  const [medications, setMedications] = useState<any[]>([
+    { id: 'm1', name: 'Donepezil (Aricept)', dosage: '5mg', time: '08:30 AM', frequency: 'Daily with breakfast', taken: true, instructions: 'Take with full glass of water' },
+    { id: 'm2', name: 'Memantine HCl', dosage: '10mg', time: '01:00 PM', frequency: 'Daily after lunch', taken: false, instructions: 'Take after meal' },
+    { id: 'm3', name: 'Multivitamin & B-Complex', dosage: '1 Tab', time: '08:00 PM', frequency: 'Daily before dinner', taken: false, instructions: 'Night dose' }
+  ]);
+
+  const [hydrationCount, setHydrationCount] = useState(4);
+  const hydrationTarget = 6;
+
+  const [routine, setRoutine] = useState<RoutineItem[]>([
+    { id: 'r1', time: '08:00 AM', title: 'Wake up & drink warm water', category: 'HYDRATION', completed: true },
+    { id: 'r2', time: '08:30 AM', title: 'Healthy Breakfast & Donepezil (5mg)', category: 'MEDICINE', completed: true },
+    { id: 'r3', time: '10:00 AM', title: 'Memory Match Cognitive Exercise', category: 'ACTIVITY', completed: true },
+    { id: 'r4', time: '01:00 PM', title: 'Warm Lunch & Hydration', category: 'MEAL', completed: false },
+    { id: 'r5', time: '05:00 PM', title: 'Evening Walk in Garden & Tea', category: 'ACTIVITY', completed: false },
+    { id: 'r6', time: '08:00 PM', title: 'Dinner & Evening Multivitamin', category: 'MEDICINE', completed: false },
+    { id: 'r7', time: '10:00 PM', title: 'Mindful Box Breathing & Sleep', category: 'REST', completed: false }
+  ]);
+
+  const [indicators, setIndicators] = useState<CognitivePerformanceIndicators>(
+    AdaptiveAIEngine.calculateCognitiveIndicators()
+  );
+
   const [currentMood, setCurrentMood] = useState<'HAPPY' | 'OKAY' | 'NEUTRAL' | 'SAD' | 'ANXIOUS' | null>('HAPPY');
   const [moodSaved, setMoodSaved] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
@@ -50,32 +77,8 @@ export const PatientDashboard: React.FC = () => {
   const [savingProfile, setSavingProfile] = useState(false);
 
   useEffect(() => {
-    loadDashboardData();
+    setIndicators(AdaptiveAIEngine.calculateCognitiveIndicators());
   }, []);
-
-  const loadDashboardData = async () => {
-    try {
-      // Medications
-      const medsRes: any = await api.get('/medications').catch(() => null);
-      if (medsRes && medsRes.medications) {
-        setMedications(medsRes.medications);
-      }
-
-      // Appointments
-      const apptRes: any = await api.get('/appointments').catch(() => null);
-      if (apptRes && apptRes.appointments) {
-        setAppointmentsCount(apptRes.appointments.length);
-      }
-
-      // Reports
-      const repRes: any = await api.get('/reports').catch(() => null);
-      if (repRes && repRes.reports) {
-        setReportsCount(repRes.reports.length);
-      }
-    } catch (err) {
-      console.warn('Dashboard data fetch fallback:', err);
-    }
-  };
 
   const handleCopyPatientId = () => {
     const id = user?.patientId || 'PAT-DEMO-000001';
@@ -84,29 +87,36 @@ export const PatientDashboard: React.FC = () => {
     setTimeout(() => setCopiedId(false), 2000);
   };
 
-  const handleSelectMood = async (mood: 'HAPPY' | 'OKAY' | 'NEUTRAL' | 'SAD' | 'ANXIOUS') => {
-    setCurrentMood(mood);
-    try {
-      await api.post('/mood/log', { mood, note: 'Daily check-in' });
-      setMoodSaved(true);
-      setTimeout(() => setMoodSaved(false), 2500);
-    } catch (err) {
-      setMoodSaved(true);
-      setTimeout(() => setMoodSaved(false), 2500);
+  const handleToggleRoutine = (id: string) => {
+    setRoutine(prev =>
+      prev.map(item => item.id === id ? { ...item, completed: !item.completed } : item)
+    );
+  };
+
+  const handleToggleMedication = (id: string, action: 'TAKEN' | 'SKIP' | 'LATER') => {
+    setMedications(prev =>
+      prev.map(m => {
+        if (m.id === id) {
+          return { ...m, taken: action === 'TAKEN', skipped: action === 'SKIP' };
+        }
+        return m;
+      })
+    );
+  };
+
+  const handleAddHydration = () => {
+    if (hydrationCount < hydrationTarget) {
+      setHydrationCount(prev => prev + 1);
     }
   };
 
-  const handleToggleMedication = async (medId: string) => {
+  const handleSelectMood = async (mood: 'HAPPY' | 'OKAY' | 'NEUTRAL' | 'SAD' | 'ANXIOUS') => {
+    setCurrentMood(mood);
+    setMoodSaved(true);
+    setTimeout(() => setMoodSaved(false), 2500);
     try {
-      await api.post(`/medications/${medId}/toggle`, {});
-      setMedications(prev =>
-        prev.map(m => (m.id === medId ? { ...m, taken: !m.taken } : m))
-      );
-    } catch (err) {
-      setMedications(prev =>
-        prev.map(m => (m.id === medId ? { ...m, taken: !m.taken } : m))
-      );
-    }
+      await api.post('/mood/log', { mood, note: 'Daily check-in' });
+    } catch {}
   };
 
   const handleTriggerSos = async () => {
@@ -116,7 +126,7 @@ export const PatientDashboard: React.FC = () => {
         timestamp: new Date().toISOString()
       }).catch(() => null);
       setSosSent(true);
-    } catch (e) {
+    } catch {
       setSosSent(true);
     }
   };
@@ -141,26 +151,27 @@ export const PatientDashboard: React.FC = () => {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning (शुभ प्रभात)';
-    if (hour < 17) return 'Good Afternoon (शुभ दोपहर)';
-    return 'Good Evening (शुभ संध्या)';
+    if (hour < 12) return t('dashboard.greetingMorning', 'Good Morning');
+    if (hour < 17) return t('dashboard.greetingAfternoon', 'Good Afternoon');
+    return t('dashboard.greetingEvening', 'Good Evening');
   };
 
+  const completedRoutineCount = routine.filter(r => r.completed).length;
   const takenMedsCount = medications.filter(m => m.taken).length;
   const patientId = user?.patientId || 'PAT-DEMO-000001';
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6 font-sans pb-24 text-[var(--text-primary)]">
-      {/* ─── 1. HERO HEADER (Greeting, Patient ID & Profile Info) ──────────── */}
-      <header className="card-3d bg-[var(--card-bg-inline)] backdrop-blur-xl p-6 sm:p-8 rounded-[24px] flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-[var(--card-border-inline)]">
-        <div>
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-400/30 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full flex items-center gap-1.5 shadow-2xs">
+      {/* ─── 1. ELDERLY-FRIENDLY HERO GREETING ──────────────────────────────── */}
+      <header className="card-3d bg-[var(--card-bg-inline)] backdrop-blur-2xl p-6 sm:p-8 rounded-[28px] flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-[var(--card-border-inline)] shadow-xl">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="px-3 py-1 bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full flex items-center gap-1.5 shadow-2xs">
               <span>Patient ID:</span>
               <strong>{patientId}</strong>
               <button
                 onClick={handleCopyPatientId}
-                className="hover:text-[var(--text-primary)] ml-1 transition"
+                className="hover:text-[var(--text-primary)] ml-1 transition cursor-pointer"
                 title="Copy Patient ID"
               >
                 {copiedId ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
@@ -168,396 +179,364 @@ export const PatientDashboard: React.FC = () => {
             </span>
 
             <span className="px-2.5 py-0.5 border border-[var(--border)] rounded-full text-xs font-black bg-[var(--bg-surface-secondary)] text-[var(--text-secondary)]">
-              Role: {user?.role || 'PATIENT'}
+              Role: PATIENT
             </span>
 
-            {user?.age && (
-              <span className="px-2.5 py-0.5 border border-[var(--border)] rounded-full text-xs font-bold text-[var(--text-secondary)] bg-[var(--bg-surface-secondary)]">
-                Age: {user.age} yrs • {user.gender || 'Female'}
-              </span>
-            )}
+            <span className="px-2.5 py-0.5 border border-[var(--border)] rounded-full text-xs font-bold text-[var(--text-secondary)] bg-[var(--bg-surface-secondary)]">
+              Caregiver: Dr. Anita Verma
+            </span>
           </div>
 
           <h1 className="text-2xl sm:text-4xl font-black text-[var(--text-primary)] tracking-tight">
-            {getGreeting()}, {user?.name || 'Demo Patient'} 👋
+            {getGreeting()}, {user?.name || 'Mr. Arun Das'} 👋
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium mt-1">
-            Personalized dementia care, cognitive exercises, medication alarms & memory vault
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium">
+            Your daily cognitive companion for gentle memory exercises, routine alarms & family memories.
           </p>
         </div>
 
         {/* Profile Card with Edit Button */}
-        <div className="p-4 bg-[var(--bg-surface-secondary)] border border-[var(--border)] rounded-[20px] text-xs space-y-1.5 self-start sm:self-auto min-w-[220px] shadow-lg">
+        <div className="p-4 bg-[var(--bg-surface-secondary)] border border-[var(--border)] rounded-[22px] text-xs space-y-1.5 self-start sm:self-auto min-w-[220px] shadow-md">
           <div className="flex items-center justify-between">
-            <span className="text-[var(--text-secondary)] font-black uppercase text-[10px]">Medical Profile</span>
+            <span className="text-[var(--text-secondary)] font-black uppercase text-[10px]">Active Profile</span>
             <button
               onClick={() => {
-                setEditName(user?.name || '');
-                setEditPhone(user?.phone || '');
-                setEditAge(user?.age ? String(user.age) : '');
-                setEditEmergency(user?.emergencyContact || '');
+                setEditName(user?.name || 'Mr. Arun Das');
+                setEditPhone(user?.phone || '+91 98765 43210');
+                setEditAge(user?.age ? String(user.age) : '68');
+                setEditEmergency(user?.emergencyContact || 'Priya Das (Daughter: +91 98765 43210)');
                 setIsEditModalOpen(true);
               }}
-              className="text-[11px] font-black text-emerald-400 underline flex items-center gap-1 hover:text-emerald-300"
+              className="text-[11px] font-black text-emerald-400 underline flex items-center gap-1 hover:text-emerald-300 cursor-pointer"
             >
               <Edit className="w-3 h-3" />
               <span>Edit</span>
             </button>
           </div>
-          <div className="font-black text-[var(--text-primary)] text-sm truncate">{user?.name || 'Demo Patient'}</div>
-          <div className="text-[var(--text-secondary)] font-medium truncate">{user?.email || 'demo.patient@aabha.ai'}</div>
-          {user?.emergencyContact && (
-            <div className="text-[11px] text-emerald-400 font-bold pt-1 border-t border-[var(--border)] truncate">
-              🚨 {user.emergencyContact}
-            </div>
-          )}
+          <div className="font-black text-[var(--text-primary)] text-sm truncate">{user?.name || 'Mr. Arun Das'}</div>
+          <div className="text-[var(--text-secondary)] font-medium truncate">Age: 68 yrs • New Delhi</div>
+          <div className="text-[11px] text-emerald-400 font-bold pt-1 border-t border-[var(--border)] truncate">
+            🚨 Emergency: Priya Das (Daughter)
+          </div>
         </div>
       </header>
 
-      {/* ─── 2. 3D COGNITIVE HEALTH SCORE WIDGET ──────────────────────────── */}
-      <Health3DWidget score={78} delta="↑ 6% from last week" />
-
-      {/* ─── 3. DAILY EMOTIONAL MOTIVATION BANNER ──────────────────────────── */}
-      <div className="card-3d bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-indigo-500/15 p-5 sm:p-6 rounded-[24px] border border-emerald-400/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-[18px] bg-amber-400/20 border border-amber-400/40 text-2xl flex items-center justify-center shadow-lg shrink-0 animate-pulse">
-            🌟
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 bg-emerald-400/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase rounded-md">
-                Daily Motivation
-              </span>
-              <span className="text-xs font-black text-[var(--text-primary)]">Great job today, {user?.name?.split(' ')[0] || 'Anita'}! 🎉</span>
-            </div>
-            <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium mt-1">
-              “Every memory game, deep breath, and pleasant moment keeps your heart and mind glowing.”
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end flex-wrap">
-          <Link
-            to="/patient/games/breathing-exercise"
-            className="btn-glass px-4 py-2 text-xs font-black flex items-center gap-1 transition"
-          >
-            <span>🌬️ Box Breathing</span>
-          </Link>
-          <Link
-            to="/patient/games"
-            className="btn-glow px-4 py-2 text-xs font-black flex items-center gap-1.5"
-          >
-            <span>🧩 Memory Match (+50 pts)</span>
-          </Link>
-        </div>
-      </div>
-
-      {/* ─── 4. 3D ABHA AI VOICE CENTERPIECE CARD ──────────────────────────── */}
-      <div className="card-3d bg-gradient-to-r from-emerald-500/15 via-[var(--bg-surface)] to-cyan-500/15 p-6 sm:p-7 rounded-[24px] flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden border border-[var(--border)]">
-        <div className="flex items-center gap-5 z-10 text-center sm:text-left">
-          <Abha3DOrb state="IDLE" size="lg" interactive={true} onClick={() => navigate('/aabha')} />
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 justify-center sm:justify-start">
-              <span className="px-2.5 py-0.5 bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase rounded-md">
-                Centerpiece AI
-              </span>
-              <span className="text-xs font-bold text-[var(--text-secondary)]">Voice-First Multilingual</span>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
-              Talk with ABHA AI
-            </h2>
-            <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium max-w-md">
-              Speak naturally in Hindi, Marathi, or English. Ask about your medications, doctor visits, or memory exercises.
-            </p>
-          </div>
-        </div>
-
+      {/* ─── 2. LARGE HIGH-CONTRAST ACTION BUTTONS (ELDERLY-FRIENDLY) ─────── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        {/* 1. Talk to AABHA */}
         <Link
           to="/aabha"
-          className="btn-glow z-10 px-6 py-3.5 text-xs sm:text-sm font-black flex items-center gap-2 transition whitespace-nowrap active:scale-95 cursor-pointer"
+          className="card-3d-interactive p-4 sm:p-5 rounded-[22px] bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-400/30 flex flex-col items-center justify-center text-center group shadow-md hover:scale-[1.03] transition"
         >
-          <span>🎙️ Start Conversation</span>
-          <ArrowRight className="w-4 h-4 text-white" />
+          <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-2xl mb-2 shadow-inner group-hover:scale-110 transition-transform">
+            🎤
+          </div>
+          <span className="text-xs sm:text-sm font-black text-[var(--text-primary)] group-hover:text-emerald-300">
+            Talk to AABHA
+          </span>
+          <span className="text-[10px] text-[var(--text-secondary)] mt-0.5">Voice Assistant</span>
         </Link>
-      </div>
 
-      {/* ─── 5. DAILY MOOD CHECK-IN WIDGET ─────────────────────────────────── */}
-      <div className="card-3d bg-[var(--card-bg-inline)] backdrop-blur-xl p-5 sm:p-6 rounded-[24px] flex flex-col sm:flex-row items-center justify-between gap-4 border border-[var(--card-border-inline)]">
-        <div>
-          <h2 className="text-base sm:text-lg font-black text-[var(--text-primary)] flex items-center gap-2">
-            <span>😊 How are you feeling today, {user?.name?.split(' ')[0] || 'Patient'}?</span>
-          </h2>
-          <p className="text-xs text-[var(--text-secondary)] font-medium">
-            Tap a mood to record your daily emotional wellness with ABHA
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 sm:gap-3">
-          {[
-            { key: 'HAPPY', emoji: '😊', label: 'Happy' },
-            { key: 'OKAY', emoji: '🙂', label: 'Okay' },
-            { key: 'NEUTRAL', emoji: '😐', label: 'Neutral' },
-            { key: 'SAD', emoji: '😔', label: 'Sad' },
-            { key: 'ANXIOUS', emoji: '😟', label: 'Anxious' }
-          ].map(m => (
-            <button
-              key={m.key}
-              onClick={() => handleSelectMood(m.key as any)}
-              className={`p-2.5 sm:p-3 rounded-[16px] text-xl sm:text-2xl border transition hover:scale-110 cursor-pointer ${
-                currentMood === m.key
-                  ? 'bg-emerald-500/20 border-emerald-400 shadow-md ring-2 ring-emerald-400/40'
-                  : 'bg-[var(--bg-surface-secondary)] border-[var(--border)] hover:bg-[var(--btn-glass-bg-hover)]'
-              }`}
-              title={m.label}
-            >
-              {m.emoji}
-            </button>
-          ))}
-          {moodSaved && (
-            <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-xl border border-emerald-400/30 animate-fade-in">
-              Recorded!
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* ─── 6. PRIMARY 6 HEALTHCARE & MEMORY CARDS ────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Card 1: 🎮 18+ Interactive Games */}
+        {/* 2. Start Cognitive Activity */}
         <Link
-          to="/patient/games"
-          className="card-3d-interactive card-3d bg-[var(--card-bg-inline)] backdrop-blur-xl p-6 rounded-[24px] flex flex-col justify-between group relative overflow-hidden border border-[var(--card-border-inline)]"
+          to="/patient/games/memory-match"
+          className="card-3d-interactive p-4 sm:p-5 rounded-[22px] bg-gradient-to-br from-purple-500/20 to-indigo-500/10 border border-purple-400/30 flex flex-col items-center justify-center text-center group shadow-md hover:scale-[1.03] transition"
         >
-          <div className="absolute top-0 right-0 w-28 h-28 bg-purple-500/10 rounded-full blur-xl pointer-events-none group-hover:scale-150 transition-transform" />
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-14 h-14 rounded-[18px] bg-purple-500/20 border border-purple-400/30 flex items-center justify-center text-3xl shadow-inner group-hover:scale-110 transition-transform">
-                🎮
-              </div>
-              <span className="px-3 py-1 bg-purple-500/20 border border-purple-400/40 text-purple-300 text-xs font-black rounded-full">
-                18+ Games
-              </span>
-            </div>
-            <h2 className="text-xl font-black text-[var(--text-primary)] group-hover:text-purple-300 transition-colors">
-              Games & 2-Player Battles
-            </h2>
-            <p className="text-xs text-[var(--text-secondary)] font-medium mt-1">
-              Quiz battle, memory match, box breathing, mandala & daily challenges
-            </p>
+          <div className="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-300 flex items-center justify-center text-2xl mb-2 shadow-inner group-hover:scale-110 transition-transform">
+            🧠
           </div>
-          <div className="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-black text-[var(--text-secondary)]">
-            <span>Play Games</span>
-            <span className="group-hover:translate-x-1 transition-transform text-purple-400">→</span>
-          </div>
+          <span className="text-xs sm:text-sm font-black text-[var(--text-primary)] group-hover:text-purple-300">
+            Start Exercise
+          </span>
+          <span className="text-[10px] text-[var(--text-secondary)] mt-0.5">Memory Match</span>
         </Link>
 
-        {/* Card 2: 📹 Doctor Video Consult */}
-        <Link
-          to="/patient/consultation"
-          className="card-3d-interactive card-3d bg-[var(--card-bg-inline)] backdrop-blur-xl p-6 rounded-[24px] flex flex-col justify-between group relative overflow-hidden border border-[var(--card-border-inline)]"
+        {/* 3. Today's Routine */}
+        <a
+          href="#routine-section"
+          className="card-3d-interactive p-4 sm:p-5 rounded-[22px] bg-gradient-to-br from-amber-500/20 to-yellow-500/10 border border-amber-400/30 flex flex-col items-center justify-center text-center group shadow-md hover:scale-[1.03] transition"
         >
-          <div className="absolute top-0 right-0 w-28 h-28 bg-blue-500/10 rounded-full blur-xl pointer-events-none group-hover:scale-150 transition-transform" />
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-14 h-14 rounded-[18px] bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-3xl shadow-inner group-hover:scale-110 transition-transform">
-                👨‍⚕️
-              </div>
-              <span className="px-3 py-1 bg-blue-500/20 border border-blue-400/40 text-blue-300 text-xs font-black rounded-full">
-                Dr. Anita Verma
-              </span>
-            </div>
-            <h2 className="text-xl font-black text-[var(--text-primary)] group-hover:text-blue-300 transition-colors">
-              Doctor Teleconsult
-            </h2>
-            <p className="text-xs text-[var(--text-secondary)] font-medium mt-1">
-              HD video consultation room, live captions & digital prescriptions
-            </p>
+          <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center text-2xl mb-2 shadow-inner group-hover:scale-110 transition-transform">
+            📅
           </div>
-          <div className="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-black text-[var(--text-secondary)]">
-            <span>Join Video Room</span>
-            <span className="group-hover:translate-x-1 transition-transform text-blue-400">→</span>
-          </div>
-        </Link>
+          <span className="text-xs sm:text-sm font-black text-[var(--text-primary)] group-hover:text-amber-300">
+            Today's Routine
+          </span>
+          <span className="text-[10px] text-[var(--text-secondary)] mt-0.5">{completedRoutineCount}/{routine.length} Done</span>
+        </a>
 
-        {/* Card 3: ⏰ Medication Routine & Alarms */}
+        {/* 4. Medicines */}
         <Link
           to="/patient/reminders"
-          className="card-3d-interactive card-3d bg-[var(--card-bg-inline)] backdrop-blur-xl p-6 rounded-[24px] flex flex-col justify-between group relative overflow-hidden border border-[var(--card-border-inline)]"
+          className="card-3d-interactive p-4 sm:p-5 rounded-[22px] bg-gradient-to-br from-teal-500/20 to-cyan-500/10 border border-teal-400/30 flex flex-col items-center justify-center text-center group shadow-md hover:scale-[1.03] transition"
         >
-          <div className="absolute top-0 right-0 w-28 h-28 bg-emerald-500/10 rounded-full blur-xl pointer-events-none group-hover:scale-150 transition-transform" />
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-14 h-14 rounded-[18px] bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-3xl shadow-inner group-hover:scale-110 transition-transform">
-                ⏰
-              </div>
-              <span className="px-3 py-1 bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-black rounded-full">
-                {takenMedsCount}/{medications.length || 3} Taken
-              </span>
-            </div>
-            <h2 className="text-xl font-black text-[var(--text-primary)] group-hover:text-emerald-300 transition-colors">
-              Medication & Alarms
-            </h2>
-            <p className="text-xs text-[var(--text-secondary)] font-medium mt-1">
-              Daily pill schedule with audible audio chimes and intake tracking
-            </p>
+          <div className="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-300 flex items-center justify-center text-2xl mb-2 shadow-inner group-hover:scale-110 transition-transform">
+            💊
           </div>
-          <div className="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-black text-[var(--text-secondary)]">
-            <span>Check Routine</span>
-            <span className="group-hover:translate-x-1 transition-transform text-emerald-400">→</span>
-          </div>
+          <span className="text-xs sm:text-sm font-black text-[var(--text-primary)] group-hover:text-teal-300">
+            Medicines
+          </span>
+          <span className="text-[10px] text-[var(--text-secondary)] mt-0.5">{takenMedsCount}/{medications.length} Taken</span>
         </Link>
 
-        {/* Card 4: 📅 Appointments */}
-        <Link
-          to="/patient/appointments"
-          className="card-3d-interactive card-3d bg-[var(--card-bg-inline)] backdrop-blur-xl p-6 rounded-[24px] flex flex-col justify-between group relative overflow-hidden border border-[var(--card-border-inline)]"
-        >
-          <div className="absolute top-0 right-0 w-28 h-28 bg-amber-500/10 rounded-full blur-xl pointer-events-none group-hover:scale-150 transition-transform" />
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-14 h-14 rounded-[18px] bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-3xl shadow-inner group-hover:scale-110 transition-transform">
-                📅
-              </div>
-              <span className="px-3 py-1 bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-black rounded-full">
-                {appointmentsCount} Scheduled
-              </span>
-            </div>
-            <h2 className="text-xl font-black text-[var(--text-primary)] group-hover:text-amber-300 transition-colors">
-              Appointments Calendar
-            </h2>
-            <p className="text-xs text-[var(--text-secondary)] font-medium mt-1">
-              Neurologist consultations & memory clinic visits calendar
-            </p>
-          </div>
-          <div className="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-black text-[var(--text-secondary)]">
-            <span>View Calendar</span>
-            <span className="group-hover:translate-x-1 transition-transform text-amber-400">→</span>
-          </div>
-        </Link>
-
-        {/* Card 5: 📄 My Reports */}
-        <Link
-          to="/patient/reports"
-          className="card-3d-interactive card-3d bg-[var(--card-bg-inline)] backdrop-blur-xl p-6 rounded-[24px] flex flex-col justify-between group relative overflow-hidden border border-[var(--card-border-inline)]"
-        >
-          <div className="absolute top-0 right-0 w-28 h-28 bg-teal-500/10 rounded-full blur-xl pointer-events-none group-hover:scale-150 transition-transform" />
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-14 h-14 rounded-[18px] bg-teal-500/20 border border-teal-400/30 flex items-center justify-center text-3xl shadow-inner group-hover:scale-110 transition-transform">
-                📄
-              </div>
-              <span className="px-3 py-1 bg-teal-500/20 border border-teal-400/40 text-teal-300 text-xs font-black rounded-full">
-                {reportsCount} Records
-              </span>
-            </div>
-            <h2 className="text-xl font-black text-[var(--text-primary)] group-hover:text-teal-300 transition-colors">
-              My Reports Vault
-            </h2>
-            <p className="text-xs text-[var(--text-secondary)] font-medium mt-1">
-              MoCA screenings, neurologist notes & clinical lab reports
-            </p>
-          </div>
-          <div className="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-black text-[var(--text-secondary)]">
-            <span>View Vault</span>
-            <span className="group-hover:translate-x-1 transition-transform text-teal-400">→</span>
-          </div>
-        </Link>
-
-        {/* Card 6: 📖 Memory Passport */}
+        {/* 5. Memory Bank */}
         <Link
           to="/patient/memory-passport"
-          className="card-3d-interactive card-3d bg-[var(--card-bg-inline)] backdrop-blur-xl p-6 rounded-[24px] flex flex-col justify-between group relative overflow-hidden border border-[var(--card-border-inline)]"
+          className="card-3d-interactive p-4 sm:p-5 rounded-[22px] bg-gradient-to-br from-rose-500/20 to-pink-500/10 border border-rose-400/30 flex flex-col items-center justify-center text-center group shadow-md hover:scale-[1.03] transition col-span-2 sm:col-span-1"
         >
-          <div className="absolute top-0 right-0 w-28 h-28 bg-rose-500/10 rounded-full blur-xl pointer-events-none group-hover:scale-150 transition-transform" />
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-14 h-14 rounded-[18px] bg-rose-500/20 border border-rose-400/30 flex items-center justify-center text-3xl shadow-inner group-hover:scale-110 transition-transform">
-                📖
-              </div>
-              <span className="px-3 py-1 bg-rose-500/20 border border-rose-400/40 text-rose-300 text-xs font-black rounded-full">
-                Family Album
-              </span>
-            </div>
-            <h2 className="text-xl font-black text-[var(--text-primary)] group-hover:text-rose-300 transition-colors">
-              Memory Passport
-            </h2>
-            <p className="text-xs text-[var(--text-secondary)] font-medium mt-1">
-              Childhood memories, family photo albums & beloved songs
-            </p>
+          <div className="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-300 flex items-center justify-center text-2xl mb-2 shadow-inner group-hover:scale-110 transition-transform">
+            📖
           </div>
-          <div className="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-black text-[var(--text-secondary)]">
-            <span>Open Passport</span>
-            <span className="group-hover:translate-x-1 transition-transform text-rose-400">→</span>
-          </div>
+          <span className="text-xs sm:text-sm font-black text-[var(--text-primary)] group-hover:text-rose-300">
+            My Memory Bank
+          </span>
+          <span className="text-[10px] text-[var(--text-secondary)] mt-0.5">Family & Photos</span>
         </Link>
       </div>
 
-      {/* ─── 7. TODAY'S MEDICATION ROUTINE CHECKLIST ───────────────────────── */}
-      <div className="card-3d bg-[var(--card-bg-inline)] backdrop-blur-xl p-6 sm:p-8 rounded-[24px] space-y-4 border border-[var(--card-border-inline)]">
-        <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+      {/* ─── 3. NON-MEDICAL COGNITIVE PERFORMANCE ENGINE SCORE CARD ────────── */}
+      <div className="card-3d bg-[var(--card-bg-inline)] backdrop-blur-2xl p-6 sm:p-8 rounded-[28px] border border-[var(--card-border-inline)] shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-[var(--border)] pb-3">
           <div>
-            <h2 className="text-lg sm:text-xl font-black text-[var(--text-primary)]">
-              Today's Prescribed Routine & Medication
-            </h2>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🧠</span>
+              <h2 className="text-lg sm:text-xl font-black text-[var(--text-primary)]">
+                Cognitive Activity & Engagement Indicators
+              </h2>
+            </div>
             <p className="text-xs text-[var(--text-secondary)] font-medium">
-              Check off pills as you take them with your water or meals
+              Calculated from game accuracy, reaction speed & daily exercise consistency
             </p>
           </div>
-          <Link
-            to="/patient/reminders"
-            className="text-xs font-black text-emerald-400 underline hover:text-emerald-300"
-          >
-            Manage Alarms →
+          <div className="flex items-center gap-1.5 text-[11px] font-black text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-400/30">
+            <span>Overall Score: {indicators.overallActivityScore}/100</span>
+          </div>
+        </div>
+
+        {/* 4 Pillars Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="p-4 bg-[var(--bg-surface-secondary)] rounded-2xl border border-[var(--border)] text-center space-y-1">
+            <div className="text-[10px] font-black uppercase text-[var(--text-secondary)]">Memory Score</div>
+            <div className="text-3xl font-black text-emerald-400">{indicators.memoryScore}%</div>
+            <div className="text-[10px] text-[var(--text-muted)] font-medium">Visual & Pattern Recall</div>
+          </div>
+
+          <div className="p-4 bg-[var(--bg-surface-secondary)] rounded-2xl border border-[var(--border)] text-center space-y-1">
+            <div className="text-[10px] font-black uppercase text-[var(--text-secondary)]">Attention Score</div>
+            <div className="text-3xl font-black text-cyan-400">{indicators.attentionScore}%</div>
+            <div className="text-[10px] text-[var(--text-muted)] font-medium">Focus & Target Finding</div>
+          </div>
+
+          <div className="p-4 bg-[var(--bg-surface-secondary)] rounded-2xl border border-[var(--border)] text-center space-y-1">
+            <div className="text-[10px] font-black uppercase text-[var(--text-secondary)]">Reaction Speed</div>
+            <div className="text-3xl font-black text-purple-400">{indicators.reactionScore}%</div>
+            <div className="text-[10px] text-[var(--text-muted)] font-medium">Average Response: ~1.8s</div>
+          </div>
+
+          <div className="p-4 bg-[var(--bg-surface-secondary)] rounded-2xl border border-[var(--border)] text-center space-y-1">
+            <div className="text-[10px] font-black uppercase text-[var(--text-secondary)]">Consistency</div>
+            <div className="text-3xl font-black text-amber-400">{indicators.consistencyScore}%</div>
+            <div className="text-[10px] text-[var(--text-muted)] font-medium">5-Day Active Streak 🔥</div>
+          </div>
+        </div>
+
+        {/* Disclaimer Notice */}
+        <div className="p-3 bg-[var(--bg-surface-secondary)] rounded-2xl border border-[var(--border)] text-[11px] text-[var(--text-secondary)] font-medium flex items-center gap-2">
+          <Shield className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>
+            <strong>Notice:</strong> {indicators.disclaimer}
+          </span>
+        </div>
+      </div>
+
+      {/* ─── 4. HYDRATION TRACKER ───────────────────────────────────────────── */}
+      <div className="card-3d bg-gradient-to-r from-blue-500/15 via-[var(--bg-surface)] to-teal-500/15 p-6 rounded-[28px] border border-blue-400/25 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-4 text-center sm:text-left">
+          <div className="w-14 h-14 rounded-2xl bg-blue-500/20 text-blue-400 border border-blue-400/30 flex items-center justify-center text-3xl shrink-0 shadow-md">
+            💧
+          </div>
+          <div>
+            <div className="flex items-center gap-2 justify-center sm:justify-start">
+              <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                Hydration Care
+              </span>
+              <span className="text-xs font-bold text-[var(--text-secondary)]">Target: {hydrationTarget} Glasses</span>
+            </div>
+            <h2 className="text-lg sm:text-xl font-black text-[var(--text-primary)] mt-0.5">
+              Daily Hydration: {hydrationCount} of {hydrationTarget} Glasses Completed
+            </h2>
+            <div className="flex items-center gap-1.5 mt-2 justify-center sm:justify-start">
+              {Array.from({ length: hydrationTarget }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`w-7 h-8 rounded-lg flex items-center justify-center text-sm transition-all ${
+                    i < hydrationCount
+                      ? 'bg-blue-500 text-white shadow-md scale-105'
+                      : 'bg-[var(--bg-surface-secondary)] border border-[var(--border)] text-[var(--text-muted)]'
+                  }`}
+                >
+                  💧
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleAddHydration}
+          disabled={hydrationCount >= hydrationTarget}
+          className="btn-glow px-6 py-3 rounded-2xl text-xs sm:text-sm font-black flex items-center gap-2 cursor-pointer whitespace-nowrap active:scale-95 disabled:opacity-50"
+        >
+          <span>+ Log 1 Glass Water</span>
+          <Droplets className="w-4 h-4 text-white" />
+        </button>
+      </div>
+
+      {/* ─── 5. TODAY'S DAILY ROUTINE TIMELINE (CHECKOFFS) ─────────────────── */}
+      <div id="routine-section" className="card-3d bg-[var(--card-bg-inline)] backdrop-blur-2xl p-6 sm:p-8 rounded-[28px] border border-[var(--card-border-inline)] shadow-xl space-y-4">
+        <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+          <div>
+            <h2 className="text-lg sm:text-xl font-black text-[var(--text-primary)] flex items-center gap-2">
+              <span>📅 Today's Prescribed Routine</span>
+            </h2>
+            <p className="text-xs text-[var(--text-secondary)] font-medium">
+              Tap the circles to check off completed activities throughout your day
+            </p>
+          </div>
+          <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-400/30">
+            {completedRoutineCount}/{routine.length} Completed
+          </span>
+        </div>
+
+        <div className="space-y-2.5">
+          {routine.map((item) => (
+            <div
+              key={item.id}
+              onClick={() => handleToggleRoutine(item.id)}
+              className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between cursor-pointer ${
+                item.completed
+                  ? 'bg-emerald-500/10 border-emerald-400/40 text-[var(--text-secondary)]'
+                  : 'bg-[var(--bg-surface-secondary)] border-[var(--border)] hover:border-emerald-400/40'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition ${
+                    item.completed
+                      ? 'bg-emerald-500 border-emerald-400 text-white'
+                      : 'border-[var(--border)] hover:border-emerald-400'
+                  }`}
+                >
+                  {item.completed && <Check className="w-4 h-4 text-white stroke-[3]" />}
+                </button>
+                <div>
+                  <span className={`text-xs sm:text-sm font-bold ${item.completed ? 'line-through text-[var(--text-secondary)]' : 'text-[var(--text-primary)]'}`}>
+                    {item.title}
+                  </span>
+                  <div className="text-[11px] text-[var(--text-secondary)] font-mono font-medium">
+                    ⏰ {item.time} • Category: {item.category}
+                  </div>
+                </div>
+              </div>
+
+              <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
+                item.completed
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30'
+                  : 'bg-amber-500/20 text-amber-300 border border-amber-400/30'
+              }`}>
+                {item.completed ? 'Completed' : 'Pending'}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ─── 6. TODAY'S MEDICATIONS WITH ACTIONS (TAKEN / SKIP / LATER) ─────── */}
+      <div className="card-3d bg-[var(--card-bg-inline)] backdrop-blur-2xl p-6 sm:p-8 rounded-[28px] border border-[var(--card-border-inline)] shadow-xl space-y-4">
+        <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+          <div>
+            <h2 className="text-lg sm:text-xl font-black text-[var(--text-primary)] flex items-center gap-2">
+              <span>💊 Prescribed Medicines & Adherence</span>
+            </h2>
+            <p className="text-xs text-[var(--text-secondary)] font-medium">
+              Caregiver monitored medication intake tracking
+            </p>
+          </div>
+          <Link to="/patient/reminders" className="text-xs font-black text-emerald-400 underline hover:text-emerald-300">
+            View All Alarms →
           </Link>
         </div>
 
-        {medications.length === 0 ? (
-          <div className="p-8 text-center bg-[var(--bg-surface-secondary)] rounded-[18px] text-xs font-bold text-[var(--text-secondary)]">
-            No medications scheduled for today.
-          </div>
-        ) : (
-          <div className="divide-y divide-[var(--border)]">
-            {medications.map(med => (
-              <div
-                key={med.id}
-                className={`py-3.5 flex items-center justify-between transition-colors ${
-                  med.taken ? 'opacity-60 line-through' : ''
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => handleToggleMedication(med.id)}
-                    className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition cursor-pointer ${
-                      med.taken ? 'bg-emerald-500 border-emerald-400 text-white' : 'border-[var(--border)] hover:border-emerald-400'
-                    }`}
-                  >
-                    {med.taken && <Check className="w-4 h-4 text-white stroke-[3]" />}
-                  </button>
-                  <div>
-                    <span className="text-sm font-black text-[var(--text-primary)]">{med.name}</span>
-                    <div className="text-xs text-[var(--text-secondary)] font-medium">
-                      {med.dosage} • {med.frequency || 'Daily'} • Time: {med.time || '08:00 AM'}
-                    </div>
-                  </div>
+        <div className="space-y-3">
+          {medications.map((med) => (
+            <div
+              key={med.id}
+              className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                med.taken
+                  ? 'bg-emerald-500/10 border-emerald-400/30'
+                  : med.skipped
+                  ? 'bg-rose-500/10 border-rose-400/30'
+                  : 'bg-[var(--bg-surface-secondary)] border-[var(--border)]'
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-300 border border-teal-400/30 flex items-center justify-center text-xl shrink-0 mt-0.5">
+                  💊
                 </div>
+                <div>
+                  <h3 className="text-sm font-black text-[var(--text-primary)]">{med.name}</h3>
+                  <p className="text-xs text-[var(--text-secondary)] font-medium">
+                    Dosage: {med.dosage} • Time: {med.time} • {med.frequency}
+                  </p>
+                  <p className="text-[11px] text-emerald-400 font-bold mt-0.5">
+                    📝 {med.instructions}
+                  </p>
+                </div>
+              </div>
 
-                <span
-                  className={`text-xs font-black px-2.5 py-1 rounded-full ${
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2 self-end sm:self-center">
+                <button
+                  type="button"
+                  onClick={() => handleToggleMedication(med.id, 'TAKEN')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center gap-1 ${
                     med.taken
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30'
-                      : 'bg-amber-400/20 text-amber-300 border border-amber-400/30'
+                      ? 'bg-emerald-500 text-white shadow-sm'
+                      : 'btn-glass text-emerald-400'
                   }`}
                 >
-                  {med.taken ? 'Taken' : 'Pending'}
-                </span>
+                  <Check className="w-3.5 h-3.5" />
+                  <span>{med.taken ? 'Taken' : 'Mark Taken'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleToggleMedication(med.id, 'SKIP')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                    med.skipped
+                      ? 'bg-rose-500 text-white shadow-sm'
+                      : 'btn-glass text-rose-400'
+                  }`}
+                >
+                  <span>Skip</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => alert(`Reminder snoozed for 30 minutes for ${med.name}`)}
+                  className="btn-glass px-3 py-1.5 rounded-xl text-xs font-bold text-[var(--text-secondary)]"
+                >
+                  <span>Later (30m)</span>
+                </button>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* ─── 8. EMERGENCY SOS BAR ───────────────────────────────────────────── */}
+      {/* ─── 7. EMERGENCY SOS BAR ───────────────────────────────────────────── */}
       <div className="pt-1">
         <button
           type="button"
@@ -573,7 +552,7 @@ export const PatientDashboard: React.FC = () => {
                 Emergency SOS & Caregiver Alert
               </h3>
               <p className="text-[11px] text-[var(--text-secondary)] font-medium">
-                1-Tap alert with your live GPS location sent to caregiver & doctor
+                1-Tap alert with your live GPS location sent to caregiver (Dr. Anita Verma)
               </p>
             </div>
           </div>
@@ -583,7 +562,7 @@ export const PatientDashboard: React.FC = () => {
         </button>
       </div>
 
-      {/* ─── 9. EMERGENCY SOS MODAL ─────────────────────────────────────────── */}
+      {/* ─── 8. EMERGENCY SOS MODAL ─────────────────────────────────────────── */}
       {isSosOpen && (
         <div className="fixed inset-0 z-50 bg-[var(--bg-modal-overlay)] backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[var(--bg-surface)] rounded-[24px] p-6 sm:p-8 max-w-md w-full border border-[var(--border)] shadow-2xl text-center space-y-4">
@@ -595,8 +574,8 @@ export const PatientDashboard: React.FC = () => {
             </h2>
             <p className="text-xs sm:text-sm font-medium text-[var(--text-secondary)]">
               {sosSent
-                ? 'Your emergency contact (Dr. Anita Verma) and caregiver have been notified with your live GPS location.'
-                : 'This will instantly notify your caregiver and emergency contacts that you require immediate assistance.'}
+                ? 'Your caregiver (Dr. Anita Verma) has been notified with your live GPS location.'
+                : 'This will instantly notify your caregiver that you require immediate assistance.'}
             </p>
 
             {sosSent ? (
@@ -605,7 +584,7 @@ export const PatientDashboard: React.FC = () => {
                   setIsSosOpen(false);
                   setSosSent(false);
                 }}
-                className="btn-glow w-full py-3 text-xs font-black rounded-xl"
+                className="btn-glow w-full py-3 text-xs font-black rounded-xl cursor-pointer"
               >
                 Close Window
               </button>
@@ -613,13 +592,13 @@ export const PatientDashboard: React.FC = () => {
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => setIsSosOpen(false)}
-                  className="btn-glass flex-1 py-3 text-xs"
+                  className="btn-glass flex-1 py-3 text-xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleTriggerSos}
-                  className="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs rounded-xl shadow-md"
+                  className="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs rounded-xl shadow-md cursor-pointer"
                 >
                   Send Alert Now
                 </button>
@@ -629,13 +608,13 @@ export const PatientDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* ─── 10. EDIT PROFILE MODAL ────────────────────────────────────────── */}
+      {/* ─── 9. EDIT PROFILE MODAL ─────────────────────────────────────────── */}
       {isEditModalOpen && (
         <div className="fixed inset-0 z-50 bg-[var(--bg-modal-overlay)] backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[var(--bg-surface)] rounded-[24px] p-6 sm:p-8 max-w-md w-full border border-[var(--border)] shadow-2xl space-y-4">
+          <div className="bg-[var(--bg-surface)] rounded-[24px] p-6 sm:p-8 max-w-md w-full border border-[var(--border)] shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-[var(--border)] pb-2">
               <h2 className="text-xl font-black text-[var(--text-primary)]">Edit Patient Profile</h2>
-              <button onClick={() => setIsEditModalOpen(false)} className="text-lg font-black text-[var(--text-secondary)] hover:text-[var(--text-primary)]">✕</button>
+              <button onClick={() => setIsEditModalOpen(false)} className="text-lg font-black text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer">✕</button>
             </div>
 
             <form onSubmit={handleSaveProfile} className="space-y-3">
@@ -684,14 +663,14 @@ export const PatientDashboard: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(false)}
-                  className="btn-glass flex-1 py-2.5 text-xs"
+                  className="btn-glass flex-1 py-2.5 text-xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={savingProfile}
-                  className="btn-glow flex-1 py-2.5 text-xs font-black"
+                  className="btn-glow flex-1 py-2.5 text-xs font-black cursor-pointer"
                 >
                   {savingProfile ? 'Saving...' : 'Save Profile'}
                 </button>

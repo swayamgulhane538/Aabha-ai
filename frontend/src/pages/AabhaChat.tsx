@@ -497,6 +497,26 @@ export const AabhaChat: React.FC = () => {
               >
                 Cancel
               </button>
+
+              {/* Deactivate Button if Key is active */}
+              {(hasGeminiKey || apiKeyInput.trim()) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    geminiService.setApiKey('');
+                    setApiKeyInput('');
+                    setHasGeminiKey(false);
+                    setKeyStatusMsg({ type: 'error', text: '🛑 Gemini Deactivated! Reverted to Default Engine.' });
+                    setTimeout(() => setShowKeyModal(false), 900);
+                  }}
+                  className="px-3 py-2.5 rounded-2xl text-xs font-bold bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 w-full sm:w-auto transition cursor-pointer flex items-center justify-center gap-1.5"
+                  title="Deactivate Gemini Key & Revert to Offline Engine"
+                >
+                  <span>🗑️</span>
+                  <span>Deactivate</span>
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => {

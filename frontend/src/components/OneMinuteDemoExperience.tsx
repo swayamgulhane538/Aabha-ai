@@ -558,7 +558,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
       stageSentenceIdxRef.current = 0;
 
       if (isMusicOn) {
-        ambientMusic.start(0.06);
+        ambientMusic.start(0.24, activeTrack.id);
       }
 
       playContinuousSentence(STAGES[0], 0);
@@ -713,6 +713,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
     <div
       role="dialog"
       aria-modal="true"
+      onPointerDown={() => ambientMusic.ensureAudioContext()}
       className="fixed inset-0 z-[999999] flex items-center justify-center p-2.5 sm:p-4 md:p-6 bg-slate-950/90 backdrop-blur-2xl animate-fade-in font-sans select-none overflow-hidden"
     >
       <div className="relative w-full max-w-6xl bg-[var(--bg-surface)] rounded-[24px] sm:rounded-[36px] border border-[var(--border)] shadow-2xl flex flex-col max-h-[96vh] overflow-hidden my-auto animate-modal-in text-[var(--text-primary)]">

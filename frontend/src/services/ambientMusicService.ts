@@ -1,7 +1,7 @@
 // Cinematic Multi-Track Ambient Wellness Music Engine using Web Audio API
-// Supports 3 Distinct High-Quality Music Soundtracks:
+// Supports 3 Distinct High-Quality Music Soundtracks with robust browser autoplay unlock:
+// - Track 2: Acoustic Morning Strings & Indian Bansuri Flute (Calm Sunrise Raag - DEFAULT)
 // - Track 1: Gentle Piano & Bell Chimes (Emotional Piano)
-// - Track 2: Acoustic Morning Strings & Indian Bansuri Flute (Calm Sunrise Raag - RECOMMENDED)
 // - Track 3: Deep Zen Mindfulness Meditation (Soothing Alpha Waves)
 
 export type MusicTrackId = 'track1' | 'track2' | 'track3';
@@ -18,21 +18,21 @@ export const MUSIC_TRACKS: MusicTrackInfo[] = [
   {
     id: 'track2',
     name: 'Acoustic Flute & Morning Strings',
-    shortName: '🎵 2. Flute & Strings',
+    shortName: '🪈 2. Flute & Strings',
     description: 'Calm morning acoustic guitar arpeggios with soothing bansuri flute phrases',
     icon: '🪈'
   },
   {
     id: 'track1',
     name: 'Cinematic Piano & Bell Chimes',
-    shortName: '🎵 1. Piano Chimes',
+    shortName: '🎹 1. Piano Chimes',
     description: 'Soft emotional piano with gentle bell sparkle harmonies',
     icon: '🎹'
   },
   {
     id: 'track3',
     name: 'Deep Zen Wellness Pad',
-    shortName: '🎵 3. Zen Meditation',
+    shortName: '🧘 3. Zen Meditation',
     description: 'Warm ocean pad chords for deep calmness and focus',
     icon: '🧘'
   }
@@ -46,45 +46,60 @@ class AmbientMusicEngine {
   private delayFeedback: GainNode | null = null;
   private mainTimer: any = null;
   private melodyTimer: any = null;
-  private currentVolume: number = 0.08;
+  private currentVolume: number = 0.22; // Clear, audible, comfortable volume
   private activeTrackId: MusicTrackId = 'track2'; // Default to 2nd track!
 
-  public start(volume: number = 0.08, trackId: MusicTrackId = 'track2') {
-    if (this.isPlaying) {
-      if (this.activeTrackId !== trackId) {
-        this.switchTrack(trackId);
+  // Initialize or resume AudioContext with robust browser autoplay handling
+  public ensureAudioContext(): AudioContext | null {
+    try {
+      if (!this.ctx) {
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        if (!AudioCtx) return null;
+        this.ctx = new AudioCtx();
       }
-      return;
-    }
 
+      if (this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
+
+      return this.ctx;
+    } catch {
+      return null;
+    }
+  }
+
+  public start(volume: number = 0.22, trackId: MusicTrackId = 'track2') {
     this.currentVolume = volume;
     this.activeTrackId = trackId;
 
-    try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      this.ctx = new AudioCtx();
-
-      if (this.ctx.state === 'suspended') {
-        this.ctx.resume();
+    if (this.isPlaying) {
+      if (this.masterGain && this.ctx) {
+        this.masterGain.gain.setValueAtTime(this.currentVolume, this.ctx.currentTime);
       }
+      this.clearAllTimers();
+      this.startTrackEngine();
+      return;
+    }
+
+    try {
+      const ctx = this.ensureAudioContext();
+      if (!ctx) return;
 
       // Master output gain
-      this.masterGain = this.ctx.createGain();
-      this.masterGain.gain.setValueAtTime(0.001, this.ctx.currentTime);
-      this.masterGain.gain.exponentialRampToValueAtTime(this.currentVolume, this.ctx.currentTime + 2.0);
-      this.masterGain.connect(this.ctx.destination);
+      this.masterGain = ctx.createGain();
+      this.masterGain.gain.setValueAtTime(this.currentVolume, ctx.currentTime);
+      this.masterGain.connect(ctx.destination);
 
       // Stereo Space Delay / Reverb simulation
-      this.delayNode = this.ctx.createDelay();
-      this.delayNode.delayTime.setValueAtTime(0.42, this.ctx.currentTime);
+      this.delayNode = ctx.createDelay();
+      this.delayNode.delayTime.setValueAtTime(0.38, ctx.currentTime);
 
-      this.delayFeedback = this.ctx.createGain();
-      this.delayFeedback.gain.setValueAtTime(0.32, this.ctx.currentTime);
+      this.delayFeedback = ctx.createGain();
+      this.delayFeedback.gain.setValueAtTime(0.35, ctx.currentTime);
 
-      const delayFilter = this.ctx.createBiquadFilter();
+      const delayFilter = ctx.createBiquadFilter();
       delayFilter.type = 'lowpass';
-      delayFilter.frequency.setValueAtTime(1400, this.ctx.currentTime);
+      delayFilter.frequency.setValueAtTime(1600, ctx.currentTime);
 
       this.delayNode.connect(delayFilter);
       delayFilter.connect(this.delayFeedback);
@@ -125,6 +140,7 @@ class AmbientMusicEngine {
   }
 
   private startTrackEngine() {
+    this.ensureAudioContext();
     if (this.activeTrackId === 'track2') {
       this.startTrack2AcousticFlute();
     } else if (this.activeTrackId === 'track1') {
@@ -140,7 +156,7 @@ class AmbientMusicEngine {
   private startTrack2AcousticFlute() {
     if (!this.ctx || !this.masterGain || !this.isPlaying) return;
 
-    // Peaceful Acoustic Drone (Tanpura/Strings harmony in D Major: D3, A3, D4, F#4)
+    // Peaceful Acoustic Strings (D Major: D3, A3, D4, F#4)
     const acousticChords = [
       [146.83, 220.00, 293.66, 369.99], // D maj (D, A, D, F#)
       [164.81, 220.00, 293.66, 392.00], // G/D (E, A, D, G)
@@ -156,7 +172,7 @@ class AmbientMusicEngine {
       const chord = acousticChords[chordIdx % acousticChords.length];
       chordIdx++;
       const now = this.ctx.currentTime;
-      const duration = 6.0;
+      const duration = 5.2;
 
       // Warm acoustic string pad
       chord.forEach((freq, i) => {
@@ -166,27 +182,28 @@ class AmbientMusicEngine {
         const filter = this.ctx.createBiquadFilter();
 
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(380 + i * 90, now);
+        filter.frequency.setValueAtTime(600 + i * 120, now);
 
         osc.type = i === 0 ? 'sine' : 'triangle';
         osc.frequency.setValueAtTime(freq, now);
 
-        const targetGain = 0.04 / (i + 1);
-        noteGain.gain.setValueAtTime(0.0001, now);
-        noteGain.gain.exponentialRampToValueAtTime(targetGain, now + 1.8);
-        noteGain.gain.exponentialRampToValueAtTime(0.0001, now + duration + 0.4);
+        // Audible, rich, soothing gain
+        const targetGain = 0.18 / (i + 1.2);
+        noteGain.gain.setValueAtTime(0.001, now);
+        noteGain.gain.linearRampToValueAtTime(targetGain, now + 1.2);
+        noteGain.gain.linearRampToValueAtTime(0.001, now + duration);
 
         osc.connect(filter);
         filter.connect(noteGain);
         noteGain.connect(this.masterGain);
 
-        if (this.delayNode && i >= 2) noteGain.connect(this.delayNode);
+        if (this.delayNode && i >= 1) noteGain.connect(this.delayNode);
 
         osc.start(now);
-        osc.stop(now + duration + 0.6);
+        osc.stop(now + duration + 0.3);
       });
 
-      this.mainTimer = setTimeout(playAcousticChord, (duration - 0.8) * 1000);
+      this.mainTimer = setTimeout(playAcousticChord, (duration - 0.4) * 1000);
     };
 
     playAcousticChord();
@@ -208,16 +225,15 @@ class AmbientMusicEngine {
 
       const randomFreq = fluteNotes[Math.floor(Math.random() * fluteNotes.length)];
       const now = this.ctx.currentTime;
-      const noteDuration = 2.4;
+      const noteDuration = 2.2;
 
       const osc = this.ctx.createOscillator();
       const noteGain = this.ctx.createGain();
       const fluteFilter = this.ctx.createBiquadFilter();
 
-      // Soft breathy flute filter with slight resonant warm peak
       fluteFilter.type = 'bandpass';
-      fluteFilter.frequency.setValueAtTime(randomFreq * 1.5, now);
-      fluteFilter.Q.setValueAtTime(1.8, now);
+      fluteFilter.frequency.setValueAtTime(randomFreq * 1.4, now);
+      fluteFilter.Q.setValueAtTime(2.2, now);
 
       osc.type = 'sine';
       osc.frequency.setValueAtTime(randomFreq, now);
@@ -225,16 +241,16 @@ class AmbientMusicEngine {
       // Subtle breath vibrato
       const vibrato = this.ctx.createOscillator();
       const vibratoGain = this.ctx.createGain();
-      vibrato.frequency.setValueAtTime(5.2, now); // 5.2 Hz gentle vibrato
-      vibratoGain.gain.setValueAtTime(2.5, now);
+      vibrato.frequency.setValueAtTime(5.5, now);
+      vibratoGain.gain.setValueAtTime(3.0, now);
       vibrato.connect(osc.frequency);
-      vibrato.start(now + 0.4);
+      vibrato.start(now + 0.2);
       vibrato.stop(now + noteDuration);
 
-      // Soft breathy flute envelope
-      noteGain.gain.setValueAtTime(0.0001, now);
-      noteGain.gain.exponentialRampToValueAtTime(0.024, now + 0.3);
-      noteGain.gain.exponentialRampToValueAtTime(0.0001, now + noteDuration);
+      // Soft breathy flute envelope (clearly audible)
+      noteGain.gain.setValueAtTime(0.001, now);
+      noteGain.gain.linearRampToValueAtTime(0.14, now + 0.25);
+      noteGain.gain.linearRampToValueAtTime(0.001, now + noteDuration);
 
       osc.connect(fluteFilter);
       fluteFilter.connect(noteGain);
@@ -245,11 +261,11 @@ class AmbientMusicEngine {
       osc.start(now);
       osc.stop(now + noteDuration + 0.2);
 
-      const nextNoteTime = 1400 + Math.random() * 1600;
+      const nextNoteTime = 1200 + Math.random() * 1200;
       this.melodyTimer = setTimeout(playFluteNote, nextNoteTime);
     };
 
-    this.melodyTimer = setTimeout(playFluteNote, 800);
+    this.melodyTimer = setTimeout(playFluteNote, 400);
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -273,7 +289,7 @@ class AmbientMusicEngine {
       const chord = chords[chordIdx % chords.length];
       chordIdx++;
       const now = this.ctx.currentTime;
-      const duration = 5.2;
+      const duration = 5.0;
 
       chord.forEach((freq, i) => {
         if (!this.ctx || !this.masterGain) return;
@@ -282,26 +298,26 @@ class AmbientMusicEngine {
         const filter = this.ctx.createBiquadFilter();
 
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(500 + i * 80, now);
+        filter.frequency.setValueAtTime(700 + i * 100, now);
 
         osc.type = i % 2 === 0 ? 'sine' : 'triangle';
         osc.frequency.setValueAtTime(freq, now);
 
-        noteGain.gain.setValueAtTime(0.0001, now);
-        noteGain.gain.exponentialRampToValueAtTime(0.04 / (i + 1), now + 1.2);
-        noteGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+        noteGain.gain.setValueAtTime(0.001, now);
+        noteGain.gain.linearRampToValueAtTime(0.16 / (i + 1.2), now + 0.8);
+        noteGain.gain.linearRampToValueAtTime(0.001, now + duration);
 
         osc.connect(filter);
         filter.connect(noteGain);
         noteGain.connect(this.masterGain);
 
-        if (this.delayNode && i >= 2) noteGain.connect(this.delayNode);
+        if (this.delayNode && i >= 1) noteGain.connect(this.delayNode);
 
         osc.start(now);
-        osc.stop(now + duration + 0.3);
+        osc.stop(now + duration + 0.2);
       });
 
-      this.mainTimer = setTimeout(playChord, (duration - 0.5) * 1000);
+      this.mainTimer = setTimeout(playChord, (duration - 0.4) * 1000);
     };
 
     playChord();
@@ -319,21 +335,21 @@ class AmbientMusicEngine {
       osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, now);
 
-      noteGain.gain.setValueAtTime(0.0001, now);
-      noteGain.gain.exponentialRampToValueAtTime(0.02, now + 0.03);
-      noteGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.0);
+      noteGain.gain.setValueAtTime(0.001, now);
+      noteGain.gain.linearRampToValueAtTime(0.12, now + 0.05);
+      noteGain.gain.linearRampToValueAtTime(0.001, now + 1.8);
 
       osc.connect(noteGain);
       noteGain.connect(this.masterGain);
       if (this.delayNode) noteGain.connect(this.delayNode);
 
       osc.start(now);
-      osc.stop(now + 2.1);
+      osc.stop(now + 1.9);
 
-      this.melodyTimer = setTimeout(playBell, 1800 + Math.random() * 1800);
+      this.melodyTimer = setTimeout(playBell, 1400 + Math.random() * 1400);
     };
 
-    this.melodyTimer = setTimeout(playBell, 1000);
+    this.melodyTimer = setTimeout(playBell, 600);
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -356,7 +372,7 @@ class AmbientMusicEngine {
       const chord = zenChords[chordIdx % zenChords.length];
       chordIdx++;
       const now = this.ctx.currentTime;
-      const duration = 7.0;
+      const duration = 6.5;
 
       chord.forEach((freq, i) => {
         if (!this.ctx || !this.masterGain) return;
@@ -365,24 +381,24 @@ class AmbientMusicEngine {
         const filter = this.ctx.createBiquadFilter();
 
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(320 + i * 60, now);
+        filter.frequency.setValueAtTime(450 + i * 80, now);
 
         osc.type = 'sine';
         osc.frequency.setValueAtTime(freq, now);
 
-        noteGain.gain.setValueAtTime(0.0001, now);
-        noteGain.gain.exponentialRampToValueAtTime(0.045 / (i + 1), now + 2.5);
-        noteGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+        noteGain.gain.setValueAtTime(0.001, now);
+        noteGain.gain.linearRampToValueAtTime(0.18 / (i + 1.2), now + 1.8);
+        noteGain.gain.linearRampToValueAtTime(0.001, now + duration);
 
         osc.connect(filter);
         filter.connect(noteGain);
         noteGain.connect(this.masterGain);
 
         osc.start(now);
-        osc.stop(now + duration + 0.5);
+        osc.stop(now + duration + 0.3);
       });
 
-      this.mainTimer = setTimeout(playZen, (duration - 1.0) * 1000);
+      this.mainTimer = setTimeout(playZen, (duration - 0.8) * 1000);
     };
 
     playZen();
@@ -401,14 +417,13 @@ class AmbientMusicEngine {
 
     if (this.masterGain && this.ctx) {
       try {
-        this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, this.ctx.currentTime);
-        this.masterGain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.6);
+        this.masterGain.gain.setValueAtTime(0.001, this.ctx.currentTime);
         setTimeout(() => {
           if (this.ctx) {
-            this.ctx.close();
+            this.ctx.close().catch(() => {});
             this.ctx = null;
           }
-        }, 700);
+        }, 300);
       } catch {
         // Ignore
       }

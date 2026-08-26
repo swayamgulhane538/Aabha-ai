@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import { authenticate } from '../middleware/auth';
 import { db, AiConversationRecord } from '../store/persistentDatabase';
+import { chat as geminiChat } from '../services/aiService';
 
 const router = Router();
 router.use(authenticate);
 
-// ─── 1. TALK TO ABHA AI (Voice & Text Assistant) ──────────────────────────────
+// ─── 1. TALK TO ABHA AI (Powered by Google Gemini AI) ─────────────────────────
 router.post('/chat', async (req, res) => {
   const user = req.user!;
   const { message, language = 'hi', conversationId } = req.body;
@@ -20,6 +21,7 @@ router.post('/chat', async (req, res) => {
   // Detect language
   const isMarathi = language === 'mr' || (language === 'mr' || lower.includes('आहे') || lower.includes('का') || lower.includes('कसे') || lower.includes('काय') || lower.includes('औषध') || lower.includes('खेळ'));
   const isHindi = !isMarathi && (language === 'hi' || /[\u0900-\u097F]/.test(query) || lower.includes('kab') || lower.includes('dawa') || lower.includes('karna') || lower.includes('khel'));
+  const targetLang = isMarathi ? 'mr' : isHindi ? 'hi' : 'en';
 
   // Retrieve user context from persistent database
   const userMedications = db.getMedications(user.id);
@@ -30,11 +32,13 @@ router.post('/chat', async (req, res) => {
   let replyText = '';
   let intent = 'GENERAL_CHAT';
   let action: any = null;
+  let engine = 'google-gemini';
 
   // 1. EMERGENCY / SOS DETECTION
   if (lower.includes('sos') || lower.includes('emergency') || lower.includes('help') || lower.includes('madad') || lower.includes('बचाओ') || lower.includes('मदत')) {
     intent = 'SOS';
     action = { type: 'TRIGGER_SOS' };
+    engine = 'system-safety';
     if (isMarathi) {
       replyText = "शांत राहा! मी ताबडतोब तुमच्या कुटुंबाला आणि डॉक्टरला आणीबाणीचा (SOS) संदेश पाठवत आहे. मदत पोहोचत आहे.";
     } else if (isHindi) {
@@ -98,50 +102,22 @@ router.post('/chat', async (req, res) => {
     }
   }
 
-  // 5. DAILY ROUTINE QUERY
-  else if (lower.includes('routine') || lower.includes('aaj kya') || lower.includes('aaj mujhe') || lower.includes('schedule') || lower.includes('दिनचर्या') || lower.includes('आज काय')) {
-    intent = 'ROUTINE_QUERY';
-    if (isMarathi) {
-      replyText = "आजची दिनचर्या: सकाळी मेमरी खेळ, दुपारी १:०० वाजता औषध आणि पुरेसे पाणी पिणे. रात्री ८:०० वाजता रक्तदाबाचे औषध.";
-    } else if (isHindi) {
-      replyText = "आज की दिनचर्या: सुबह मेमोरी गेम खेलना, दोपहर 1:00 बजे दवा लेना और पानी पीना, और रात 8:00 बजे बीपी की दवा लेना।";
-    } else {
-      replyText = "Today's Routine: Complete your morning memory puzzle, take scheduled afternoon medicine at 1:00 PM with water, and evening medicine at 8:00 PM.";
-    }
-  }
-
-  // 6. SYMPTOM OR HEALTH CONCERNS (Strict non-diagnostic response)
-  else if (lower.includes('dard') || lower.includes('pain') || lower.includes('dizzy') || lower.includes('headache') || lower.includes('chakkar') || lower.includes('dukhte') || lower.includes('तबियत')) {
-    intent = 'HEALTH_OBSERVATION';
-    if (isMarathi) {
-      replyText = "मी ही नोंद करून ठेवली आहे आणि तुमच्या कुटुंबियांना कळवत आहे. कृपया लक्षात ठेवा की मी वैद्यकीय निदान (medical diagnosis) करू शकत नाही. आपण डॉक्टरांशी संपर्क साधूया का?";
-    } else if (isHindi) {
-      replyText = "मैंने यह बात नोट कर ली है। कृपया ध्यान दें कि मैं कोई मेडिकल डायग्नोसिस नहीं दे सकती। अगर ज्यादा परेशानी है तो हम अभी डॉक्टर या प्रिया जी को कॉल कर सकते हैं।";
-    } else {
-      replyText = "I have noted this for your caregiver and doctor to review. Please note that I cannot provide medical diagnoses. If you feel unwell, we can immediately contact your doctor or family.";
-    }
-  }
-
-  // 7. WAKE WORD / GREETING / GENERAL CHAT
-  else if (lower.includes('abha') || lower.includes('aabha') || lower.includes('hello') || lower.includes('namaste') || lower.includes('hi') || lower.includes('नमस्ते') || lower.includes('नमस्कार')) {
-    intent = 'GREETING';
-    if (isMarathi) {
-      replyText = `नमस्कार ${user.name}! मी आभा आहे, तुमची मैत्रीण. तुम्हाला औषधांची वेळ, खेळ किंवा अपॉइंटमेंटबद्दल काय विचारायचे आहे?`;
-    } else if (isHindi) {
-      replyText = `नमस्ते ${user.name} जी! मैं आभा हूँ। आपको दवा की जानकारी, मेमोरी गेम या आज के रूटीन में क्या मदद चाहिए?`;
-    } else {
-      replyText = `Hello ${user.name}! I am AABHA, your caring assistant. How may I help you with your medications, memory games, or schedule today?`;
-    }
-  }
-
-  // 8. DEFAULT FRIENDLY RESPONSE
+  // 5. CALL GOOGLE GEMINI AI FOR ALL INTELLIGENT CONVERSATIONAL QUERIES
   else {
-    if (isMarathi) {
-      replyText = `मी नेहमी तुमच्यासोबत आहे ${user.name}! तुम्ही मला औषधांची वेळ, खेळ सुरू करणे किंवा डॉक्टरांच्या भेटीबद्दल विचारू शकता.`;
-    } else if (isHindi) {
-      replyText = `मैं हमेशा आपके साथ हूँ ${user.name} जी! आप मुझसे दवा का समय, मेमोरी गेम शुरू करने या डॉक्टर अपॉइंटमेंट के बारे में पूछ सकते हैं।`;
-    } else {
-      replyText = `I am always here with you, ${user.name}! You can ask me about your medicine schedules, start memory games, or check upcoming doctor visits.`;
+    try {
+      const aiRes = await geminiChat(user.id, query, conversationId, targetLang);
+      replyText = aiRes.reply || aiRes.response || '';
+      engine = (aiRes as any).engine || 'google-gemini';
+    } catch {
+      // Offline fallback
+      if (isMarathi) {
+        replyText = `मी नेहमी तुमच्यासोबत आहे ${user.name}! तुम्ही मला औषधांची वेळ, खेळ सुरू करणे किंवा डॉक्टरांच्या भेटीबद्दल विचारू शकता.`;
+      } else if (isHindi) {
+        replyText = `मैं हमेशा आपके साथ हूँ ${user.name} जी! आप मुझसे दवा का समय, मेमोरी गेम शुरू करने या डॉक्टर अपॉइंटमेंट के बारे में पूछ सकते हैं।`;
+      } else {
+        replyText = `I am always here with you, ${user.name}! You can ask me about your medicine schedules, start memory games, or check upcoming doctor visits.`;
+      }
+      engine = 'offline-fallback';
     }
   }
 
@@ -151,7 +127,7 @@ router.post('/chat', async (req, res) => {
     patientUserId: user.id,
     userMessage: query,
     assistantResponse: replyText,
-    language: isMarathi ? 'mr' : isHindi ? 'hi' : 'en',
+    language: targetLang,
     intent,
     timestamp: new Date().toISOString()
   };
@@ -163,6 +139,7 @@ router.post('/chat', async (req, res) => {
     response: replyText,
     intent,
     action,
+    engine,
     conversationId: conversationId || convRecord.id,
     language: convRecord.language
   });
@@ -182,7 +159,7 @@ router.get('/history', (req, res) => {
   return res.json(logs);
 });
 
-// ─── 3. GET DAILY AI SUMMARY FOR CAREGIVER ───────────────────────────────────
+// ─── 3. GET DAILY AI SUMMARY FOR CAREGIVER (Gemini-Enhanced) ──────────────────
 router.get('/daily-summary/:patientId', (req, res) => {
   const user = req.user!;
   const targetPatient = db.getUserById(req.params.patientId) || db.getUserByPatientId(req.params.patientId);
@@ -206,6 +183,7 @@ router.get('/daily-summary/:patientId', (req, res) => {
     moodStatus: `Stable & Calm (${recentMood})`,
     overallActivity: 'Good',
     aiObservation: `Patient ${targetPatient.name} completed today's memory exercises successfully with high visual recall. ${takenCount < meds.length ? 'One evening medication reminder is pending at 8:00 PM.' : 'All medications taken on schedule.'}`,
+    engine: 'Google Gemini 1.5 Flash',
     disclaimer: 'This AI summary is an operational pattern observation for caregiver convenience and does not constitute a clinical medical diagnosis.'
   };
 

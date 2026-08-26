@@ -253,14 +253,83 @@ export const AabhaChat: React.FC = () => {
     { code: 'en', label: 'English' }
   ];
 
-  const quickPrompts = [
-    { label: `📅 ${t('What do I have today?')}`, text: 'What is my schedule today?' },
-    { label: `💊 ${t('When is my medicine?')}`, text: 'When is my next medicine?' },
-    { label: `🧠 ${t('Start memory game')}`, text: 'Start a memory game' },
-    { label: `👨‍👩‍👧 ${t('Who is my family?')}`, text: 'Who is my son and daughter?' },
-    { label: `🌟 ${t('How am I doing today?')}`, text: 'How am I doing today and what is my cognitive score?' },
-    { label: `📜 ${t('Tell me a heartwarming story')}`, text: 'Tell me a short heartwarming memory story about family and tea.' }
-  ];
+  const getQuickPrompts = () => {
+    const lang = i18n.language.split('-')[0];
+    if (lang === 'hi') {
+      return [
+        { label: '📅 आज का क्या कार्यक्रम है?', text: 'आज मेरा क्या कार्यक्रम है?' },
+        { label: '💊 मेरी अगली दवा कब है?', text: 'मेरी अगली दवा का समय कब है?' },
+        { label: '🧠 मेमोरी गेम शुरू करो', text: 'मेमोरी मैच गेम शुरू करो' },
+        { label: '👨‍👩‍👧 मेरा परिवार कौन है?', text: 'मेरे परिवार में कौन-कौन है?' },
+        { label: '🌟 आज मेरा स्वास्थ्य कैसा है?', text: 'आज मेरा कॉग्निटिव स्कोर और स्वास्थ्य कैसा है?' },
+        { label: '📜 एक सुंदर कहानी सुनाओ', text: 'मुझे परिवार और प्रेम पर एक छोटी प्रेरणादायक कहानी सुनाओ।' }
+      ];
+    }
+    if (lang === 'mr') {
+      return [
+        { label: '📅 आजचे नियोजन काय आहे?', text: 'आज माझे काय नियोजन आहे?' },
+        { label: '💊 माझे पुढील औषध केव्हा आहे?', text: 'माझे पुढचे औषध केव्हा घ्यायचे आहे?' },
+        { label: '🧠 मेमरी गेम सुरू करा', text: 'मेमरी मॅच खेळ सुरू करा' },
+        { label: '👨‍👩‍👧 माझे कुटुंब कोण आहे?', text: 'माझ्या कुटुंबात कोण कोण आहे?' },
+        { label: '🌟 आजचे माझे आरोग्य कसे आहे?', text: 'आजचे माझे आरोग्य आणि स्कोर कसा आहे?' },
+        { label: '📜 एक छान गोष्ट सांगा', text: 'मला एक सुंदर कौटुंबिक गोष्ट सांगा.' }
+      ];
+    }
+    if (lang === 'bn') {
+      return [
+        { label: '📅 আজকের সময়সূচী কী?', text: 'আজকের আমার সময়সূচী কী?' },
+        { label: '💊 আমার ওষুধ কখন?', text: 'আমার পরের ওষুধের সময় কখন?' },
+        { label: '🧠 মেমরি খেলা শুরু করুন', text: 'মেমরি ম্যাচ খেলা শুরু করুন' },
+        { label: '📜 একটি গল্প বলুন', text: 'আমাকে একটি সুন্দর পরিবারের গল্প বলুন।' }
+      ];
+    }
+    if (lang === 'gu') {
+      return [
+        { label: '📅 આજનું સમયપત્રક શું છે?', text: 'આજનું મારું શિડ્યુલ શું છે?' },
+        { label: '💊 મારી દવા ક્યારે છે?', text: 'મારી આગામી દવાનો સમય ક્યારે છે?' },
+        { label: '🧠 મેમરી રમત શરૂ કરો', text: 'મેમરી મેચ ગેમ શરૂ કરો' },
+        { label: '📜 એક સુંદર વાર્તા કહો', text: 'મને એક સુંદર વાર્તા કહો.' }
+      ];
+    }
+    if (lang === 'ta') {
+      return [
+        { label: '📅 இன்றைய அட்டவணை என்ன?', text: 'இன்று எனக்கு என்ன அட்டவணை?' },
+        { label: '💊 அடுத்த மருந்து எப்போது?', text: 'என் அடுத்த மருந்து எப்போது எடுக்க வேண்டும்?' },
+        { label: '🧠 விளையாட்டு தொடங்கு', text: 'நினைவாற்றல் விளையாட்டைத் தொடங்கு' }
+      ];
+    }
+    if (lang === 'te') {
+      return [
+        { label: '📅 నేటి షెడ్యూల్ ఏమిటి?', text: 'ఈరోజు నా షెడ్యూల్ ఏమిటి?' },
+        { label: '💊 తదుపరి మందు ఎప్పుడు?', text: 'నా తదుపరి మందు ఎప్పుడు తీసుకోవాలి?' },
+        { label: '🧠 మెమరీ గేమ్ ప్రారంభించు', text: 'మెమరీ మ్యాచ్ గేమ్ ప్రారంభించు' }
+      ];
+    }
+    if (lang === 'kn') {
+      return [
+        { label: '📅 ಇಂದಿನ ವೇಳಾಪಟ್ಟಿ ಏನು?', text: 'ಇಂದು ನನ್ನ ವೇಳಾಪಟ್ಟಿ ಏನು?' },
+        { label: '💊 ಮುಂದಿನ ಔಷಧಿ ಯಾವಾಗ?', text: 'ನನ್ನ ಮುಂದಿನ ಔಷಧಿಯ ಸಮಯ ಯಾವಾಗ?' },
+        { label: '🧠 ಮೆಮೊರಿ ಆಟ ಪ್ರಾರಂಭಿಸಿ', text: 'ಮೆಮೊರಿ ಮ್ಯಾಚ್ ಆಟವನ್ನು ಪ್ರಾರಂಭಿಸಿ' }
+      ];
+    }
+    if (lang === 'pa') {
+      return [
+        { label: '📅 ਅੱਜ ਦਾ ਸ਼ਡਿਊਲ ਕੀ ਹੈ?', text: 'ਅੱਜ ਮੇਰਾ ਕੀ ਪ੍ਰੋਗਰਾਮ ਹੈ?' },
+        { label: '💊 ਮੇਰੀ ਅਗਲੀ ਦਵਾਈ ਕਦੋਂ ਹੈ?', text: 'ਮੇਰੀ ਅਗਲੀ ਦਵਾਈ ਦਾ ਸਮਾਂ ਕਦੋਂ ਹੈ?' },
+        { label: '🧠 ਮੈਮੋਰੀ ਗੇਮ ਸ਼ੁਰੂ ਕਰੋ', text: 'ਮੈਮੋਰੀ ਮੈਚ ਗੇਮ ਸ਼ੁਰੂ ਕਰੋ' }
+      ];
+    }
+    return [
+      { label: `📅 ${t('What do I have today?')}`, text: 'What is my schedule today?' },
+      { label: `💊 ${t('When is my medicine?')}`, text: 'When is my next medicine?' },
+      { label: `🧠 ${t('Start memory game')}`, text: 'Start a memory game' },
+      { label: `👨‍👩‍👧 ${t('Who is my family?')}`, text: 'Who is my son and daughter?' },
+      { label: `🌟 ${t('How am I doing today?')}`, text: 'How am I doing today and what is my cognitive score?' },
+      { label: `📜 ${t('Tell me a heartwarming story')}`, text: 'Tell me a short heartwarming memory story about family and tea.' }
+    ];
+  };
+
+  const quickPrompts = getQuickPrompts();
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-4 font-sans pb-24 text-[var(--text-primary)]">

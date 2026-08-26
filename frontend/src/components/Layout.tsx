@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/authStore';
@@ -21,6 +21,20 @@ export const Layout = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  // Close notifications on outside click
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setIsNotificationsOpen(false);
+      }
+    };
+    if (isNotificationsOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    }
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [isNotificationsOpen]);
 
   const handleLogout = () => {
     logout();
@@ -29,7 +43,7 @@ export const Layout = () => {
 
   const isCaregiver = user?.role === 'CAREGIVER';
 
-  const activeNavCls = 'bg-gradient-to-r from-purple-600 via-indigo-600 to-teal-500 text-white font-black shadow-sm';
+  const activeNavCls = 'bg-purple-600 text-white font-black shadow-xs';
   const inactiveNavCls = 'text-[var(--nav-inactive-text)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-glass-bg-hover)] font-bold';
 
   const notificationsList = [
@@ -45,35 +59,35 @@ export const Layout = () => {
     >
       <AnimatedBackground />
 
-      {/* ─── 1. TOP STICKY HEADER (CLEAN WHITE / BLURRED WITH PURPLE ACCENTS) ─ */}
+      {/* ─── 1. CLEAN SINGLE-ROW STICKY HEADER ───────────────────────────────── */}
       <header
-        className="backdrop-blur-2xl px-3.5 py-2.5 sm:px-8 sm:py-3.5 shadow-sm flex items-center justify-between z-40 sticky top-0 w-full min-w-0 transition-all border-b border-[var(--border)]"
+        className="backdrop-blur-xl px-3.5 sm:px-6 md:px-8 py-2.5 sm:py-3 shadow-xs flex items-center justify-between z-40 sticky top-0 w-full min-w-0 transition-all border-b border-[var(--border)]"
         style={{ backgroundColor: 'var(--bg-header)' }}
       >
-        {/* Left: Brand Logo */}
+        {/* LEFT: AABHA AI Logo & Tagline */}
         <div className="flex items-center gap-3 sm:gap-6 min-w-0">
           <Link
             to={isCaregiver ? '/caregiver' : '/patient'}
-            className="text-lg sm:text-2xl font-black tracking-tight flex items-center gap-2 shrink-0 group"
+            className="flex items-center gap-2.5 shrink-0 group select-none"
           >
             <Abha3DOrb size="sm" state="IDLE" interactive={false} />
-            <div className="flex flex-col">
-              <span className="bg-gradient-to-r from-purple-600 via-indigo-600 to-teal-500 bg-clip-text text-transparent font-black tracking-tight leading-none">
+            <div className="flex flex-col justify-center">
+              <span className="bg-gradient-to-r from-purple-600 via-indigo-600 to-teal-500 bg-clip-text text-transparent font-black text-lg sm:text-xl tracking-tight leading-none">
                 AABHA AI
               </span>
-              <span className="text-[9px] font-bold text-[var(--text-secondary)] tracking-wider uppercase mt-0.5">
-                Cognitive Care
+              <span className="text-[9px] sm:text-[10px] font-medium text-[var(--text-secondary)] tracking-tight leading-none mt-0.5">
+                Your Cognitive Companion
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1.5 text-xs">
+          <nav className="hidden xl:flex items-center gap-1 text-xs">
             {!isCaregiver ? (
               <>
                 <Link
                   to="/patient"
-                  className={`px-3.5 py-1.5 rounded-full transition-all ${
+                  className={`px-3 py-1.5 rounded-full transition-all ${
                     location.pathname === '/patient' && !location.hash ? activeNavCls : inactiveNavCls
                   }`}
                 >
@@ -81,7 +95,7 @@ export const Layout = () => {
                 </Link>
                 <Link
                   to="/patient/games"
-                  className={`px-3.5 py-1.5 rounded-full transition-all ${
+                  className={`px-3 py-1.5 rounded-full transition-all ${
                     location.pathname.startsWith('/patient/games') ? activeNavCls : inactiveNavCls
                   }`}
                 >
@@ -89,7 +103,7 @@ export const Layout = () => {
                 </Link>
                 <a
                   href="/patient#routine"
-                  className={`px-3.5 py-1.5 rounded-full transition-all ${
+                  className={`px-3 py-1.5 rounded-full transition-all ${
                     location.hash === '#routine' ? activeNavCls : inactiveNavCls
                   }`}
                 >
@@ -97,7 +111,7 @@ export const Layout = () => {
                 </a>
                 <Link
                   to="/patient/memory-passport"
-                  className={`px-3.5 py-1.5 rounded-full transition-all ${
+                  className={`px-3 py-1.5 rounded-full transition-all ${
                     location.pathname.startsWith('/patient/memory-passport') ? activeNavCls : inactiveNavCls
                   }`}
                 >
@@ -105,7 +119,7 @@ export const Layout = () => {
                 </Link>
                 <Link
                   to="/patient/reports"
-                  className={`px-3.5 py-1.5 rounded-full transition-all ${
+                  className={`px-3 py-1.5 rounded-full transition-all ${
                     location.pathname.startsWith('/patient/reports') ? activeNavCls : inactiveNavCls
                   }`}
                 >
@@ -116,7 +130,7 @@ export const Layout = () => {
               <>
                 <Link
                   to="/caregiver"
-                  className={`px-3.5 py-1.5 rounded-full transition-all ${
+                  className={`px-3 py-1.5 rounded-full transition-all ${
                     location.pathname === '/caregiver' ? activeNavCls : inactiveNavCls
                   }`}
                 >
@@ -124,15 +138,15 @@ export const Layout = () => {
                 </Link>
                 <Link
                   to="/patient/reports"
-                  className={`px-3.5 py-1.5 rounded-full transition-all ${
+                  className={`px-3 py-1.5 rounded-full transition-all ${
                     location.pathname.startsWith('/patient/reports') ? activeNavCls : inactiveNavCls
                   }`}
                 >
-                  Reports & Analytics
+                  Reports
                 </Link>
                 <Link
                   to="/patient/memory-passport"
-                  className={`px-3.5 py-1.5 rounded-full transition-all ${
+                  className={`px-3 py-1.5 rounded-full transition-all ${
                     location.pathname.startsWith('/patient/memory-passport') ? activeNavCls : inactiveNavCls
                   }`}
                 >
@@ -140,7 +154,7 @@ export const Layout = () => {
                 </Link>
                 <Link
                   to="/patient/reminders"
-                  className={`px-3.5 py-1.5 rounded-full transition-all ${
+                  className={`px-3 py-1.5 rounded-full transition-all ${
                     location.pathname.startsWith('/patient/reminders') ? activeNavCls : inactiveNavCls
                   }`}
                 >
@@ -151,34 +165,33 @@ export const Layout = () => {
           </nav>
         </div>
 
-        {/* Right Action Icons & Profile */}
-        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+        {/* RIGHT: Compact Controls (Language, Notifications, Profile, Logout) */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           {/* Offline Sync State Badge */}
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <OfflineIndicator />
           </div>
 
-          {/* Hackathon Demo Tour Guide Trigger */}
+          {/* Hackathon Tour Guide Button */}
           <button
             type="button"
             onClick={() => setIsDemoModalOpen(true)}
-            className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-gradient-to-r from-purple-500/15 via-indigo-500/15 to-teal-500/15 border border-purple-400/30 text-purple-600 dark:text-purple-300 text-[11px] sm:text-xs font-black flex items-center gap-1 hover:scale-105 active:scale-95 transition cursor-pointer shadow-2xs"
+            className="hidden sm:flex px-2.5 py-1.5 rounded-full bg-purple-500/15 border border-purple-400/30 text-purple-600 dark:text-purple-300 text-xs font-black items-center gap-1 hover:scale-105 active:scale-95 transition cursor-pointer shadow-2xs"
             title="5-Minute Hackathon Demo Tour"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span className="hidden sm:inline">Hackathon Tour</span>
-            <span className="sm:hidden">Tour</span>
+            <span>Tour</span>
           </button>
 
-          {/* Multilingual Selector */}
+          {/* 🌐 COMPACT SINGLE LANGUAGE BUTTON (Globe EN ▼) */}
           <LanguageSelector />
 
-          {/* Notifications Bell */}
-          <div className="relative">
+          {/* 🔔 Notifications Bell Button */}
+          <div ref={notifRef} className="relative">
             <button
               type="button"
               onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-              className="btn-glass p-2 sm:p-2.5 rounded-full relative hover:scale-105 active:scale-95 transition cursor-pointer flex items-center justify-center"
+              className="btn-glass p-2 sm:p-2.5 rounded-full relative hover:scale-105 active:scale-95 transition cursor-pointer flex items-center justify-center border border-[var(--border)]"
               title="Notifications"
             >
               <Bell className="w-4 h-4 text-[var(--text-secondary)]" />
@@ -187,7 +200,7 @@ export const Layout = () => {
 
             {/* Notifications Popover */}
             {isNotificationsOpen && (
-              <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[var(--bg-surface)] rounded-[24px] border border-[var(--border)] shadow-2xl p-4 z-50 animate-fade-in font-sans space-y-3">
+              <div className="absolute right-0 mt-2 w-72 sm:w-88 bg-[var(--bg-surface)] rounded-[22px] border border-[var(--border)] shadow-2xl p-4 z-50 animate-fade-in font-sans space-y-3">
                 <div className="flex items-center justify-between border-b border-[var(--border)] pb-2">
                   <div className="flex items-center gap-1.5">
                     <Bell className="w-4 h-4 text-purple-600" />
@@ -210,24 +223,21 @@ export const Layout = () => {
             )}
           </div>
 
-          {/* Profile & Settings Button */}
+          {/* 👤 Profile & Settings Button */}
           <button
             type="button"
             onClick={() => setIsSettingsOpen(true)}
-            className="btn-glass p-2 sm:p-2.5 rounded-full hover:scale-105 active:scale-95 transition cursor-pointer flex items-center justify-center gap-1.5"
+            className="btn-glass p-2 sm:p-2.5 rounded-full hover:scale-105 active:scale-95 transition cursor-pointer flex items-center justify-center border border-[var(--border)]"
             title="Settings & Profile"
           >
             <User className="w-4 h-4 text-[var(--text-secondary)]" />
-            <span className="hidden xl:inline text-xs font-bold text-[var(--text-primary)]">
-              {user?.name?.split(' ')[0] || 'Profile'}
-            </span>
           </button>
 
-          {/* Logout Button */}
+          {/* ↪ Logout Button */}
           <button
             type="button"
             onClick={handleLogout}
-            className="btn-glass p-2 sm:p-2.5 rounded-full text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/30 transition cursor-pointer flex items-center justify-center"
+            className="btn-glass p-2 sm:p-2.5 rounded-full text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/30 transition cursor-pointer flex items-center justify-center border border-[var(--border)]"
             title="Sign Out"
           >
             <LogOut className="w-4 h-4 text-rose-500" />
@@ -235,20 +245,20 @@ export const Layout = () => {
         </div>
       </header>
 
-      {/* Mobile Sub-header */}
-      <div className="sm:hidden px-3.5 py-1.5 bg-[var(--bg-surface-secondary)] border-b border-[var(--border)] flex justify-between items-center text-[11px]">
+      {/* Mobile Sub-bar for Offline indicator */}
+      <div className="sm:hidden px-3.5 py-1 bg-[var(--bg-surface-secondary)] border-b border-[var(--border)] flex justify-between items-center text-[10px]">
         <OfflineIndicator />
         <span className="text-[var(--text-secondary)] font-mono font-bold">
           ID: {user?.patientId || 'PAT-DEMO-000001'}
         </span>
       </div>
 
-      {/* ─── 2. MAIN CONTENT AREA (CLEAN LIGHT PADDING & SPACIOUS LAYOUT) ───── */}
+      {/* ─── 2. MAIN CONTENT AREA ───────────────────────────────────────────── */}
       <main className="relative z-10 flex-1 w-full max-w-6xl mx-auto px-3.5 py-4 sm:px-6 sm:py-6 md:py-8 pb-32 md:pb-12 overflow-x-hidden min-w-0">
         <Outlet />
       </main>
 
-      {/* ─── 3. FIXED MOBILE BOTTOM NAVIGATION (ACCESSIBLE & NOTCH SAFE) ───── */}
+      {/* ─── 3. FIXED MOBILE BOTTOM NAVIGATION ──────────────────────────────── */}
       <nav
         className="lg:hidden fixed bottom-0 left-0 right-0 backdrop-blur-2xl px-3 py-2 flex justify-around items-center z-40 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.08)] border-t border-[var(--border)]"
         style={{ backgroundColor: isDark ? 'rgba(13,20,38,0.96)' : 'rgba(255,255,255,0.96)' }}

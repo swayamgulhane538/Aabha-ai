@@ -5,7 +5,7 @@ import { api } from '../services/api';
 import { speechService } from '../services/speechService';
 import { useOnlineStatus } from '../services/offlineService';
 import { Abha3DOrb, OrbState } from '../components/Abha3DOrb';
-import { AdaptiveAIEngine } from '../services/adaptiveAIEngine';
+import { geminiService } from '../services/geminiService';
 import {
   Mic,
   MicOff,
@@ -15,11 +15,12 @@ import {
   Sparkles,
   Volume2,
   VolumeX,
-  WifiOff,
   ArrowLeft,
-  Bot,
-  User,
-  Shield
+  Key,
+  CheckCircle2,
+  AlertCircle,
+  ExternalLink,
+  X
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -27,6 +28,7 @@ interface ChatMessage {
   id: string;
   text: string;
   sender: 'user' | 'ai';
+  engine?: string;
   timestamp: Date;
 }
 
@@ -41,9 +43,10 @@ export const AabhaChat: React.FC = () => {
       id: '1',
       text: t(
         'aabha.greeting',
-        `Namaste ${user?.name || 'Mr. Arun Das'}! I am AABHA, your AI healthcare companion. How are you feeling today? You can ask me about your daily schedule, medicines, memory games, or your family.`
+        `Namaste ${user?.name || 'Mr. Arun Das'}! I am AABHA, your AI healthcare companion powered by Google Gemini. How are you feeling today? You can ask me about your medicines, memory games, daily routine, or your family.`
       ),
       sender: 'ai',
+      engine: 'Google Gemini 1.5 Flash',
       timestamp: new Date()
     }
   ]);
@@ -53,6 +56,12 @@ export const AabhaChat: React.FC = () => {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isSpeechSupported] = useState(() => speechService.isSupported());
   const [isMuted, setIsMuted] = useState(false);
+  const [showKeyModal, setShowKeyModal] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState(() => geminiService.getApiKey());
+  const [keyStatusMsg, setKeyStatusMsg] = useState<{ type: 'success' | 'error' | ''; text: string }>({ type: '', text: '' });
+  const [isTestingKey, setIsTestingKey] = useState(false);
+  const [hasGeminiKey, setHasGeminiKey] = useState(() => geminiService.hasApiKey());
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -65,105 +74,114 @@ export const AabhaChat: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  /** Local Authorized Knowledge Resolver (Guarantees zero hallucination of personal facts) */
-  const resolveLocalIntent = (query: string): string | null => {
+  const handleSaveAndTestKey = async () => {
+    if (!apiKeyInput.trim()) {
+      geminiService.setApiKey('');
+      setHasGeminiKey(false);
+      setKeyStatusMsg({ type: 'error', text: 'API Key removed. Using default offline fallback.' });
+      return;
+    }
+
+    setIsTestingKey(true);
+    setKeyStatusMsg({ type: '', text: 'Testing connection to Google Gemini API...' });
+
+    const result = await geminiService.testConnection(apiKeyInput.trim());
+    setIsTestingKey(false);
+
+    if (result.success) {
+      geminiService.setApiKey(apiKeyInput.trim());
+      setHasGeminiKey(true);
+      setKeyStatusMsg({ type: 'success', text: '✅ Connected to Google Gemini 1.5 Flash successfully!' });
+      setTimeout(() => {
+        setShowKeyModal(false);
+      }, 1500);
+    } else {
+      setKeyStatusMsg({ type: 'error', text: `❌ ${result.message}` });
+    }
+  };
+
+  /** Check for explicit local commands (like starting a game immediately) */
+  const checkDirectNavigation = (query: string): boolean => {
     const q = query.toLowerCase();
-
-    // 1. Schedule query
-    if (q.includes('schedule') || q.includes('routine') || q.includes('today') || q.includes('रूटिन') || q.includes('আজকের রুটিন') || q.includes('আজিৰ ৰুটিন') || q.includes('दिनचर्या')) {
-      return `Today's schedule for you, ${user?.name || 'Mr. Arun Das'}:\n• 08:30 AM — Breakfast & Donepezil (5mg) [Completed]\n• 10:00 AM — Memory Match Cognitive Exercise [Completed]\n• 01:00 PM — Warm Lunch & Hydration [Next Up]\n• 05:00 PM — Evening Garden Walk with Priya\n• 08:00 PM — Dinner & Multivitamin\n• 10:00 PM — Relaxing Box Breathing & Sleep`;
+    if (q.includes('start memory') || q.includes('start game') || q.includes('khel shuru') || q.includes('खेळ सुरू')) {
+      setTimeout(() => navigate('/patient/games/memory-match'), 2200);
+      return true;
     }
-
-    // 2. Medicine query
-    if (q.includes('medicine') || q.includes('pill') || q.includes('दवा') || q.includes('ঔষধ') || q.includes('औषध')) {
-      return `Your medication schedule today:\n1. Donepezil (5mg) — 08:30 AM with breakfast (Taken ✅)\n2. Memantine HCl (10mg) — 01:00 PM after lunch (Pending ⏳)\n3. Multivitamin & B-Complex (1 Tab) — 08:00 PM with dinner (Pending ⏳)\n\nRemember to take Memantine with a full glass of water.`;
-    }
-
-    // 3. Game start command
-    if (q.includes('game') || q.includes('exercise') || q.includes('खेल') || q.includes('খেলা') || q.includes('start memory')) {
-      setTimeout(() => navigate('/patient/games/memory-match'), 2500);
-      return `Starting your recommended Memory Match exercise (Level 2) in just a moment! Let's exercise those visual memory skills together.`;
-    }
-
-    // 4. Family / Son / Daughter query (Authorized Stored Memory Bank)
-    if (q.includes('son') || q.includes('daughter') || q.includes('family') || q.includes('priya') || q.includes('rahul') || q.includes('परिवार') || q.includes('ছেলে') || q.includes('পৰিয়াল')) {
-      return `Here is your stored family information from your Memory Bank:\n• Son: Rahul Das — Lives in Bengaluru, software architect, calls every Sunday.\n• Daughter: Priya Das — Lives in New Delhi, visits every weekend, your primary emergency contact.\n• Spouse: Late Sunita Das — Fondly remembered, loved classical Rabindra Sangeet.`;
-    }
-
-    // 5. Yesterday activity
-    if (q.includes('yesterday') || q.includes('कल') || q.includes('গতকাল') || q.includes('কালি')) {
-      return `Yesterday you completed 2 rounds of Memory Match with an accuracy of 88%, took a refreshing 20-minute garden walk with Priya, and drank all 6 glasses of hydration. Great job!`;
-    }
-
-    // 6. Cognitive Performance & Health
-    if (q.includes('how am i') || q.includes('score') || q.includes('performance') || q.includes('progress') || q.includes('स्कोर') || q.includes('কেমন আছি')) {
-      const indicators = AdaptiveAIEngine.calculateCognitiveIndicators();
-      return `You are doing wonderfully today! Your Cognitive Activity Score is ${indicators.overallActivityScore}/100 with an active 5-day exercise streak. Your memory recall is strong at ${indicators.memoryScore}%. (Note: Activity engagement indicator, not a medical diagnosis).`;
-    }
-
-    return null;
+    return false;
   };
 
   const sendToAI = async (text: string) => {
+    if (!text.trim()) return;
+
     const userMsg: ChatMessage = { id: Date.now().toString(), text, sender: 'user', timestamp: new Date() };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setOrbState('THINKING');
 
-    // First check local authorized intent engine
-    const localAnswer = resolveLocalIntent(text);
+    const shouldNavigate = checkDirectNavigation(text);
 
-    if (localAnswer) {
-      setTimeout(() => {
-        const aiMsg: ChatMessage = { id: (Date.now() + 1).toString(), text: localAnswer, sender: 'ai', timestamp: new Date() };
-        setMessages(prev => [...prev, aiMsg]);
+    // 1. Try Direct Client-Side Gemini (Instant, Low Latency) if key exists
+    let aiText = '';
+    let engineName = 'Google Gemini 1.5 Flash';
 
-        if (!isMuted && isSpeechSupported) {
-          setOrbState('SPEAKING');
-          speechService.speak(localAnswer, i18n.language, () => setOrbState('IDLE'));
-        } else {
-          setOrbState('IDLE');
+    if (geminiService.hasApiKey()) {
+      try {
+        const patientContext = `Patient Name: ${user?.name || 'Mr. Arun Das'}, Medications: Donepezil 5mg (8:30 AM), Memantine 10mg (1:00 PM), Daughter: Priya Das.`;
+        const clientRes = await geminiService.generateChatResponse(text, patientContext, i18n.language);
+        if (clientRes) {
+          aiText = clientRes;
         }
-      }, 700);
-      return;
+      } catch {
+        // Fallback to backend
+      }
     }
 
-    // Otherwise call backend AI endpoint
-    try {
-      const response: any = await api.post('/ai/chat', {
-        message: text,
-        conversationId,
-        language: i18n.language,
-      });
-      const aiText = response.reply || response.message || "I'm right here with you! Would you like to practice today's memory story or check your schedule?";
-      if (response.conversationId) setConversationId(response.conversationId);
+    // 2. Call Backend API (which also runs Google Gemini with persistent DB context)
+    if (!aiText) {
+      try {
+        const response: any = await api.post('/ai/chat', {
+          message: text,
+          conversationId,
+          language: i18n.language,
+          apiKey: geminiService.getApiKey()
+        });
 
-      const aiMsg: ChatMessage = { id: (Date.now() + 1).toString(), text: aiText, sender: 'ai', timestamp: new Date() };
-      setMessages(prev => [...prev, aiMsg]);
-
-      if (!isMuted && isSpeechSupported) {
-        setOrbState('SPEAKING');
-        speechService.speak(aiText, i18n.language, () => setOrbState('IDLE'));
-      } else {
-        setOrbState('IDLE');
+        aiText = response.reply || response.response || response.message || "I am always here with you!";
+        if (response.engine) engineName = response.engine === 'google-gemini' ? 'Google Gemini 1.5 Flash' : response.engine;
+        if (response.conversationId) setConversationId(response.conversationId);
+      } catch {
+        // 3. Smart Offline Fallback
+        if (shouldNavigate) {
+          aiText = "Starting your recommended Memory Match exercise (Level 2) in just a moment! Let's stimulate your brain together.";
+        } else {
+          aiText = `Namaste ${user?.name || 'Mr. Arun Das'}! I am right here with you. Your next scheduled medicine is Memantine (10mg) at 1:00 PM with water. Would you like to practice a memory exercise?`;
+        }
+        engineName = 'Aabha Offline Engine';
       }
-    } catch {
-      const fallback = `I'm here with you, ${user?.name || 'Mr. Arun Das'}! You have completed your morning memory exercise. Would you like to check your 01:00 PM medicine or start a relaxing box breathing session?`;
-      const aiMsg: ChatMessage = { id: (Date.now() + 1).toString(), text: fallback, sender: 'ai', timestamp: new Date() };
-      setMessages(prev => [...prev, aiMsg]);
+    }
 
-      if (!isMuted && isSpeechSupported) {
-        setOrbState('SPEAKING');
-        speechService.speak(fallback, i18n.language, () => setOrbState('IDLE'));
-      } else {
-        setOrbState('IDLE');
-      }
+    const aiMsg: ChatMessage = {
+      id: (Date.now() + 1).toString(),
+      text: aiText,
+      sender: 'ai',
+      engine: engineName,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, aiMsg]);
+
+    if (!isMuted && isSpeechSupported) {
+      setOrbState('SPEAKING');
+      speechService.speak(aiText, i18n.language, () => setOrbState('IDLE'));
+    } else {
+      setOrbState('IDLE');
     }
   };
 
   const handleSend = () => {
-    if (!input.trim()) return;
-    sendToAI(input.trim());
+    if (input.trim() && orbState !== 'THINKING') {
+      sendToAI(input.trim());
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -174,14 +192,11 @@ export const AabhaChat: React.FC = () => {
   };
 
   const toggleListening = () => {
+    if (!isSpeechSupported) return;
+
     if (orbState === 'LISTENING') {
       speechService.stopListening();
       setOrbState('IDLE');
-      return;
-    }
-
-    if (!isSpeechSupported) {
-      alert('Speech recognition is not supported in this browser. Please use Chrome for voice interaction.');
       return;
     }
 
@@ -193,10 +208,7 @@ export const AabhaChat: React.FC = () => {
           sendToAI(transcript.trim());
         }
       },
-      (error: string) => {
-        console.warn('Speech error:', error);
-        setOrbState('IDLE');
-      },
+      () => setOrbState('IDLE'),
       i18n.language === 'bn' ? 'bn-IN' : i18n.language === 'mr' ? 'mr-IN' : i18n.language === 'hi' ? 'hi-IN' : 'en-US'
     );
   };
@@ -214,7 +226,7 @@ export const AabhaChat: React.FC = () => {
     { label: '🧠 Start memory game', text: 'Start a memory game' },
     { label: '👨‍👩‍👧 Who is my family?', text: 'Who is my son and daughter?' },
     { label: '🌟 How am I doing today?', text: 'How am I doing today and what is my cognitive score?' },
-    { label: '📜 What did I do yesterday?', text: 'What did I do yesterday?' }
+    { label: '📜 Tell me a heartwarming story', text: 'Tell me a short heartwarming memory story about family and tea.' }
   ];
 
   return (
@@ -228,6 +240,21 @@ export const AabhaChat: React.FC = () => {
         </Link>
 
         <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Gemini Key Config Button */}
+          <button
+            onClick={() => setShowKeyModal(true)}
+            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition border ${
+              hasGeminiKey
+                ? 'bg-teal-500/20 border-teal-400/50 text-teal-300'
+                : 'bg-amber-500/20 border-amber-400/50 text-amber-300 animate-pulse'
+            }`}
+            title="Configure Google Gemini API Key"
+          >
+            <Key className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{hasGeminiKey ? 'Gemini Active' : 'Enter Gemini Key'}</span>
+          </button>
+
+          {/* Language Switch */}
           <button
             onClick={toggleLanguage}
             className="btn-glass px-2.5 py-1.5 sm:px-3 sm:py-1.5 text-xs font-bold flex items-center gap-1"
@@ -236,6 +263,7 @@ export const AabhaChat: React.FC = () => {
             <span className="uppercase">{i18n.language}</span>
           </button>
 
+          {/* Voice Output Toggle */}
           <button
             onClick={() => setIsMuted(!isMuted)}
             className={`px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1 transition ${
@@ -269,7 +297,7 @@ export const AabhaChat: React.FC = () => {
           {orbState === 'LISTENING'
             ? 'Listening to you... Speak now in English, Hindi, Bengali, Assamese, or Marathi.'
             : orbState === 'THINKING'
-            ? 'Accessing authenticated memory records & retrieving response...'
+            ? 'Gemini is processing your query with medical memory context...'
             : orbState === 'SPEAKING'
             ? 'Speaking response gently...'
             : 'Tap the mic or 3D Orb to speak, or tap one of the common prompts below.'}
@@ -294,26 +322,33 @@ export const AabhaChat: React.FC = () => {
         {messages.map(msg => (
           <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
             {msg.sender === 'ai' && (
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center mr-2.5 shrink-0 mt-1 shadow-md">
-                <Sparkles className="w-4 h-4 text-emerald-400" />
+              <div className="w-8 h-8 rounded-xl bg-teal-500/20 border border-teal-400/40 flex items-center justify-center mr-2.5 shrink-0 mt-1 shadow-md">
+                <Sparkles className="w-4 h-4 text-teal-400" />
               </div>
             )}
-            <div
-              className={`max-w-[88%] sm:max-w-[78%] rounded-[20px] px-4 sm:px-5 py-3.5 text-xs sm:text-sm leading-relaxed shadow-lg whitespace-pre-line ${
-                msg.sender === 'user'
-                  ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-tr-xs font-bold'
-                  : 'bg-[var(--bg-surface-secondary)] border border-[var(--border)] text-[var(--text-primary)] rounded-tl-xs font-medium'
-              }`}
-            >
-              {msg.text}
+            <div className="flex flex-col gap-1 max-w-[88%] sm:max-w-[78%]">
+              <div
+                className={`rounded-[20px] px-4 sm:px-5 py-3.5 text-xs sm:text-sm leading-relaxed shadow-lg whitespace-pre-line ${
+                  msg.sender === 'user'
+                    ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-tr-xs font-bold self-end'
+                    : 'bg-[var(--bg-surface-secondary)] border border-[var(--border)] text-[var(--text-primary)] rounded-tl-xs font-medium'
+                }`}
+              >
+                {msg.text}
+              </div>
+              {msg.sender === 'ai' && msg.engine && (
+                <span className="text-[10px] text-teal-400/70 font-semibold px-2">
+                  ✨ {msg.engine}
+                </span>
+              )}
             </div>
           </div>
         ))}
 
         {orbState === 'THINKING' && (
           <div className="flex justify-start items-center gap-2 text-xs text-[var(--text-secondary)] font-bold p-3 bg-[var(--bg-surface-secondary)] rounded-2xl w-max">
-            <Loader2 className="w-4 h-4 text-emerald-400 animate-spin" />
-            <span>AABHA is retrieving memory records...</span>
+            <Loader2 className="w-4 h-4 text-teal-400 animate-spin" />
+            <span>Google Gemini is generating response...</span>
           </div>
         )}
 
@@ -349,7 +384,7 @@ export const AabhaChat: React.FC = () => {
               ? 'Listening to you... Speak now'
               : 'Ask AABHA (e.g. "What do I have today?", "When is my medicine?")...'
           }
-          className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--input-text)] text-xs sm:text-sm font-medium focus:border-emerald-400 focus:outline-none transition min-w-0"
+          className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--input-text)] text-xs sm:text-sm font-medium focus:border-teal-400 focus:outline-none transition min-w-0"
         />
 
         {/* Send Button */}
@@ -362,6 +397,96 @@ export const AabhaChat: React.FC = () => {
           <Send className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
         </button>
       </div>
+
+      {/* ─── 5. GEMINI API KEY SETUP MODAL ─────────────────────────────────── */}
+      {showKeyModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-md bg-[var(--bg-surface)] p-6 rounded-[28px] border border-[var(--border)] shadow-2xl space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-xl bg-teal-500/20 border border-teal-400/40 flex items-center justify-center text-teal-300">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-[var(--text-primary)]">Google Gemini API Setup</h3>
+                  <p className="text-[11px] text-[var(--text-secondary)]">Connect Gemini 1.5 Flash for smart responses</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowKeyModal(false)}
+                className="p-1.5 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[var(--text-primary)] flex items-center justify-between">
+                <span>Gemini API Key</span>
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] text-teal-400 hover:underline flex items-center gap-1"
+                >
+                  Get Free Key <ExternalLink className="w-3 h-3" />
+                </a>
+              </label>
+
+              <input
+                type="password"
+                value={apiKeyInput}
+                onChange={e => setApiKeyInput(e.target.value)}
+                placeholder="AIzaSy..."
+                className="w-full px-4 py-3 rounded-2xl bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--input-text)] text-xs font-mono focus:border-teal-400 focus:outline-none transition"
+              />
+              <p className="text-[10px] text-[var(--text-secondary)]">
+                Your key is stored securely in your browser's LocalStorage and used directly with Google AI Studio.
+              </p>
+            </div>
+
+            {keyStatusMsg.text && (
+              <div
+                className={`p-3 rounded-2xl text-xs font-medium flex items-center gap-2 ${
+                  keyStatusMsg.type === 'success'
+                    ? 'bg-teal-500/20 border border-teal-400/40 text-teal-300'
+                    : keyStatusMsg.type === 'error'
+                    ? 'bg-rose-500/20 border border-rose-400/40 text-rose-300'
+                    : 'bg-white/5 border border-white/10 text-slate-300'
+                }`}
+              >
+                {keyStatusMsg.type === 'success' ? (
+                  <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
+                ) : keyStatusMsg.type === 'error' ? (
+                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                ) : (
+                  <Loader2 className="w-4 h-4 text-teal-400 animate-spin shrink-0" />
+                )}
+                <span>{keyStatusMsg.text}</span>
+              </div>
+            )}
+
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowKeyModal(false)}
+                className="btn-glass flex-1 py-2.5 rounded-2xl text-xs font-bold cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveAndTestKey}
+                disabled={isTestingKey}
+                className="btn-glow flex-1 py-2.5 rounded-2xl text-xs font-black text-white flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {isTestingKey ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                <span>Test & Connect</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -9,7 +9,8 @@ router.use(authenticate);
 // ─── 1. TALK TO ABHA AI (Powered by Google Gemini AI) ─────────────────────────
 router.post('/chat', async (req, res) => {
   const user = req.user!;
-  const { message, language = 'hi', conversationId } = req.body;
+  const { message, language = 'hi', conversationId, apiKey } = req.body;
+  const customApiKey = (apiKey || req.headers['x-gemini-key'] || '') as string;
 
   if (!message || !message.trim()) {
     return res.status(400).json({ message: 'Message is required' });
@@ -105,7 +106,7 @@ router.post('/chat', async (req, res) => {
   // 5. CALL GOOGLE GEMINI AI FOR ALL INTELLIGENT CONVERSATIONAL QUERIES
   else {
     try {
-      const aiRes = await geminiChat(user.id, query, conversationId, targetLang);
+      const aiRes = await geminiChat(user.id, query, conversationId, targetLang, customApiKey);
       replyText = aiRes.reply || aiRes.response || '';
       engine = (aiRes as any).engine || 'google-gemini';
     } catch {

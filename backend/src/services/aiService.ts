@@ -68,7 +68,7 @@ export const buildContext = async (userId: string) => {
   }
 };
 
-export const chat = async (userId: string, message: string, conversationId?: string, language = 'en') => {
+export const chat = async (userId: string, message: string, conversationId?: string, language = 'en', customApiKey?: string) => {
   const isMarathi = language === 'mr' || /[\u0900-\u097F]/.test(message) && (language === 'mr' || message.includes('आहे') || message.includes('का') || message.includes('कसे') || message.includes('काय') || message.includes('औषध'));
   const isHindi = !isMarathi && (language === 'hi' || /[\u0900-\u097F]/.test(message));
 
@@ -82,9 +82,12 @@ export const chat = async (userId: string, message: string, conversationId?: str
   }
 
   // ─── 1. GOOGLE GEMINI AI (PRIMARY ENGINE) ──────────────────────────────────
-  if (genAI) {
+  const activeGeminiKey = customApiKey?.trim() || geminiApiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '';
+  if (activeGeminiKey) {
     try {
-      const model = genAI.getGenerativeModel({
+      const dynamicGenAI = new GoogleGenerativeAI(activeGeminiKey);
+      // Try gemini-1.5-flash, fallback to gemini-2.0-flash or gemini-pro
+      const model = dynamicGenAI.getGenerativeModel({
         model: 'gemini-1.5-flash',
         systemInstruction: SYSTEM_PROMPT + contextPromptStr + `\nTarget Language: ${language === 'mr' ? 'Marathi' : language === 'hi' ? 'Hindi' : 'Indian English'}.`
       });

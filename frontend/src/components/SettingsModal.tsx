@@ -22,9 +22,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   if (!isOpen) return null;
 
   const handleLanguageChange = (lang: string) => {
-    i18n.changeLanguage(lang);
-    localStorage.setItem('i18nextLng', lang);
-    localStorage.setItem('aabha_lang', lang);
+    const clean = lang.split('-')[0].toLowerCase();
+    i18n.changeLanguage(clean);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('i18nextLng', clean);
+      localStorage.setItem('aabha_lang', clean);
+      document.documentElement.lang = clean;
+      window.dispatchEvent(new CustomEvent('aabha_language_changed', { detail: { lang: clean } }));
+    }
   };
 
   const handleLogout = () => {

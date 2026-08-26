@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import enJson from '../locales/en.json';
 import hiJson from '../locales/hi.json';
@@ -14,7 +14,7 @@ const translationsMap: Record<string, Record<string, string>> = {
   en: enJson as Record<string, string>
 };
 
-// Additional universal clinical, healthcare, UI, and action terms mapping
+// Universal fallback translations dictionary for essential terms
 const universalExtraDict: Record<string, Record<string, string>> = {
   hi: {
     'Dashboard': 'डैशबोर्ड',
@@ -190,30 +190,55 @@ const universalExtraDict: Record<string, Record<string, string>> = {
   }
 };
 
+// Global map to store initial original text for each DOM text node
+const originalTextMap = new WeakMap<Node, string>();
+const originalPlaceholderMap = new WeakMap<Element, string>();
+
 export const DOMTranslationObserver: React.FC = () => {
   const { i18n } = useTranslation();
-  const currentLang = i18n.language || 'en';
+  const [activeLang, setActiveLang] = useState<string>(
+    () => (i18n.language || 'en').split('-')[0].toLowerCase()
+  );
 
   useEffect(() => {
-    if (typeof window === 'undefined' || currentLang === 'en') return;
+    const handleLangChange = () => {
+      const current = (i18n.language || localStorage.getItem('aabha_lang') || 'en')
+        .split('-')[0]
+        .toLowerCase();
+      setActiveLang(current);
+    };
+
+    window.addEventListener('aabha_language_changed', handleLangChange);
+    window.addEventListener('storage', handleLangChange);
+    i18n.on('languageChanged', handleLangChange);
+
+    return () => {
+      window.removeEventListener('aabha_language_changed', handleLangChange);
+      window.removeEventListener('storage', handleLangChange);
+      i18n.off('languageChanged', handleLangChange);
+    };
+  }, [i18n]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
 
     const dict = {
-      ...(translationsMap[currentLang] || {}),
-      ...(universalExtraDict[currentLang] || {})
+      ...(translationsMap[activeLang] || {}),
+      ...(universalExtraDict[activeLang] || {})
     };
 
     // Sort entries by length descending so longer sentences match first
     const entries = Object.entries(dict).sort((a, b) => b[0].length - a[0].length);
 
-    const translateText = (text: string): string => {
-      let result = text;
+    const translateText = (originalText: string): string => {
+      if (activeLang === 'en') return originalText;
+      let result = originalText;
       for (const [enKey, localizedVal] of entries) {
         if (!enKey || !localizedVal || enKey.length < 2) continue;
         const trimmed = result.trim();
         if (trimmed === enKey) {
           result = result.replace(enKey, localizedVal);
-        } else if (trimmed.startsWith(enKey) || trimmed.includes(enKey)) {
-          // Replace exact matching boundary
+        } else if (result.includes(enKey)) {
           const regex = new RegExp(`\\b${enKey.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}\\b`, 'g');
           result = result.replace(regex, localizedVal);
         }
@@ -222,24 +247,43 @@ export const DOMTranslationObserver: React.FC = () => {
     };
 
     const processNode = (node: Node) => {
-      // Avoid translating script, style, code blocks, or inputs directly
       if (node.nodeType === Node.TEXT_NODE && node.nodeValue && node.nodeValue.trim().length > 1) {
         const parentTag = node.parentElement?.tagName?.toLowerCase();
         if (parentTag === 'script' || parentTag === 'style' || parentTag === 'code' || parentTag === 'pre') return;
-        
-        const originalText = node.nodeValue;
-        const translated = translateText(originalText);
-        if (translated !== originalText) {
-          node.nodeValue = translated;
+
+        // Remember original English baseline
+        if (!originalTextMap.has(node)) {
+          originalTextMap.set(node, node.nodeValue);
+        }
+
+        const baseline = originalTextMap.get(node) || node.nodeValue;
+        if (activeLang === 'en') {
+          if (node.nodeValue !== baseline) {
+            node.nodeValue = baseline;
+          }
+        } else {
+          const translated = translateText(baseline);
+          if (translated !== node.nodeValue) {
+            node.nodeValue = translated;
+          }
         }
       } else if (node.nodeType === Node.ELEMENT_NODE) {
         const el = node as HTMLElement;
         if (el.tagName.toLowerCase() === 'input' || el.tagName.toLowerCase() === 'textarea') {
-          const placeholder = el.getAttribute('placeholder');
-          if (placeholder && dict[placeholder]) {
-            el.setAttribute('placeholder', dict[placeholder]);
+          if (!originalPlaceholderMap.has(el)) {
+            const currentPh = el.getAttribute('placeholder') || '';
+            if (currentPh) originalPlaceholderMap.set(el, currentPh);
+          }
+          const basePh = originalPlaceholderMap.get(el);
+          if (basePh) {
+            if (activeLang === 'en') {
+              el.setAttribute('placeholder', basePh);
+            } else if (dict[basePh]) {
+              el.setAttribute('placeholder', dict[basePh]);
+            }
           }
         }
+
         for (let i = 0; i < node.childNodes.length; i++) {
           processNode(node.childNodes[i]);
         }
@@ -249,7 +293,7 @@ export const DOMTranslationObserver: React.FC = () => {
     // Initial translation pass
     processNode(document.body);
 
-    // Mutation observer for dynamic changes / popups / modals
+    // Mutation observer for dynamic changes
     const observer = new MutationObserver((mutations) => {
       mutations.forEach(mutation => {
         mutation.addedNodes.forEach(addedNode => {
@@ -267,7 +311,7 @@ export const DOMTranslationObserver: React.FC = () => {
     return () => {
       observer.disconnect();
     };
-  }, [currentLang]);
+  }, [activeLang]);
 
   return null;
 };

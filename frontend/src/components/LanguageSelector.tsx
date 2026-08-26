@@ -51,10 +51,13 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ className = 
   }, [isOpen]);
 
   const handleSelectLanguage = (code: string) => {
-    i18n.changeLanguage(code);
+    const clean = code.split('-')[0].toLowerCase();
+    i18n.changeLanguage(clean);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('i18nextLng', code);
-      localStorage.setItem('aabha_lang', code);
+      localStorage.setItem('i18nextLng', clean);
+      localStorage.setItem('aabha_lang', clean);
+      document.documentElement.lang = clean;
+      window.dispatchEvent(new CustomEvent('aabha_language_changed', { detail: { lang: clean } }));
     }
     setIsOpen(false); // Automatically close dropdown
   };

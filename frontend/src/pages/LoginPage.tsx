@@ -173,14 +173,14 @@ export default function LoginPage() {
       <AnimatedBackground />
 
       {/* Header Bar */}
-      <div className="relative z-50 max-w-6xl mx-auto w-full flex items-center justify-between py-2">
+      <div className="relative z-50 max-w-6xl mx-auto w-full flex items-center justify-between py-2 pb-4">
         <Link to="/" className="flex items-center gap-2 text-[var(--text-primary)] font-black text-xl tracking-tight">
           <Abha3DOrb size="sm" state="IDLE" interactive={false} />
           <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
             AABHA AI
           </span>
         </Link>
-        <LanguageSelector />
+        <LanguageSelector className="z-50" />
       </div>
 
       {/* Main Split-Screen Container */}

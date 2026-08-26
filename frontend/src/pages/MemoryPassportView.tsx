@@ -258,7 +258,7 @@ export default function MemoryPassportView() {
             <span>📖</span> {t('My Memory Album & Passport')}
           </h1>
           <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium mt-1">
-            Your family contacts, mobile numbers, and favorite hobbies & passions
+            {t('Your family contacts, mobile numbers, and favorite hobbies & passions')}
           </p>
         </div>
 
@@ -270,7 +270,7 @@ export default function MemoryPassportView() {
             className="btn-glass px-4 py-2.5 text-xs font-bold flex items-center gap-1.5"
           >
             <Palette className="w-4 h-4 text-purple-400" />
-            <span>+ Write Hobbies (छंद लिहा)</span>
+            <span>{t('+ Write Hobbies')}</span>
           </button>
 
           <button
@@ -279,7 +279,7 @@ export default function MemoryPassportView() {
             className="btn-glow px-4 py-2.5 text-xs font-black flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4" />
-            <span>+ Add Family Member</span>
+            <span>{t('+ Add Family Member')}</span>
           </button>
         </div>
       </div>
@@ -288,7 +288,7 @@ export default function MemoryPassportView() {
       {saveSuccess && (
         <div className="p-4 bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 font-bold rounded-2xl flex items-center gap-2 shadow-md animate-fade-in">
           <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-          <span>Information saved and updated successfully!</span>
+          <span>{t('Information saved and updated successfully!')}</span>
         </div>
       )}
 
@@ -305,7 +305,7 @@ export default function MemoryPassportView() {
             onClick={handleOpenAddMember}
             className="text-xs font-bold text-emerald-400 hover:underline"
           >
-            + Add New Relative
+            {t('+ Add New Relative')}
           </button>
         </div>
 
@@ -320,7 +320,7 @@ export default function MemoryPassportView() {
               >
                 {/* Card Top Header with Edit & Delete */}
                 <div className="flex items-center justify-between w-full border-b border-[var(--border)] pb-2">
-                  <span className="text-[10px] font-bold uppercase text-[var(--text-secondary)]">Contact Card</span>
+                  <span className="text-[10px] font-bold uppercase text-[var(--text-secondary)]">{t('Contact Card')}</span>
                   <div className="flex items-center gap-1.5">
                     <button
                       type="button"
@@ -329,7 +329,7 @@ export default function MemoryPassportView() {
                       title="Edit Family Member"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
-                      <span>Edit</span>
+                      <span>{t('Edit')}</span>
                     </button>
                     <button
                       type="button"
@@ -349,7 +349,7 @@ export default function MemoryPassportView() {
 
                   <h3 className="font-black text-xl text-[var(--text-primary)]">{person.name}</h3>
                   <div className="inline-block bg-[var(--bg-surface-secondary)] border border-[var(--border)] text-emerald-400 px-3 py-0.5 rounded-full text-xs font-bold mt-1">
-                    {person.relationship}
+                    {t(person.relationship) || person.relationship}
                   </div>
 
                   {person.phone ? (
@@ -363,12 +363,12 @@ export default function MemoryPassportView() {
                       onClick={() => handleOpenEditMember(person)}
                       className="mt-2 text-xs text-emerald-400 font-bold underline"
                     >
-                      + Add Phone Number
+                      {t('+ Add Phone Number')}
                     </button>
                   )}
 
                   <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed mt-3">
-                    {person.description}
+                    {t(person.description) || person.description}
                   </p>
                 </div>
 
@@ -380,7 +380,7 @@ export default function MemoryPassportView() {
                       className="btn-glass py-2.5 px-3 text-xs font-bold flex items-center justify-center gap-1.5"
                     >
                       <Phone className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Call Now</span>
+                      <span>{t('Call Now')}</span>
                     </a>
                     <a
                       href={`https://wa.me/${cleanPhone.replace('+', '')}`}
@@ -399,7 +399,7 @@ export default function MemoryPassportView() {
                       onClick={() => handleOpenEditMember(person)}
                       className="btn-glass w-full py-2 text-xs font-bold"
                     >
-                      ✏️ Edit Details
+                      ✏️ {t('Edit Details')}
                     </button>
                   </div>
                 )}
@@ -415,7 +415,7 @@ export default function MemoryPassportView() {
           <div className="flex items-center gap-2">
             <Palette className="w-5 h-5 text-purple-400" />
             <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
-              {t('My Hobbies & Favorite Passions (माझे आवडते छंद)')} ({hobbies.length})
+              {t('My Hobbies & Favorite Passions')} ({hobbies.length})
             </h2>
           </div>
           <button
@@ -423,7 +423,7 @@ export default function MemoryPassportView() {
             className="btn-glass px-3.5 py-1.5 text-xs font-bold flex items-center gap-1"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>+ Write New Hobby</span>
+            <span>{t('+ Write New Hobby')}</span>
           </button>
         </div>
 

@@ -35,21 +35,21 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onPlay, className = ''
   const getCategoryLabel = (cat: string) => {
     switch (cat) {
       case 'sih-core':
-        return 'SIH CORE';
+        return t('SIH CORE');
       case 'quiz':
       case '2-player':
-        return '2-PLAYER';
+        return t('2-PLAYER');
       case 'therapy':
-        return 'THERAPY';
+        return t('THERAPY');
       case 'physio':
-        return 'PHYSIO';
+        return t('PHYSIO');
       case 'memory':
       case 'cognitive':
-        return 'MEMORY';
+        return t('MEMORY');
       case 'fun':
-        return 'FAMILY';
+        return t('FAMILY');
       default:
-        return 'GAME';
+        return t('GAME');
     }
   };
 
@@ -68,7 +68,7 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onPlay, className = ''
           <div className="flex items-center gap-1.5 flex-wrap justify-end">
             {game.badge && (
               <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-2xs ${getBadgeColors(game.badge)}`}>
-                {game.badge}
+                {t(game.badge) || game.badge}
               </span>
             )}
             <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-[var(--bg-surface-secondary)] text-[var(--text-muted)] border border-[var(--border)]">

@@ -28,7 +28,8 @@ import {
   Bot,
   Flame,
   Award,
-  Zap
+  Zap,
+  BarChart3
 } from 'lucide-react';
 
 interface RoutineItem {
@@ -40,7 +41,7 @@ interface RoutineItem {
 }
 
 export const PatientDashboard: React.FC = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, updateProfile } = useAuthStore();
 
@@ -70,14 +71,6 @@ export const PatientDashboard: React.FC = () => {
   const [copiedId, setCopiedId] = useState(false);
   const [isSosOpen, setIsSosOpen] = useState(false);
   const [sosSent, setSosSent] = useState(false);
-
-  // Edit Profile Modal state
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editName, setEditName] = useState(user?.name || '');
-  const [editPhone, setEditPhone] = useState(user?.phone || '');
-  const [editAge, setEditAge] = useState(user?.age ? String(user.age) : '');
-  const [editEmergency, setEditEmergency] = useState(user?.emergencyContact || '');
-  const [savingProfile, setSavingProfile] = useState(false);
 
   useEffect(() => {
     setIndicators(AdaptiveAIEngine.calculateCognitiveIndicators());
@@ -125,24 +118,6 @@ export const PatientDashboard: React.FC = () => {
     }
   };
 
-  const handleSaveProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSavingProfile(true);
-    try {
-      await updateProfile({
-        name: editName.trim(),
-        phone: editPhone.trim(),
-        age: editAge ? parseInt(editAge, 10) : undefined,
-        emergencyContact: editEmergency.trim()
-      });
-      setIsEditModalOpen(false);
-    } catch (err: any) {
-      alert(err?.message || 'Failed to update profile');
-    } finally {
-      setSavingProfile(false);
-    }
-  };
-
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good Morning';
@@ -156,128 +131,122 @@ export const PatientDashboard: React.FC = () => {
   const firstName = (user?.name || 'Arun').split(' ')[0];
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-6 font-sans text-[var(--text-primary)] pb-8">
-      {/* ─── 1. TOP STATUS / QUICK ACTION CARDS (HORIZONTAL ROW / SCROLLABLE) ── */}
-      <section className="w-full overflow-x-auto pb-1 scrollbar-none">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-3.5 min-w-[620px] lg:min-w-0">
-          {/* Card 1: Emergency SOS */}
-          <div
-            onClick={() => setIsSosOpen(true)}
-            className="p-4 sm:p-5 rounded-[24px] bg-[var(--bg-surface)] border border-rose-500/25 hover:border-rose-500/40 shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group select-none"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black uppercase text-rose-500 tracking-wider">
-                Emergency SOS
-              </span>
-              <div className="w-8 h-8 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center text-sm font-black group-hover:scale-110 transition-transform">
+    <div className="w-full max-w-6xl mx-auto space-y-6 font-sans text-[var(--text-primary)] pb-12">
+      {/* ─── 1. STICKY TOP QUICK-ACTION / STATUS BAR (REMAINS VISIBLE WHILE SCROLLING) ─ */}
+      <section className="sticky top-[58px] sm:top-[68px] z-30 py-1.5 sm:py-2.5 backdrop-blur-2xl bg-[var(--bg-page)]/90 border-b border-[var(--border)] -mx-3.5 px-3.5 sm:-mx-6 sm:px-6 transition-all">
+        <div className="w-full overflow-x-auto pb-1 scrollbar-none">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3.5 min-w-[580px] lg:min-w-0">
+            {/* Card 1: Emergency SOS */}
+            <button
+              type="button"
+              onClick={() => setIsSosOpen(true)}
+              className="p-3 sm:p-4 rounded-[20px] bg-[var(--bg-surface)] border border-rose-500/30 hover:border-rose-500 shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center justify-between text-left group select-none"
+            >
+              <div>
+                <div className="text-[10px] font-black uppercase text-rose-500 tracking-wider">
+                  Emergency SOS
+                </div>
+                <div className="text-xs sm:text-sm font-black text-[var(--text-primary)] mt-0.5">
+                  1-Tap Help
+                </div>
+                <div className="text-[10px] text-[var(--text-secondary)] font-medium">
+                  Caregiver notified
+                </div>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-rose-500/15 text-rose-500 flex items-center justify-center text-sm font-black group-hover:scale-110 transition-transform shrink-0">
                 🚨
               </div>
-            </div>
-            <div className="mt-3">
-              <div className="text-base sm:text-lg font-black text-[var(--text-primary)]">
-                1-Tap Help
-              </div>
-              <div className="text-[11px] text-[var(--text-secondary)] font-medium mt-0.5">
-                Caregiver notified
-              </div>
-            </div>
-          </div>
+            </button>
 
-          {/* Card 2: Today's Medicine */}
-          <Link
-            to="/patient/reminders"
-            className="p-4 sm:p-5 rounded-[24px] bg-[var(--bg-surface)] border border-teal-500/25 hover:border-teal-500/40 shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group select-none"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black uppercase text-teal-600 dark:text-teal-400 tracking-wider">
-                Today's Medicine
-              </span>
-              <div className="w-8 h-8 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center text-sm font-black group-hover:scale-110 transition-transform">
+            {/* Card 2: Today's Medicine */}
+            <Link
+              to="/patient/reminders"
+              className="p-3 sm:p-4 rounded-[20px] bg-[var(--bg-surface)] border border-teal-500/30 hover:border-teal-500 shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center justify-between text-left group select-none"
+            >
+              <div>
+                <div className="text-[10px] font-black uppercase text-teal-600 dark:text-teal-400 tracking-wider">
+                  Today's Medicine
+                </div>
+                <div className="text-xs sm:text-sm font-black text-[var(--text-primary)] mt-0.5">
+                  {takenMedsCount} / {medications.length} Taken
+                </div>
+                <div className="text-[10px] text-[var(--text-secondary)] font-medium">
+                  Next: 01:00 PM
+                </div>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-teal-500/15 text-teal-600 dark:text-teal-400 flex items-center justify-center text-sm font-black group-hover:scale-110 transition-transform shrink-0">
                 💊
               </div>
-            </div>
-            <div className="mt-3">
-              <div className="text-base sm:text-lg font-black text-[var(--text-primary)]">
-                {takenMedsCount} / {medications.length} Taken
-              </div>
-              <div className="text-[11px] text-[var(--text-secondary)] font-medium mt-0.5">
-                Next: 01:00 PM
-              </div>
-            </div>
-          </Link>
+            </Link>
 
-          {/* Card 3: Hydration */}
-          <div
-            onClick={handleAddHydration}
-            className="p-4 sm:p-5 rounded-[24px] bg-[var(--bg-surface)] border border-blue-500/25 hover:border-blue-500/40 shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group select-none"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black uppercase text-blue-600 dark:text-blue-400 tracking-wider">
-                Hydration
-              </span>
-              <div className="w-8 h-8 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm font-black group-hover:scale-110 transition-transform">
+            {/* Card 3: Hydration */}
+            <button
+              type="button"
+              onClick={handleAddHydration}
+              className="p-3 sm:p-4 rounded-[20px] bg-[var(--bg-surface)] border border-blue-500/30 hover:border-blue-500 shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center justify-between text-left group select-none"
+            >
+              <div>
+                <div className="text-[10px] font-black uppercase text-blue-600 dark:text-blue-400 tracking-wider">
+                  Hydration
+                </div>
+                <div className="text-xs sm:text-sm font-black text-[var(--text-primary)] mt-0.5">
+                  {hydrationCount} / {hydrationTarget} Glasses
+                </div>
+                <div className="text-[10px] text-[var(--text-secondary)] font-medium">
+                  {hydrationCount >= hydrationTarget ? 'Goal met! 🎉' : '+1 Tap Log'}
+                </div>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm font-black group-hover:scale-110 transition-transform shrink-0">
                 💧
               </div>
-            </div>
-            <div className="mt-3">
-              <div className="text-base sm:text-lg font-black text-[var(--text-primary)]">
-                {hydrationCount} / {hydrationTarget} Glasses
-              </div>
-              <div className="text-[11px] text-[var(--text-secondary)] font-medium mt-0.5">
-                {hydrationCount >= hydrationTarget ? 'Goal reached! 🎉' : 'Keep it up! (+1 tap)'}
-              </div>
-            </div>
-          </div>
+            </button>
 
-          {/* Card 4: Today's Routine */}
-          <a
-            href="#routine"
-            className="p-4 sm:p-5 rounded-[24px] bg-[var(--bg-surface)] border border-indigo-500/25 hover:border-indigo-500/40 shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group select-none"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">
-                Today's Routine
-              </span>
-              <div className="w-8 h-8 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm font-black group-hover:scale-110 transition-transform">
+            {/* Card 4: Today's Routine */}
+            <a
+              href="#routine"
+              className="p-3 sm:p-4 rounded-[20px] bg-[var(--bg-surface)] border border-indigo-500/30 hover:border-indigo-500 shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center justify-between text-left group select-none"
+            >
+              <div>
+                <div className="text-[10px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">
+                  Today's Routine
+                </div>
+                <div className="text-xs sm:text-sm font-black text-[var(--text-primary)] mt-0.5">
+                  {completedRoutineCount} / {routine.length} Done
+                </div>
+                <div className="text-[10px] text-[var(--text-secondary)] font-medium">
+                  {Math.round((completedRoutineCount / routine.length) * 100)}% Completed
+                </div>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm font-black group-hover:scale-110 transition-transform shrink-0">
                 📅
               </div>
-            </div>
-            <div className="mt-3">
-              <div className="text-base sm:text-lg font-black text-[var(--text-primary)]">
-                {completedRoutineCount} / {routine.length} Done
-              </div>
-              <div className="text-[11px] text-[var(--text-secondary)] font-medium mt-0.5">
-                {Math.round((completedRoutineCount / routine.length) * 100)}% Completed
-              </div>
-            </div>
-          </a>
+            </a>
 
-          {/* Card 5: Ask AABHA */}
-          <Link
-            to="/aabha"
-            className="p-4 sm:p-5 rounded-[24px] bg-[var(--bg-surface)] border border-purple-500/25 hover:border-purple-500/40 shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group select-none col-span-2 sm:col-span-1"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black uppercase text-purple-600 dark:text-purple-400 tracking-wider">
-                AI Companion
-              </span>
-              <div className="w-8 h-8 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center text-sm font-black group-hover:scale-110 transition-transform">
+            {/* Card 5: Ask AABHA */}
+            <Link
+              to="/aabha"
+              className="p-3 sm:p-4 rounded-[20px] bg-[var(--bg-surface)] border border-purple-500/30 hover:border-purple-500 shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center justify-between text-left group select-none col-span-2 sm:col-span-1"
+            >
+              <div>
+                <div className="text-[10px] font-black uppercase text-purple-600 dark:text-purple-400 tracking-wider">
+                  AI Companion
+                </div>
+                <div className="text-xs sm:text-sm font-black text-[var(--text-primary)] mt-0.5">
+                  Ask AABHA
+                </div>
+                <div className="text-[10px] text-[var(--text-secondary)] font-medium">
+                  I'm here to help!
+                </div>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center text-sm font-black group-hover:scale-110 transition-transform shrink-0">
                 🤖
               </div>
-            </div>
-            <div className="mt-3">
-              <div className="text-base sm:text-lg font-black text-[var(--text-primary)]">
-                Ask AABHA
-              </div>
-              <div className="text-[11px] text-[var(--text-secondary)] font-medium mt-0.5">
-                I'm here to help!
-              </div>
-            </div>
-          </Link>
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* ─── 2. MAIN GREETING SECTION (LARGE SOFT GRADIENT CARD) ─────────────── */}
+      {/* ─── 2. MAIN GREETING HERO CARD ─────────────────────────────────────── */}
       <section className="p-6 sm:p-8 md:p-10 rounded-[28px] bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-teal-500/10 border border-purple-400/25 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
         {/* Left: Greeting Text */}
         <div className="space-y-2 text-center md:text-left">
@@ -297,12 +266,12 @@ export const PatientDashboard: React.FC = () => {
             {getGreeting()}, {firstName}! 👋
           </h1>
           <p className="text-sm sm:text-base text-[var(--text-secondary)] font-medium max-w-xl">
-            Ready for a great day ahead? Your morning routine is progressing smoothly.
+            Ready for a great day ahead? Your daily memory and health routine is ready.
           </p>
         </div>
 
-        {/* Right: Talk to AABHA Micro Action Card */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 bg-[var(--bg-surface)] p-4 sm:p-5 rounded-[24px] border border-[var(--border)] shadow-md shrink-0">
+        {/* Right: Talk to AABHA Button Card */}
+        <div className="flex flex-col sm:flex-row items-center gap-4 bg-[var(--bg-surface)] p-4 sm:p-5 rounded-[24px] border border-[var(--border)] shadow-md shrink-0 w-full sm:w-auto justify-between sm:justify-start">
           <div className="text-center sm:text-left">
             <div className="text-xs font-black uppercase text-purple-600 dark:text-purple-400 tracking-wider">
               Voice Assistant
@@ -311,13 +280,13 @@ export const PatientDashboard: React.FC = () => {
               Talk to AABHA
             </div>
             <div className="text-[11px] text-[var(--text-secondary)] font-medium">
-              Tap mic to start speaking
+              Tap mic to speak naturally
             </div>
           </div>
 
           <Link
             to="/aabha"
-            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all shrink-0 group"
+            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all shrink-0 group mx-auto sm:mx-0"
             title="Launch AABHA Voice Companion"
           >
             <Mic className="w-6 h-6 sm:w-7 sm:h-7 group-hover:scale-110 transition-transform" />
@@ -325,7 +294,7 @@ export const PatientDashboard: React.FC = () => {
         </div>
       </section>
 
-      {/* ─── 3. QUICK ACTIONS SECTION (5 LARGE ROUNDED CARDS) ────────────────── */}
+      {/* ─── 3. QUICK ACTIONS (5 LARGE ROUNDED CARDS) ────────────────────────── */}
       <section className="space-y-3">
         <div className="flex items-center justify-between px-1">
           <h2 className="text-base sm:text-lg font-black text-[var(--text-primary)] tracking-tight">
@@ -337,7 +306,7 @@ export const PatientDashboard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
-          {/* Action 1: Start Cognitive Activity */}
+          {/* Action 1: Cognitive Activity */}
           <Link
             to="/patient/games/memory-match"
             className="p-5 rounded-[24px] bg-[var(--bg-surface)] border border-[var(--border)] hover:border-purple-400/50 shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group select-none"
@@ -347,7 +316,7 @@ export const PatientDashboard: React.FC = () => {
             </div>
             <div>
               <h3 className="text-xs sm:text-sm font-black text-[var(--text-primary)] group-hover:text-purple-600 transition-colors">
-                Start Cognitive Activity
+                Cognitive Activity
               </h3>
               <p className="text-[11px] text-[var(--text-secondary)] font-medium mt-1 leading-snug">
                 Train your memory & mind
@@ -429,9 +398,9 @@ export const PatientDashboard: React.FC = () => {
         </div>
       </section>
 
-      {/* ─── 4. LOWER DASHBOARD (RECENT ACTIVITY & AI INSIGHT SIDE-BY-SIDE) ──── */}
+      {/* ─── 4. RECENT ACTIVITY & AI INSIGHT (SIDE-BY-SIDE ON DESKTOP) ───────── */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* LEFT CARD: Recent Activity */}
+        {/* LEFT: Recent Activity */}
         <div className="p-6 sm:p-8 rounded-[28px] bg-[var(--bg-surface)] border border-[var(--border)] shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
             <h3 className="text-base sm:text-lg font-black text-[var(--text-primary)]">
@@ -450,7 +419,7 @@ export const PatientDashboard: React.FC = () => {
                     Memory Match Game
                   </div>
                   <div className="text-[11px] text-[var(--text-secondary)] font-medium">
-                    Score: 85% • Level 2 (Medium)
+                    Score: 85% • Medium
                   </div>
                 </div>
               </div>
@@ -468,7 +437,7 @@ export const PatientDashboard: React.FC = () => {
                     Medicine — Morning (Donepezil 5mg)
                   </div>
                   <div className="text-[11px] text-[var(--text-secondary)] font-medium">
-                    Taken with breakfast at 08:30 AM
+                    Taken with breakfast
                   </div>
                 </div>
               </div>
@@ -486,18 +455,18 @@ export const PatientDashboard: React.FC = () => {
                     Hydration Goal
                   </div>
                   <div className="text-[11px] text-[var(--text-secondary)] font-medium">
-                    4 of 6 glasses logged
+                    4 of 6 glasses completed
                   </div>
                 </div>
               </div>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-400/30">
-                Logged
+                Completed
               </span>
             </div>
           </div>
         </div>
 
-        {/* RIGHT CARD: AI Insight */}
+        {/* RIGHT: AI Insight */}
         <div className="p-6 sm:p-8 rounded-[28px] bg-gradient-to-br from-purple-500/10 via-[var(--bg-surface)] to-teal-500/10 border border-purple-400/25 shadow-sm space-y-4 flex flex-col justify-between">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -512,11 +481,11 @@ export const PatientDashboard: React.FC = () => {
                 Great progress today! 🎉
               </h3>
               <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium leading-relaxed">
-                Your memory performance improved compared with yesterday (+12%). Visual recall on Memory Match was quick and confident.
+                Your memory performance improved by 12% compared with yesterday. Reaction speed and accuracy across cognitive games remain strong.
               </p>
             </div>
 
-            {/* Mini Score Pills */}
+            {/* Score Indicators */}
             <div className="grid grid-cols-3 gap-2 pt-1">
               <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] text-center">
                 <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Memory</div>
@@ -548,7 +517,7 @@ export const PatientDashboard: React.FC = () => {
         </div>
       </section>
 
-      {/* ─── 5. TODAY'S ROUTINE INTERACTIVE CHECKLIST (ANCHOR #routine) ──────── */}
+      {/* ─── 5. TODAY'S PRESCRIBED ROUTINE (ANCHOR #routine) ─────────────────── */}
       <section id="routine" className="p-6 sm:p-8 rounded-[28px] bg-[var(--bg-surface)] border border-[var(--border)] shadow-sm space-y-4">
         <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
           <div>
@@ -608,7 +577,7 @@ export const PatientDashboard: React.FC = () => {
         </div>
       </section>
 
-      {/* ─── 6. EMERGENCY SOS MODAL (REDESIGNED CLEAN WHITE/ACCESSIBLE) ─────── */}
+      {/* ─── 6. EMERGENCY SOS CONFIRMATION MODAL ─────────────────────────────── */}
       {isSosOpen && (
         <div className="fixed inset-0 z-50 bg-[var(--bg-modal-overlay)] backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[var(--bg-surface)] rounded-[28px] p-6 sm:p-8 max-w-md w-full border border-[var(--border)] shadow-2xl text-center space-y-4 max-h-[90vh] overflow-y-auto">
@@ -620,7 +589,7 @@ export const PatientDashboard: React.FC = () => {
             </h2>
             <p className="text-xs sm:text-sm font-medium text-[var(--text-secondary)] leading-relaxed">
               {sosSent
-                ? 'Your caregiver (Dr. Anita Verma) and emergency contacts have been notified with your live location.'
+                ? 'Your caregiver (Dr. Anita Verma) and emergency contacts have been notified with your live GPS location.'
                 : 'This will notify your caregiver that you require immediate assistance.'}
             </p>
 

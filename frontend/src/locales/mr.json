@@ -426,5 +426,15 @@
   "Days": "दिवस",
   "Active": "सक्रिय",
   "Completed": "पूर्ण",
-  "Pending": "प्रलंबित"
+  "Pending": "प्रलंबित",
+  "SignBridge – Sign Language Doctor Consultation": "साइनब्रिज – सांकेतिक भाषा डॉक्टर सल्लामसलत",
+  "Sign Language Consultation": "सांकेतिक भाषा सल्लामसलत",
+  "Start ISL Consultation →": "सांकेतिक सल्लामसलत सुरू करा →",
+  "SignBridge ISL Desk": "साइनब्रिज डेस्क",
+  "Recognized ISL Gesture": "ओळखलेला सांकेतिक इशारा (ISL)",
+  "Speak Sign (TTS)": "इशारा बोला (TTS)",
+  "Doctor Live Voice Subtitles (Speech-to-Text)": "डॉक्टर थेट आवाज सबटायटल्स (Speech-to-Text)",
+  "1-Tap Common Medical Signs & Phrases (ISL Shortcuts)": "१-टॅप प्रमुख वैद्यकीय संकेत व वाक्ये (ISL शॉर्टकट्स)",
+  "High-Risk Medical Sign Detected (Urgent Alert)": "गंभीर वैद्यकीय इशारा आढळला (तातडीचा इशारा)",
+  "SignBridge Privacy & Camera Consent": "साइनब्रिज गोपनीयता आणि कॅमेरा संमती"
 }

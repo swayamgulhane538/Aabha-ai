@@ -30,6 +30,8 @@ import AppointmentsView from './pages/AppointmentsView';
 import VitalsTrackerView from './pages/VitalsTrackerView';
 import TeleconsultView from './pages/TeleconsultView';
 import MedicineStoreView from './pages/MedicineStoreView';
+import SignBridgePatientView from './pages/SignBridgePatientView';
+import SignBridgeDoctorView from './pages/SignBridgeDoctorView';
 
 // Caregiver pages
 import CaregiverDashboard from './pages/CaregiverDashboard';
@@ -96,6 +98,7 @@ const App: React.FC = () => {
                 <Route path="/patient/games/:type" element={<GamePlayer />} />
                 <Route path="/patient/vitals" element={<VitalsTrackerView />} />
                 <Route path="/patient/consultation" element={<TeleconsultView />} />
+                <Route path="/patient/signbridge" element={<SignBridgePatientView />} />
                 <Route path="/patient/pharmacy" element={<MedicineStoreView />} />
                 <Route path="/patient/medicine-store" element={<Navigate to="/patient/pharmacy" replace />} />
                 <Route path="/patient/memory-passport" element={<MemoryPassportView />} />
@@ -116,6 +119,7 @@ const App: React.FC = () => {
                 <Route path="/caregiver/patients" element={<PatientsList />} />
                 <Route path="/caregiver/patients/:id" element={<PatientDetail />} />
                 <Route path="/caregiver/consultation" element={<TeleconsultView />} />
+                <Route path="/caregiver/signbridge" element={<SignBridgeDoctorView />} />
                 <Route path="/caregiver/memory-passport/:patientId" element={<MemoryPassportEdit />} />
                 <Route path="/caregiver/passport-edit" element={<MemoryPassportEdit />} />
                 <Route path="/caregiver/history" element={<PatientHistoryView />} />

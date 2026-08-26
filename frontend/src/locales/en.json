@@ -426,5 +426,15 @@
   "Days": "Days",
   "Active": "Active",
   "Completed": "Completed",
-  "Pending": "Pending"
+  "Pending": "Pending",
+  "SignBridge – Sign Language Doctor Consultation": "SignBridge – Sign Language Doctor Consultation",
+  "Sign Language Consultation": "Sign Language Consultation",
+  "Start ISL Consultation →": "Start ISL Consultation →",
+  "SignBridge ISL Desk": "SignBridge ISL Desk",
+  "Recognized ISL Gesture": "Recognized ISL Gesture",
+  "Speak Sign (TTS)": "Speak Sign (TTS)",
+  "Doctor Live Voice Subtitles (Speech-to-Text)": "Doctor Live Voice Subtitles (Speech-to-Text)",
+  "1-Tap Common Medical Signs & Phrases (ISL Shortcuts)": "1-Tap Common Medical Signs & Phrases (ISL Shortcuts)",
+  "High-Risk Medical Sign Detected (Urgent Alert)": "High-Risk Medical Sign Detected (Urgent Alert)",
+  "SignBridge Privacy & Camera Consent": "SignBridge Privacy & Camera Consent"
 }

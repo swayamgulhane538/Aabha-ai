@@ -425,6 +425,16 @@
   "Daily Streak": "দৈনিক ধারাবাহিকতা",
   "Days": "দিন",
   "Active": "সক্রিয়",
-  "Completed": "সম্পন্ন",
-  "Pending": "অপেক্ষমাণ"
+  "Completed": "সম্পূর্ণ",
+  "Pending": "মুলতুবি",
+  "SignBridge – Sign Language Doctor Consultation": "সাইনব্রিজ – সাংকেতিক ভাষা ডাক্তার পরামর্শ",
+  "Sign Language Consultation": "সাংকেতিক ভাষা পরামর্শ",
+  "Start ISL Consultation →": "সাংকেতিক পরামর্শ শুরু করুন →",
+  "SignBridge ISL Desk": "সাইনব্রিজ ডেস্ক",
+  "Recognized ISL Gesture": "শনাক্তকৃত সাংকেতিক অঙ্গভঙ্গি (ISL)",
+  "Speak Sign (TTS)": "ইঙ্গিত শুনুন (TTS)",
+  "Doctor Live Voice Subtitles (Speech-to-Text)": "ডাক্তার লাইভ ভয়েস সাবটাইটেল (Speech-to-Text)",
+  "1-Tap Common Medical Signs & Phrases (ISL Shortcuts)": "১-ট্যাপ সাধারণ মেডিকেল সংকেত ও বাক্যাংশ (ISL শর্টকাট)",
+  "High-Risk Medical Sign Detected (Urgent Alert)": "উচ্চ-ঝুঁকিপূর্ণ মেডিকেল সংকেত সনাক্ত হয়েছে (জরুরি সতর্কতা)",
+  "SignBridge Privacy & Camera Consent": "সাইনব্রিজ গোপনীয়তা ও ক্যামেরা সম্মতি"
 }

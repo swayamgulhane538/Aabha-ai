@@ -140,9 +140,16 @@ export const CaregiverDashboard: React.FC = () => {
 
         {/* Action CTAs */}
         <div className="flex items-center gap-2 flex-wrap">
+          <Link
+            to="/caregiver/signbridge"
+            className="btn-glow px-4 py-2.5 rounded-2xl text-xs font-black flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 shadow-md hover:scale-105 transition"
+          >
+            <span>🤟 SignBridge ISL Desk</span>
+          </Link>
+
           <button
             onClick={() => setShowReportModal(true)}
-            className="btn-glow px-4 py-2.5 rounded-2xl text-xs font-black flex items-center gap-2 cursor-pointer shadow-md"
+            className="btn-glass px-4 py-2.5 rounded-2xl text-xs font-black flex items-center gap-2 cursor-pointer shadow-md"
           >
             <FileText className="w-4 h-4 text-white" />
             <span>Generate Weekly AI Report</span>

@@ -295,6 +295,38 @@ export const PatientDashboard: React.FC = () => {
         </div>
       </section>
 
+      {/* ─── 2.1 SIGNBRIDGE ISL DOCTOR CONSULTATION HERO CARD ──────────────────── */}
+      <section className="p-5 sm:p-7 rounded-[28px] bg-gradient-to-r from-purple-900/40 via-indigo-900/30 to-teal-900/30 border-2 border-purple-400/40 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-purple-500/20 text-purple-300 border border-purple-400/40 flex items-center justify-center text-3xl shrink-0 shadow-inner">
+            🤟
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-2.5 py-0.5 rounded-md bg-purple-500/30 text-purple-200 border border-purple-400/40 text-[10px] font-black uppercase tracking-wider">
+                New Feature • SIH26003
+              </span>
+              <span className="text-xs font-mono text-emerald-400 font-bold">
+                Indian Sign Language (ISL)
+              </span>
+            </div>
+            <h2 className="text-lg sm:text-2xl font-black text-white">
+              SignBridge – Sign Language Doctor Consultation
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300 font-medium max-w-xl">
+              Deaf and non-speaking patients can communicate with Dr. Anita Verma via real-time ISL gesture translation, Text-to-Speech & live subtitles.
+            </p>
+          </div>
+        </div>
+
+        <Link
+          to="/patient/signbridge"
+          className="btn-glow w-full md:w-auto px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-lg cursor-pointer shrink-0 whitespace-nowrap"
+        >
+          <span>Start ISL Consultation →</span>
+        </Link>
+      </section>
+
       {/* ─── 3. QUICK ACTIONS (5 LARGE ROUNDED CARDS) ────────────────────────── */}
       <section className="space-y-3">
         <div className="flex items-center justify-between px-1">

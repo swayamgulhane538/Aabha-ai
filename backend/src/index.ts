@@ -25,6 +25,7 @@ import appointmentsRoutes from './routes/appointments.routes';
 import moodRoutes from './routes/mood.routes';
 import { vitalsRouter } from './routes/vitals.routes';
 import pharmacyRoutes from './routes/pharmacy.routes';
+import signbridgeRoutes from './routes/signbridge.routes';
 
 const app = express();
 
@@ -85,6 +86,7 @@ app.use('/api/alerts', alertsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/messages', familyMessagesRoutes);
 app.use('/api/sync', syncRoutes);
+app.use('/api/signbridge', signbridgeRoutes);
 
 // Serve Frontend Static Production Build (if present in unified deploy)
 const possibleFrontendPaths = [

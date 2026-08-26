@@ -21,9 +21,17 @@ import {
   Shield,
   Volume2,
   VolumeX,
-  Radio
+  Radio,
+  Music,
+  Heart,
+  Users,
+  Smile,
+  Home,
+  Coffee,
+  Smartphone
 } from 'lucide-react';
 import { Abha3DOrb } from './Abha3DOrb';
+import { ambientMusic } from '../services/ambientMusicService';
 
 interface StageConfig {
   id: number;
@@ -33,6 +41,14 @@ interface StageConfig {
   subtitle: string;
   badge: string;
   icon: string;
+  humanScene: {
+    character: string;
+    setting: string;
+    action: string;
+    quote: string;
+    avatar: string;
+    metric: string;
+  };
   narrationText: string;
   narrationHindi: string;
 }
@@ -41,90 +57,154 @@ const STAGES: StageConfig[] = [
   {
     id: 1,
     startSec: 0,
-    endSec: 7,
-    title: 'Patient Profile & Daily Companion',
-    subtitle: 'Meet Mr. Arun Das (PAT-DEMO-000001)',
-    badge: '01. PATIENT DASHBOARD',
+    endSec: 22,
+    title: 'Real Life: Meet Mr. Arun Das & Family',
+    subtitle: '72-year-old retired teacher living in New Delhi with daughter Dr. Anita',
+    badge: '01. HOME LIFE & CHALLENGE',
     icon: '👵',
-    narrationText: 'Welcome to Aabha AI, an intelligent cognitive companion for elderly care. Here is Mr. Arun Das\'s high contrast, elderly-friendly patient dashboard with one-tap access to medicine, hydration, and routine checkoffs.',
-    narrationHindi: 'आभा एआई में आपका स्वागत है। यह है श्री अरुण दास का एल्डरली-फ्रेंडली डैशबोर्ड जहाँ दवाई, पानी और दिनचर्या एक टैप में सुलभ है।'
+    humanScene: {
+      character: 'Mr. Arun Das (Age 72) & Daughter Anita',
+      setting: 'Morning Living Room, New Delhi',
+      action: 'Experiencing mild memory lapses with daily medicines and schedules',
+      quote: '"I want to stay independent, but sometimes I forget if I took my morning medicine or drank enough water."',
+      avatar: '👴',
+      metric: 'Independence preserved with zero anxiety'
+    },
+    narrationText: 'Across millions of Indian households, elderly elders like seventy-two-year-old Arun Das want to live with dignity and independence. However, mild cognitive difficulties often make managing daily medications, water intake, and schedules stressful for both patients and working caregivers.',
+    narrationHindi: 'भारत के लाखों परिवारों में 72 वर्षीय अरुण दास जैसे बुजुर्ग स्वतंत्रता से जीना चाहते हैं। लेकिन समय पर दवाई लेना और दिनचर्या याद रखना बुजुर्गों और उनके परिवारों के लिए एक बड़ी चुनौती बन जाता है।'
   },
   {
     id: 2,
-    startSec: 7,
-    endSec: 14,
-    title: 'Zero-Hallucination Voice Assistant',
-    subtitle: 'Querying: "What is my routine today?"',
-    badge: '02. VOICE COMPANION',
-    icon: '🎤',
-    narrationText: 'Aabha AI voice assistant provides multilingual conversational care. When Arun asks for his schedule, it retrieves real database records with zero medical hallucination.',
-    narrationHindi: 'आभा वॉइस असिस्टेंट बिना किसी भ्रम के असली डेटाबेस से सही समय और दिनचर्या बोलकर बताता है।'
+    startSec: 22,
+    endSec: 45,
+    title: 'Accessible Patient Dashboard in Action',
+    subtitle: 'Arun effortlessly checks off his morning routine with high-contrast 1-tap buttons',
+    badge: '02. ELDERLY-FRIENDLY DASHBOARD',
+    icon: '☕',
+    humanScene: {
+      character: 'Arun sitting comfortably on sofa with tablet',
+      setting: 'Breakfast Table (08:30 AM)',
+      action: '1-Tap checkoff for Donepezil 5mg with a full glass of warm water',
+      quote: '"The big buttons and clear text make it so simple. I don\'t even need my reading glasses."',
+      avatar: '💊',
+      metric: 'Adherence: 100% Morning Dose Taken'
+    },
+    narrationText: 'Here is Aabha AI\'s elderly-friendly dashboard in daily life. Designed with large high-contrast touch targets, Arun effortlessly logs his morning Donepezil medication, tracks his water intake, and checks off his morning routine in a single tap without needing assistance.',
+    narrationHindi: 'आभा एआई का सरल और बड़ा डैशबोर्ड अरुण जी को सुबह की दवाई लेने, पानी पीने और दिनचर्या को बिना किसी की मदद के एक टैप में पूरा करने की आज़ादी देता है।'
   },
   {
     id: 3,
-    startSec: 14,
-    endSec: 25,
-    title: 'Cognitive Activity & Memory Exercise',
-    subtitle: 'Playing Memory Match (Level 2) with real-time latency tracking',
-    badge: '03. COGNITIVE GAME',
-    icon: '🎴',
-    narrationText: 'Next, Arun plays the Memory Match cognitive exercise. The system tracks pair matching accuracy, visual recall, and response latency in real time.',
-    narrationHindi: 'अब अरुण जी मेमोरी मैच गेम खेल रहे हैं। सिस्टम उनकी एक्यूरेसी और रिफ्लेक्स स्पीड को लाइव ट्रैक कर रहा है।'
+    startSec: 45,
+    endSec: 75,
+    title: 'Natural Voice Companion at Breakfast',
+    subtitle: 'Conversational assistant with zero hallucinations using real local database',
+    badge: '03. ZERO-HALLUCINATION VOICE',
+    icon: '🎤',
+    humanScene: {
+      character: 'Arun conversing naturally while sipping morning tea',
+      setting: 'Tea Time in Balcony (09:00 AM)',
+      action: 'Voice query in Hindi: "Aabha, mera aaj ka kya program hai?"',
+      quote: '"Aabha talks to me warmly like a family member, reminding me of lunch and my evening walk."',
+      avatar: '🤖',
+      metric: 'Latency: 0.3s Speech Intent Resolution'
+    },
+    narrationText: 'While sipping his morning tea, Arun speaks naturally in Hindi or English: "Aabha, what is my schedule today?" Aabha AI uses a deterministic intent engine to fetch exact records from local storage with zero hallucination, explaining his lunch time, afternoon medicine, and evening park walk warmly.',
+    narrationHindi: 'चाय पीते हुए अरुण जी पूछते हैं: "आभा, मेरा आज का क्या कार्यक्रम है?" आभा वॉइस असिस्टेंट बिना किसी भ्रम के असली डेटाबेस से सही समय और दिनचर्या बोलकर समझाता है।'
   },
   {
     id: 4,
-    startSec: 25,
-    endSec: 35,
-    title: 'Adaptive AI Difficulty & Personalization',
-    subtitle: 'Score 85% > 80% Threshold ➔ Level adapted to Level 3',
-    badge: '04. ADAPTIVE AI ENGINE',
+    startSec: 75,
+    endSec: 110,
+    title: 'Cognitive Gaming with Grandchildren',
+    subtitle: 'Memory Match & Routine Ordering exercises turning brain training into joyful bonding',
+    badge: '04. COGNITIVE MEMORY EXERCISES',
+    icon: '🎴',
+    humanScene: {
+      character: 'Arun playing Memory Match with his 9-year-old granddaughter',
+      setting: 'Afternoon Leisure Time (03:00 PM)',
+      action: 'Matching familiar cards & ordering chronological routines',
+      quote: '"My granddaughter cheers every time I find a matching pair! It feels like fun, not medical therapy."',
+      avatar: '🎯',
+      metric: 'Visual Recall Score: 85% Accuracy'
+    },
+    narrationText: 'In the afternoon, Arun enjoys playing cognitive games like Memory Match and Daily Routine Ordering alongside his granddaughter. While it feels like a joyful game, Aabha AI precisely measures card-matching accuracy, spatial memory, and decision reaction latency.',
+    narrationHindi: 'दोपहर में अरुण जी अपनी पोती के साथ मेमोरी मैच और रूटीन ऑर्डरिंग जैसे मनोरंजक खेल खेलते हैं। इससे उनकी याददाश्त और रिफ्लेक्स का लाइव अभ्यास होता है।'
+  },
+  {
+    id: 110,
+    startSec: 110,
+    endSec: 135,
+    title: 'Adaptive AI Engine Adjusting Difficulty',
+    subtitle: 'Performance evaluated in real time: >85% score dynamically unlocks Level 3',
+    badge: '05. ADAPTIVE AI ENGINE',
     icon: '🧠',
-    narrationText: 'Our Adaptive AI Engine analyzes his eighty-five percent performance score and dynamically scales difficulty from level two to level three, personalizing the next activity.',
-    narrationHindi: 'हमारा एडेप्टिव एआई इंजन 85% स्कोर देखकर गेम का लेवल 2 से लेवल 3 में अपने आप अपग्रेड कर देता है।'
+    humanScene: {
+      character: 'Adaptive AI System Engine',
+      setting: 'Real-Time Neural Calibration Engine',
+      action: 'Automatically scaling card grid from 3×2 to 4×4 with distractor cards',
+      quote: '"Great job Arun! You completed Level 2 with 85% accuracy. Let\'s try Level 3 next."',
+      avatar: '⚡',
+      metric: 'Difficulty: Level 2 ➔ Level 3 (Adaptive)'
+    },
+    narrationText: 'In the background, our Adaptive AI Engine evaluates his eighty-five percent performance. Because his recall was fast and accurate, the system automatically adapts to Level 3, introducing gentle cognitive challenges to keep his neuroplasticity stimulated without causing frustration.',
+    narrationHindi: 'आभा का एडेप्टिव एआई इंजन अरुण जी के 85% बेहतरीन प्रदर्शन को देखकर गेम का लेवल 2 से लेवल 3 में अपग्रेड करता है, जिससे दिमाग हमेशा सक्रिय रहता है।'
   },
   {
-    id: 5,
-    startSec: 35,
-    endSec: 45,
-    title: 'Caregiver Portal & 4-Pillar Analytics',
-    subtitle: 'Memory: 82% | Attention: 76% | Speed: 1.8s | Consistency: 84%',
-    badge: '05. CAREGIVER METRICS',
+    id: 135,
+    startSec: 135,
+    endSec: 155,
+    title: 'Caregiver Remote Monitoring & Peace of Mind',
+    subtitle: 'Dr. Anita checking 4-pillar analytics and smart alerts from her clinic',
+    badge: '06. CAREGIVER 4-PILLAR PORTAL',
     icon: '📊',
-    narrationText: 'Family caregivers and doctors can monitor non-medical cognitive health across four key pillars: Memory, Attention, Reaction Speed, and Consistency.',
-    narrationHindi: 'केयरगिवर डैशबोर्ड 4 मुख्य स्तंभों - मेमोरी, अटेंशन, स्पीड और कंसिस्टेंसी का लाइव डेटा दिखाता है।'
+    humanScene: {
+      character: 'Dr. Anita Verma (Daughter & Caregiver)',
+      setting: 'Hospital Clinic Office (04:30 PM)',
+      action: 'Reviewing 4-pillar scores: Memory 82%, Attention 76%, Speed 1.8s, Consistency 84%',
+      quote: '"Even while busy seeing patients at the clinic, I know father is taking his medicines and staying mentally sharp."',
+      avatar: '👩‍⚕️',
+      metric: 'Caregiver Status: All 3 Alarms Confirmed'
+    },
+    narrationText: 'Meanwhile, his daughter Anita checks the Caregiver Dashboard on her phone from work. She reviews the four key non-diagnostic cognitive indicators: Memory, Attention, Reaction Speed, and Consistency, giving the family complete peace of mind throughout the day.',
+    narrationHindi: 'अस्पताल में काम करते हुए बेटी अनिता अपने फोन पर 4 स्तंभों - मेमोरी, अटेंशन, स्पीड और कंसिस्टेंसी का लाइव डेटा देखकर पूरी तरह आश्वस्त रहती हैं।'
   },
   {
-    id: 6,
-    startSec: 45,
-    endSec: 52,
-    title: 'Smart Alerts & Threshold Monitoring',
-    subtitle: 'Simulated Demo Alert: Missed afternoon dose ➔ Priority Alert',
-    badge: '06. SMART ALERTS',
-    icon: '🚨',
-    narrationText: 'Smart threshold alerts proactively notify caregivers when a medication is overdue or routine baseline deviates, keeping loved ones safe.',
-    narrationHindi: 'स्मार्ट अलर्ट्स दवाई छूटने या दिनचर्या मिस होने पर केयरगिवर को तुरंत सूचना भेजते हैं।'
+    id: 155,
+    startSec: 155,
+    endSec: 170,
+    title: 'Real-World Offline Reliability in the Park',
+    subtitle: 'Internet drops during evening walk; local vault records data & auto-syncs on return',
+    badge: '07. OFFLINE-FIRST ARCHITECTURE',
+    icon: '🌳',
+    humanScene: {
+      character: 'Arun on Evening Garden Walk',
+      setting: 'Community Park (05:30 PM - Zero Internet)',
+      action: 'Local IndexedDB offline vault caches routine checkoffs & audio alerts',
+      quote: '"No internet in the park? No problem. Aabha still rings on time and records everything."',
+      avatar: '📡',
+      metric: 'Sync State: 🔴 Offline Vault ➔ 🟢 Auto-Synced'
+    },
+    narrationText: 'During his evening garden walk, mobile network drops. Aabha AI\'s offline-first architecture ensures that hydration logging, reminders, and games operate flawlessly without internet, automatically synchronizing with the cloud as soon as he returns home.',
+    narrationHindi: 'शाम को पार्क में इंटरनेट न होने पर भी आभा का ऑफलाइन वॉल्ट पूरी तरह काम करता है, और घर लौटते ही सारा डेटा सुरक्षित सिंक हो जाता है।'
   },
   {
-    id: 7,
-    startSec: 52,
-    endSec: 57,
-    title: 'Offline-First Vault & Auto Sync',
-    subtitle: 'Local SQLite/IndexedDB queue ➔ Auto-synced on reconnect',
-    badge: '07. OFFLINE SYNC',
-    icon: '📡',
-    narrationText: 'Offline-first architecture ensures all games, checkoffs, and reminders work without internet connectivity, auto syncing seamlessly upon reconnect.',
-    narrationHindi: 'ऑफलाइन-फर्स्ट टेक्नोलॉजी से इंटरनेट न होने पर भी सभी गेम्स और अलार्म काम करते हैं, और इंटरनेट आते ही सिंक हो जाते हैं।'
-  },
-  {
-    id: 8,
-    startSec: 57,
-    endSec: 60,
+    id: 170,
+    startSec: 170,
+    endSec: 180,
     title: 'AABHA AI — SIH26003 Product Vision',
-    subtitle: 'Supporting memory. Empowering independence. Connecting caregivers.',
-    badge: '08. SUMMARY',
+    subtitle: 'Supporting memory. Empowering independence. Connecting caregivers across India.',
+    badge: '08. IMPACT & CONCLUSION',
     icon: '🏆',
-    narrationText: 'Aabha AI: Supporting memory, empowering independence, and connecting caregivers. Smart India Hackathon problem statement SIH 26003.',
-    narrationHindi: 'आभा एआई: यादों का संबल, स्वतंत्रता का संबल। स्मार्ट इंडिया हैकाथॉन SIH26003।'
+    humanScene: {
+      character: 'The Entire Indian Family Reunited',
+      setting: 'Evening Dinner Table, Happy & Connected',
+      action: 'A caring voice for every memory across 5 regional languages',
+      quote: '"Aabha AI gives my father his confidence back, and gives our family peace of mind."',
+      avatar: '🇮🇳',
+      metric: 'SIH26003: Ready for Pan-India Deployment'
+    },
+    narrationText: 'Aabha AI transforms elderly care: supporting memory, empowering independence, and connecting caregivers. Designed for India across five regional languages. Smart India Hackathon problem statement SIH 26003.',
+    narrationHindi: 'आभा एआई: यादों का संबल, स्वतंत्रता का संबल। स्मार्ट इंडिया हैकाथॉन SIH26003 - पूरे भारत के बुजुर्गों के सम्मान और देखभाल के लिए समर्पित।'
   }
 ];
 
@@ -140,10 +220,11 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
   const [seconds, setSeconds] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isVoiceoverOn, setIsVoiceoverOn] = useState(true);
+  const [isMusicOn, setIsMusicOn] = useState(true);
   const [voiceLang, setVoiceLang] = useState<'EN' | 'HI'>('EN');
   const [isSpeaking, setIsSpeaking] = useState(false);
 
-  const totalSeconds = 60;
+  const totalSeconds = 180; // 3 Minutes
   const timerRef = useRef<any>(null);
   const currentStageIdRef = useRef<number>(1);
 
@@ -165,7 +246,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
       window.speechSynthesis.cancel();
       const textToSpeak = voiceLang === 'HI' ? stage.narrationHindi : stage.narrationText;
       const utterance = new SpeechSynthesisUtterance(textToSpeak);
-      utterance.rate = 1.05;
+      utterance.rate = 1.02;
       utterance.pitch = 1.0;
       utterance.lang = voiceLang === 'HI' ? 'hi-IN' : 'en-US';
 
@@ -190,25 +271,33 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
     }
   };
 
-  // Prevent background scroll
+  // Lifecycle & Music setup
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
       setSeconds(0);
       setIsPlaying(true);
       currentStageIdRef.current = 1;
+
+      // Start gentle ambient background music
+      if (isMusicOn) {
+        ambientMusic.start(0.06);
+      }
+
       speakStageNarration(STAGES[0]);
     } else {
       document.body.style.overflow = '';
       stopSpeech();
+      ambientMusic.stop();
     }
     return () => {
       document.body.style.overflow = '';
       stopSpeech();
+      ambientMusic.stop();
     };
   }, [isOpen]);
 
-  // 60-Second Timer with Automatic Playback
+  // 180-Second Timer with Automatic Playback
   useEffect(() => {
     if (isOpen && isPlaying) {
       timerRef.current = setInterval(() => {
@@ -262,6 +351,9 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
     setSeconds(0);
     currentStageIdRef.current = 1;
     setIsPlaying(true);
+    if (isMusicOn) {
+      ambientMusic.start(0.06);
+    }
     speakStageNarration(STAGES[0]);
   };
 
@@ -282,6 +374,16 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
     }
   };
 
+  const handleToggleMusic = () => {
+    if (isMusicOn) {
+      ambientMusic.stop();
+      setIsMusicOn(false);
+    } else {
+      ambientMusic.start(0.06);
+      setIsMusicOn(true);
+    }
+  };
+
   const handleToggleLang = () => {
     stopSpeech();
     const nextLang = voiceLang === 'EN' ? 'HI' : 'EN';
@@ -290,6 +392,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
 
   const handleClose = () => {
     stopSpeech();
+    ambientMusic.stop();
     onClose();
   };
 
@@ -305,47 +408,62 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-[999999] flex items-center justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-xl animate-fade-in font-sans select-none overflow-hidden"
+      className="fixed inset-0 z-[999999] flex items-center justify-center p-3 sm:p-6 bg-slate-950/90 backdrop-blur-2xl animate-fade-in font-sans select-none overflow-hidden"
     >
-      <div className="relative w-full max-w-4xl bg-[var(--bg-surface)] rounded-[28px] sm:rounded-[36px] border border-[var(--border)] shadow-2xl flex flex-col max-h-[92vh] overflow-hidden my-auto animate-modal-in text-[var(--text-primary)]">
+      <div className="relative w-full max-w-5xl bg-[var(--bg-surface)] rounded-[28px] sm:rounded-[36px] border border-[var(--border)] shadow-2xl flex flex-col max-h-[94vh] overflow-hidden my-auto animate-modal-in text-[var(--text-primary)]">
         {/* ─── TOP PRESENTATION BAR ────────────────────────────────────────── */}
-        <div className="px-4 sm:px-8 py-3.5 bg-gradient-to-r from-purple-950 via-indigo-950 to-slate-950 text-white flex items-center justify-between border-b border-white/10 shrink-0">
+        <div className="px-4 sm:px-8 py-3 bg-gradient-to-r from-purple-950 via-indigo-950 to-slate-950 text-white flex items-center justify-between border-b border-white/10 shrink-0">
           <div className="flex items-center gap-2.5 sm:gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-teal-400 p-0.5 animate-spin-slow">
-              <div className="w-full h-full bg-slate-950 rounded-full flex items-center justify-center text-xs">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-r from-purple-500 to-teal-400 p-0.5 animate-spin-slow">
+              <div className="w-full h-full bg-slate-950 rounded-full flex items-center justify-center text-sm">
                 ✨
               </div>
             </div>
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className="text-xs sm:text-sm font-black uppercase tracking-wider bg-gradient-to-r from-purple-300 to-teal-300 bg-clip-text text-transparent">
-                  DEMO MODE • SIH26003
+                  AABHA AI • 3-MIN REAL-LIFE SHOWCASE
                 </span>
-                <span className="hidden sm:inline px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-amber-400/20 text-amber-300 border border-amber-400/40">
-                  Automated Video Flow
+                <span className="hidden sm:inline px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-400/20 text-emerald-300 border border-emerald-400/40">
+                  SIH26003
                 </span>
               </div>
               <div className="text-[10px] text-slate-400 font-medium">
-                60-Second Self-Playing Walkthrough with Live AI Voiceover
+                Real-World Elderly & Caregiver Scenarios with AI Voiceover & Background Music
               </div>
             </div>
           </div>
 
-          {/* Controls: Voiceover + Lang + Timer + Play/Pause + Restart + Close */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Controls: Voiceover + Music + Lang + Timer + Play/Pause + Restart + Close */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            {/* Ambient Background Music Toggle */}
+            <button
+              type="button"
+              onClick={handleToggleMusic}
+              className={`px-2 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border flex items-center gap-1 ${
+                isMusicOn
+                  ? 'bg-purple-500/25 border-purple-400 text-purple-300'
+                  : 'bg-white/10 border-white/15 text-slate-400'
+              }`}
+              title={isMusicOn ? 'Background Music ON' : 'Background Music Muted'}
+            >
+              <Music className={`w-3.5 h-3.5 ${isMusicOn ? 'text-purple-400 animate-bounce' : ''}`} />
+              <span className="hidden lg:inline text-[11px]">{isMusicOn ? 'BGM ON' : 'BGM OFF'}</span>
+            </button>
+
             {/* Audio Voiceover Toggle Button */}
             <button
               type="button"
               onClick={handleToggleVoiceover}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border flex items-center gap-1.5 ${
+              className={`px-2 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border flex items-center gap-1 ${
                 isVoiceoverOn
                   ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300'
                   : 'bg-white/10 border-white/15 text-slate-400'
               }`}
-              title={isVoiceoverOn ? 'Voiceover Speaking (Click to Mute)' : 'Voiceover Muted (Click to Unmute)'}
+              title={isVoiceoverOn ? 'Voiceover Speaking' : 'Voiceover Muted'}
             >
               {isVoiceoverOn ? <Volume2 className="w-3.5 h-3.5 text-emerald-400 animate-pulse" /> : <VolumeX className="w-3.5 h-3.5" />}
-              <span className="hidden md:inline text-[11px]">{isVoiceoverOn ? 'Voiceover ON' : 'Muted'}</span>
+              <span className="hidden lg:inline text-[11px]">{isVoiceoverOn ? 'Voice ON' : 'Muted'}</span>
             </button>
 
             {/* Narration Language Switch (EN / HI) */}
@@ -360,7 +478,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
 
             {/* Countdown Timer */}
             <div className="px-2.5 py-1 rounded-full bg-white/10 border border-white/15 font-mono text-xs sm:text-sm font-black text-emerald-400">
-              {formatTime(seconds)} / 01:00
+              {formatTime(seconds)} / 03:00
             </div>
 
             {/* Play/Pause Button */}
@@ -378,7 +496,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
               type="button"
               onClick={handleRestart}
               className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer border border-white/15"
-              title="Restart 1-Minute Demo"
+              title="Restart 3-Minute Showcase"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
@@ -388,7 +506,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
               type="button"
               onClick={handleClose}
               className="p-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 transition cursor-pointer border border-rose-500/30 ml-1"
-              title="Exit Demo"
+              title="Exit Showcase"
             >
               <X className="w-4 h-4" />
             </button>
@@ -396,7 +514,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
         </div>
 
         {/* ─── PROGRESS BAR & STAGE STEPPER ────────────────────────────────── */}
-        <div className="bg-[var(--bg-surface-secondary)] px-4 sm:px-8 py-2.5 border-b border-[var(--border)] space-y-2 shrink-0">
+        <div className="bg-[var(--bg-surface-secondary)] px-4 sm:px-8 py-2 border-b border-[var(--border)] space-y-1.5 shrink-0">
           {/* Continuous Progress Line */}
           <div className="w-full bg-[var(--border)] h-1.5 rounded-full overflow-hidden">
             <div
@@ -415,7 +533,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                   key={s.id}
                   type="button"
                   onClick={() => handleJumpToStage(s)}
-                  className={`px-2.5 py-1 rounded-full font-bold whitespace-nowrap transition cursor-pointer border flex items-center gap-1 ${
+                  className={`px-2 py-0.5 rounded-full font-bold whitespace-nowrap transition cursor-pointer border flex items-center gap-1 ${
                     isCurrent
                       ? 'bg-purple-600 text-white border-purple-500 shadow-sm scale-105'
                       : isPassed
@@ -424,7 +542,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                   }`}
                 >
                   <span>{s.icon}</span>
-                  <span className="hidden sm:inline">{s.badge.split('.')[1]}</span>
+                  <span className="hidden md:inline">{s.badge.split('.')[1]}</span>
                 </button>
               );
             })}
@@ -432,129 +550,154 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
         </div>
 
         {/* ─── LIVE VOICE NARRATION SUBTITLE TICKER ────────────────────────── */}
-        <div className="px-5 sm:px-8 py-2.5 bg-purple-500/10 border-b border-purple-400/20 flex items-center gap-3 shrink-0">
+        <div className="px-4 sm:px-8 py-2 bg-gradient-to-r from-purple-500/15 to-teal-500/15 border-b border-purple-400/20 flex items-center gap-2.5 shrink-0">
           <div className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400 text-xs font-black shrink-0">
             <Radio className="w-4 h-4 animate-pulse text-purple-600 dark:text-purple-400" />
-            <span>AI Voiceover:</span>
+            <span className="hidden sm:inline">AI Voiceover:</span>
           </div>
-          <p className="text-xs sm:text-sm font-semibold text-[var(--text-primary)] italic line-clamp-1">
+          <p className="text-xs sm:text-sm font-semibold text-[var(--text-primary)] italic line-clamp-2">
             "{voiceLang === 'HI' ? currentStage.narrationHindi : currentStage.narrationText}"
           </p>
         </div>
 
-        {/* ─── DYNAMIC STAGE CONTENT CONTAINER ─────────────────────────────── */}
-        <div className="flex-1 p-5 sm:p-8 overflow-y-auto space-y-6">
-          {/* Header for Current Stage */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--border)] pb-4">
-            <div>
-              <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-400/30">
-                {currentStage.badge}
-              </span>
-              <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] mt-2">
-                {currentStage.title}
-              </h2>
-              <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium mt-0.5">
-                {currentStage.subtitle}
-              </p>
+        {/* ─── DYNAMIC STAGE CONTENT CONTAINER (REAL-LIFE STORIES) ─────────── */}
+        <div className="flex-1 p-5 sm:p-7 overflow-y-auto space-y-5">
+          {/* Real-Life Human Scenario Spotlight Card */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-teal-500/10 border border-purple-400/25 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border)] shadow-md flex items-center justify-center text-3xl shrink-0">
+                {currentStage.humanScene.avatar}
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-black text-purple-600 dark:text-purple-400 uppercase tracking-wider">
+                    {currentStage.humanScene.character}
+                  </span>
+                  <span className="text-[10px] text-[var(--text-muted)] font-mono">
+                    📍 {currentStage.humanScene.setting}
+                  </span>
+                </div>
+                <h3 className="text-base sm:text-lg font-black text-[var(--text-primary)]">
+                  {currentStage.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium italic">
+                  {currentStage.humanScene.quote}
+                </p>
+              </div>
             </div>
-            <div className="text-xs font-mono font-bold text-purple-600 dark:text-purple-400 self-start sm:self-center">
-              Sec {currentStage.startSec}s – {currentStage.endSec}s
+
+            <div className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] text-right self-stretch md:self-center shrink-0">
+              <div className="text-[10px] uppercase font-black text-[var(--text-muted)]">Live Impact Metric</div>
+              <div className="text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400">
+                {currentStage.humanScene.metric}
+              </div>
             </div>
           </div>
 
-          {/* ─── STAGE 1 (0–7s): PATIENT DASHBOARD ─────────────────────────── */}
+          {/* ─── STAGE 1: Real Life & The Aging Challenge ──────────────────── */}
           {currentStage.id === 1 && (
-            <div className="space-y-4 animate-fade-in">
-              <div className="p-5 rounded-2xl bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-teal-500/10 border border-purple-400/30 flex items-center justify-between">
-                <div>
-                  <div className="text-xs font-mono text-[var(--text-secondary)] font-bold">
-                    Patient ID: PAT-DEMO-000001 (Fictional Demo)
-                  </div>
-                  <h3 className="text-2xl font-black text-[var(--text-primary)] mt-1">
-                    Good Morning, Arun! 👋
-                  </h3>
-                  <p className="text-xs text-[var(--text-secondary)]">
-                    Large elderly-friendly touch targets with high-contrast accessibility.
-                  </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 animate-fade-in">
+              <div className="p-4 rounded-2xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] space-y-2">
+                <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-600 flex items-center justify-center text-base">
+                  👵
                 </div>
-                <div className="w-14 h-14 rounded-full bg-purple-600 text-white flex items-center justify-center text-2xl shadow-lg animate-bounce">
-                  🎤
-                </div>
+                <h4 className="text-xs sm:text-sm font-black text-[var(--text-primary)]">Mild Memory Challenges</h4>
+                <p className="text-xs text-[var(--text-secondary)]">
+                  Forgetting morning dosages, hydration targets, and doctor appointments causes hesitation and stress.
+                </p>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="p-3.5 rounded-xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] text-center">
-                  <span className="text-xl">🚨</span>
-                  <div className="text-xs font-black mt-1">Emergency SOS</div>
-                  <div className="text-[10px] text-rose-500 font-bold">1-Tap GPS Alert</div>
+              <div className="p-4 rounded-2xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] space-y-2">
+                <div className="w-8 h-8 rounded-xl bg-teal-500/20 text-teal-600 flex items-center justify-center text-base">
+                  👩‍⚕️
                 </div>
-                <div className="p-3.5 rounded-xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] text-center">
-                  <span className="text-xl">💊</span>
-                  <div className="text-xs font-black mt-1">Today's Medicine</div>
-                  <div className="text-[10px] text-teal-500 font-bold">2/3 Taken (01:00 PM)</div>
+                <h4 className="text-xs sm:text-sm font-black text-[var(--text-primary)]">Caregiver Anxiety</h4>
+                <p className="text-xs text-[var(--text-secondary)]">
+                  Working daughters and sons worry constantly while at work about whether parents took critical medicines.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] space-y-2">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-600 flex items-center justify-center text-base">
+                  ✨
                 </div>
-                <div className="p-3.5 rounded-xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] text-center">
-                  <span className="text-xl">💧</span>
-                  <div className="text-xs font-black mt-1">Hydration Log</div>
-                  <div className="text-[10px] text-blue-500 font-bold">4/6 Glasses Done</div>
-                </div>
-                <div className="p-3.5 rounded-xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] text-center">
-                  <span className="text-xl">📅</span>
-                  <div className="text-xs font-black mt-1">Daily Routine</div>
-                  <div className="text-[10px] text-indigo-500 font-bold">5/7 Tasks Checked</div>
-                </div>
+                <h4 className="text-xs sm:text-sm font-black text-[var(--text-primary)]">The AABHA Solution</h4>
+                <p className="text-xs text-[var(--text-secondary)]">
+                  An AI companion providing dignified independence, zero hallucination voice care, and real-time remote peace of mind.
+                </p>
               </div>
             </div>
           )}
 
-          {/* ─── STAGE 2 (7–14s): VOICE ASSISTANT ──────────────────────────── */}
+          {/* ─── STAGE 2: Accessible Morning Dashboard in Action ──────────── */}
           {currentStage.id === 2 && (
             <div className="space-y-4 animate-fade-in">
-              <div className="p-5 rounded-2xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Abha3DOrb size="sm" state="SPEAKING" interactive={false} />
-                    <span className="text-sm font-black">AABHA Voice Companion (Multi-Lingual)</span>
-                  </div>
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-purple-500/20 text-purple-600 dark:text-purple-300">
-                    Zero Hallucination
-                  </span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="p-3.5 rounded-xl bg-[var(--bg-surface-secondary)] border border-rose-500/30 text-center">
+                  <span className="text-2xl">🚨</span>
+                  <div className="text-xs font-black mt-1">Emergency SOS</div>
+                  <div className="text-[10px] text-rose-500 font-bold">1-Tap GPS Dispatch</div>
                 </div>
-
-                {/* Simulated Conversation */}
-                <div className="space-y-2 text-xs">
-                  <div className="p-3 rounded-xl bg-purple-600 text-white max-w-sm ml-auto text-right font-bold">
-                    🗣️ "What is my routine today, Aabha?"
-                  </div>
-                  <div className="p-3.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] max-w-md text-left font-medium leading-relaxed shadow-sm">
-                    🤖 "Good morning Arun ji! You have finished breakfast and Donepezil (5mg). Your next lunch & Memantine dose is at 01:00 PM, followed by an evening walk at 05:00 PM."
-                  </div>
+                <div className="p-3.5 rounded-xl bg-[var(--bg-surface-secondary)] border border-teal-500/30 text-center">
+                  <span className="text-2xl">💊</span>
+                  <div className="text-xs font-black mt-1">Donepezil 5mg</div>
+                  <div className="text-[10px] text-teal-500 font-bold">Taken at 08:30 AM ✓</div>
                 </div>
-              </div>
-              <div className="text-[11px] text-[var(--text-muted)] text-center font-mono">
-                Speech recognition resolves structured local database intents without hallucinating personal health facts.
+                <div className="p-3.5 rounded-xl bg-[var(--bg-surface-secondary)] border border-blue-500/30 text-center">
+                  <span className="text-2xl">💧</span>
+                  <div className="text-xs font-black mt-1">Hydration (1/6)</div>
+                  <div className="text-[10px] text-blue-500 font-bold">Warm water logged ✓</div>
+                </div>
+                <div className="p-3.5 rounded-xl bg-[var(--bg-surface-secondary)] border border-indigo-500/30 text-center">
+                  <span className="text-2xl">📅</span>
+                  <div className="text-xs font-black mt-1">Daily Routine</div>
+                  <div className="text-[10px] text-indigo-500 font-bold">5 Tasks Scheduled</div>
+                </div>
               </div>
             </div>
           )}
 
-          {/* ─── STAGE 3 (14–25s): COGNITIVE GAME ──────────────────────────── */}
+          {/* ─── STAGE 3: Natural Voice Companion at Breakfast ─────────────── */}
           {currentStage.id === 3 && (
-            <div className="space-y-4 animate-fade-in">
-              <div className="p-4 rounded-2xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] flex items-center justify-between">
+            <div className="p-5 rounded-2xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] space-y-3 animate-fade-in">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Abha3DOrb size="sm" state="SPEAKING" interactive={false} />
+                  <span className="text-sm font-black">Conversational Dialogue (Hindi / English / 5 Languages)</span>
+                </div>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-purple-500/20 text-purple-600 dark:text-purple-300">
+                  Zero Hallucination
+                </span>
+              </div>
+
+              <div className="space-y-2 text-xs">
+                <div className="p-3 rounded-xl bg-purple-600 text-white max-w-sm ml-auto text-right font-bold">
+                  🗣️ "Aabha, mera aaj ka kya program hai?"
+                </div>
+                <div className="p-3.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] max-w-md text-left font-medium leading-relaxed shadow-sm">
+                  🤖 "Namaste Arun ji! Aapne subah ka Donepezil le liya hai. Agla program 01:00 PM par lunch aur Memantine dose hai, aur shaam 05:00 PM par park walk!"
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ─── STAGE 4: Cognitive Gaming with Grandchildren ──────────────── */}
+          {currentStage.id === 4 && (
+            <div className="space-y-3 animate-fade-in">
+              <div className="p-3.5 rounded-xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-2xl">🎴</span>
                   <div>
-                    <div className="text-sm font-black">Memory Match (Exercise 1 of 6)</div>
-                    <div className="text-[11px] text-[var(--text-secondary)]">Pair matching with spatial recall</div>
+                    <div className="text-xs sm:text-sm font-black">Memory Match: Animal & Nature Pair Recall</div>
+                    <div className="text-[11px] text-[var(--text-secondary)]">Granddaughter cheering each successful match</div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 text-xs font-mono font-bold">
-                  <span className="text-emerald-500">Accuracy: 85%</span>
-                  <span className="text-purple-500">Latency: 1.8s</span>
+                <div className="text-right">
+                  <div className="text-xs font-black text-emerald-500">Accuracy: 85%</div>
+                  <div className="text-[10px] text-purple-500 font-mono">Reaction Latency: 1.8s</div>
                 </div>
               </div>
 
-              {/* Sample Card Grid Preview */}
               <div className="grid grid-cols-4 gap-2 sm:gap-3 max-w-md mx-auto">
                 {[
                   { icon: '🍎', flipped: true, matched: true },
@@ -568,11 +711,11 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                 ].map((c, i) => (
                   <div
                     key={i}
-                    className={`h-16 sm:h-20 rounded-xl border flex items-center justify-center text-2xl font-black transition-all ${
+                    className={`h-14 sm:h-16 rounded-xl border flex items-center justify-center text-xl sm:text-2xl font-black transition-all ${
                       c.matched
-                        ? 'bg-emerald-500/20 border-emerald-400 text-emerald-600'
+                        ? 'bg-emerald-500/20 border-emerald-400 text-emerald-600 scale-105 shadow-sm'
                         : c.flipped
-                        ? 'bg-purple-500/20 border-purple-400'
+                        ? 'bg-purple-500/20 border-purple-400 text-purple-600'
                         : 'bg-[var(--bg-surface)] border-[var(--border)] text-[var(--text-muted)]'
                     }`}
                   >
@@ -583,146 +726,104 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
             </div>
           )}
 
-          {/* ─── STAGE 4 (25–35s): ADAPTIVE AI ENGINE ──────────────────────── */}
-          {currentStage.id === 4 && (
-            <div className="space-y-4 animate-fade-in">
-              <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 border border-emerald-400/30 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Brain className="w-5 h-5 text-emerald-500 animate-pulse" />
-                    <span className="text-sm font-black uppercase">Adaptive Performance Evaluation</span>
-                  </div>
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-600">
-                    Difficulty Scale: Level 3 (Adaptive)
-                  </span>
+          {/* ─── STAGE 5: Adaptive AI Dynamic Scaling Engine ────────────────── */}
+          {currentStage.id === 5 && (
+            <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 border border-emerald-400/30 space-y-3 animate-fade-in">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Brain className="w-5 h-5 text-emerald-500 animate-pulse" />
+                  <span className="text-sm font-black uppercase">Adaptive Neuro-Stimulation Algorithm</span>
                 </div>
-
-                <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed">
-                  "Composite score of <strong>85%</strong> exceeds the 80% baseline threshold. Dynamic difficulty scaled from Level 2 to Level 3. Grid expanded to 4×4 with subtle distraction elements."
-                </p>
-
-                {/* Recommended Next Action */}
-                <div className="p-3 bg-[var(--bg-surface)] rounded-xl border border-[var(--border)] flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <span>✨ Next Recommended Activity:</span>
-                    <strong className="text-purple-600 dark:text-purple-400">Daily Routine Ordering</strong>
-                  </div>
-                  <span className="text-[11px] font-bold text-emerald-500">Auto Tailored ✓</span>
-                </div>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-600">
+                  Difficulty Level: 3 (Auto Scaled)
+                </span>
               </div>
-              <div className="text-[10px] text-[var(--text-muted)] text-center">
-                Non-diagnostic cognitive evaluation designed for engagement tracking and progression scaling.
+
+              <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed">
+                "Arun's recall latency of <strong>1.8s</strong> and consistency score of <strong>85%</strong> triggered adaptive scaling. The system expands the grid to 4×4 and tailors the next game: <em>Daily Routine Ordering</em>."
+              </p>
+
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-2.5 bg-[var(--bg-surface)] rounded-xl border border-[var(--border)]">
+                  <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Calculated Cognitive Index</div>
+                  <div className="text-base font-black text-emerald-500">80 / 100</div>
+                </div>
+                <div className="p-2.5 bg-[var(--bg-surface)] rounded-xl border border-[var(--border)]">
+                  <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Recommendation Engine</div>
+                  <div className="text-base font-black text-purple-500">Chronological Sequencing</div>
+                </div>
               </div>
             </div>
           )}
 
-          {/* ─── STAGE 5 (35–45s): CAREGIVER DASHBOARD ─────────────────────── */}
-          {currentStage.id === 5 && (
-            <div className="space-y-4 animate-fade-in">
+          {/* ─── STAGE 6: Caregiver Remote Monitoring ──────────────────────── */}
+          {currentStage.id === 6 && (
+            <div className="space-y-3 animate-fade-in">
               <div className="p-4 rounded-2xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-black">Caregiver Monitoring: Dr. Anita Verma</div>
-                  <div className="text-[11px] text-[var(--text-secondary)]">Patient: Mr. Arun Das • 4-Pillar Non-Medical Analytics</div>
+                  <div className="text-xs sm:text-sm font-black">Dr. Anita's Smartphone View at Hospital Clinic</div>
+                  <div className="text-[11px] text-[var(--text-secondary)]">Live 4-Pillar Non-Medical Cognitive Radar</div>
                 </div>
-                <span className="px-3 py-1 rounded-full text-xs font-mono font-black bg-emerald-500/15 text-emerald-500 border border-emerald-400/30">
-                  Overall Activity Index: 80%
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-600">
+                  All Systems Normal
                 </span>
               </div>
 
-              {/* 4 Pillars Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                 <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
                   <div className="text-[10px] uppercase font-black text-[var(--text-secondary)]">Memory Score</div>
-                  <div className="text-xl font-black text-emerald-500 mt-1">82%</div>
-                  <div className="text-[9px] text-emerald-600 font-bold">+12% vs last wk</div>
+                  <div className="text-lg font-black text-emerald-500 mt-1">82%</div>
+                  <div className="text-[9px] text-emerald-600 font-bold">+12% vs baseline</div>
                 </div>
                 <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
                   <div className="text-[10px] uppercase font-black text-[var(--text-secondary)]">Attention</div>
-                  <div className="text-xl font-black text-cyan-500 mt-1">76%</div>
+                  <div className="text-lg font-black text-cyan-500 mt-1">76%</div>
                   <div className="text-[9px] text-cyan-600 font-bold">Stable focus</div>
                 </div>
                 <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
                   <div className="text-[10px] uppercase font-black text-[var(--text-secondary)]">Reaction Speed</div>
-                  <div className="text-xl font-black text-purple-500 mt-1">1.8s</div>
-                  <div className="text-[9px] text-purple-600 font-bold">Normal latency</div>
+                  <div className="text-lg font-black text-purple-500 mt-1">1.8s</div>
+                  <div className="text-[9px] text-purple-600 font-bold">Fast response</div>
                 </div>
                 <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
                   <div className="text-[10px] uppercase font-black text-[var(--text-secondary)]">Consistency</div>
-                  <div className="text-xl font-black text-amber-500 mt-1">84%</div>
+                  <div className="text-lg font-black text-amber-500 mt-1">84%</div>
                   <div className="text-[9px] text-amber-600 font-bold">5-Day streak 🔥</div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* ─── STAGE 6 (45–52s): SMART CAREGIVER ALERTS ──────────────────── */}
-          {currentStage.id === 6 && (
-            <div className="space-y-3 animate-fade-in">
-              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-600 flex items-center justify-center text-xl shrink-0">
-                  🚨
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-black uppercase text-amber-600">Simulated Alert</span>
-                    <span className="text-[10px] text-[var(--text-muted)] font-mono">15 mins overdue</span>
-                  </div>
-                  <h4 className="text-sm font-black text-[var(--text-primary)]">
-                    Afternoon Medication Unconfirmed
-                  </h4>
-                  <p className="text-xs text-[var(--text-secondary)] font-medium mt-0.5">
-                    "Memantine HCl (10mg) not checked off after 01:00 PM lunch window. Gentle audio chime played to patient; notification sent to caregiver."
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-start gap-3">
-                <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0 mt-0.5" />
-                <div>
-                  <span className="text-xs font-black uppercase text-emerald-600">Positive Engagement Notice</span>
-                  <h4 className="text-sm font-black text-[var(--text-primary)]">
-                    Hydration Goal Completed
-                  </h4>
-                  <p className="text-xs text-[var(--text-secondary)] font-medium mt-0.5">
-                    "Patient logged 6 of 6 prescribed water glasses today."
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ─── STAGE 7 (52–57s): OFFLINE-FIRST ARCHITECTURE ──────────────── */}
+          {/* ─── STAGE 7: Offline-First Reliability in Park ────────────────── */}
           {currentStage.id === 7 && (
-            <div className="space-y-4 animate-fade-in">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
-                <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 space-y-1">
-                  <WifiOff className="w-6 h-6 text-rose-500 mx-auto" />
-                  <div className="text-xs font-black text-rose-500">1. Offline Mode</div>
-                  <p className="text-[11px] text-[var(--text-secondary)]">
-                    Games & checkoffs cached in local offline vault.
-                  </p>
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center animate-fade-in">
+              <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 space-y-1">
+                <WifiOff className="w-6 h-6 text-rose-500 mx-auto" />
+                <div className="text-xs font-black text-rose-500">1. Park Walk: 0 Bars</div>
+                <p className="text-[11px] text-[var(--text-secondary)]">
+                  Local SQLite/IndexedDB vault stores checkoffs without internet.
+                </p>
+              </div>
 
-                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-1">
-                  <div className="w-6 h-6 rounded-full border-2 border-amber-500 border-t-transparent animate-spin mx-auto" />
-                  <div className="text-xs font-black text-amber-500">2. Reconnecting...</div>
-                  <p className="text-[11px] text-[var(--text-secondary)]">
-                    Auto-detects network; pushes queued records.
-                  </p>
-                </div>
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-1">
+                <div className="w-6 h-6 rounded-full border-2 border-amber-500 border-t-transparent animate-spin mx-auto" />
+                <div className="text-xs font-black text-amber-500">2. Home Wi-Fi Detected</div>
+                <p className="text-[11px] text-[var(--text-secondary)]">
+                  Automatic background sync pushes queued activities.
+                </p>
+              </div>
 
-                <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-1">
-                  <CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto" />
-                  <div className="text-xs font-black text-emerald-500">3. Synced 🟢</div>
-                  <p className="text-[11px] text-[var(--text-secondary)]">
-                    Zero data loss. Caregiver cloud updated.
-                  </p>
-                </div>
+              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-400/30 space-y-1">
+                <CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto" />
+                <div className="text-xs font-black text-emerald-500">3. Synced 🟢</div>
+                <p className="text-[11px] text-[var(--text-secondary)]">
+                  Zero data loss. Daughter's portal updated.
+                </p>
               </div>
             </div>
           )}
 
-          {/* ─── STAGE 8 (57–60s): FINAL BRAND & SIH SUMMARY ───────────────── */}
+          {/* ─── STAGE 8: SIH26003 Product Impact & Vision ─────────────────── */}
           {currentStage.id === 8 && (
             <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-purple-900 via-indigo-900 to-slate-900 text-white text-center space-y-4 animate-fade-in shadow-2xl">
               <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-purple-500 to-teal-400 p-0.5">
@@ -735,8 +836,8 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                 <h3 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-purple-300 via-teal-300 to-white bg-clip-text text-transparent">
                   AABHA AI — SIH26003
                 </h3>
-                <p className="text-sm font-semibold text-purple-200 mt-1 max-w-md mx-auto leading-relaxed">
-                  "Supporting memory. Empowering independence. Connecting caregivers."
+                <p className="text-sm font-semibold text-purple-200 mt-1 max-w-lg mx-auto leading-relaxed">
+                  "A caring voice for every memory. Empowering independence for elderly parents, bringing peace of mind to Indian families."
                 </p>
               </div>
 
@@ -748,10 +849,10 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                   ✓ 5 Regional Languages
                 </span>
                 <span className="px-3 py-1 rounded-full bg-white/10 border border-white/20">
-                  ✓ Offline-First Vault
+                  ✓ 100% Offline Vault
                 </span>
                 <span className="px-3 py-1 rounded-full bg-white/10 border border-white/20">
-                  ✓ Caregiver Analytics
+                  ✓ Remote Caregiver Portal
                 </span>
               </div>
             </div>
@@ -759,10 +860,10 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
         </div>
 
         {/* ─── FOOTER BAR ──────────────────────────────────────────────────── */}
-        <div className="px-5 sm:px-8 py-3.5 bg-[var(--bg-surface-secondary)] border-t border-[var(--border)] flex items-center justify-between shrink-0">
+        <div className="px-5 sm:px-8 py-3 bg-[var(--bg-surface-secondary)] border-t border-[var(--border)] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)]">
             <Shield className="w-4 h-4 text-emerald-500" />
-            <span>Fictional sample data for SIH judges • Zero medical claims</span>
+            <span>Real-world human simulation • Non-diagnostic cognitive companion</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -771,14 +872,14 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
               onClick={handleRestart}
               className="btn-glass px-3.5 py-1.5 text-xs font-bold cursor-pointer"
             >
-              ↻ Restart Demo
+              ↻ Restart
             </button>
             <button
               type="button"
               onClick={handleClose}
               className="btn-glow px-5 py-1.5 text-xs font-black cursor-pointer shadow-md"
             >
-              Exit Demo Mode
+              Exit Showcase
             </button>
           </div>
         </div>

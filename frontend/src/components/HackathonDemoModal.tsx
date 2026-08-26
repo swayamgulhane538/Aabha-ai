@@ -118,20 +118,20 @@ export const HackathonDemoModal: React.FC<{ isOpen: boolean; onClose: () => void
     <>
       <ModalPortal isOpen={isOpen} onClose={onClose} title={headerTitle} maxWidth="max-w-2xl">
         <div className="space-y-4 font-sans text-[var(--text-primary)]">
-          {/* 1-Minute Automated Demo Banner */}
+          {/* 3-Minute Automated Real-Life Demo Banner */}
           <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg border border-purple-500/30">
             <div className="space-y-0.5 text-center sm:text-left">
               <div className="flex items-center gap-1.5 justify-center sm:justify-start">
                 <Sparkles className="w-4 h-4 text-amber-400" />
                 <span className="text-xs font-black uppercase tracking-wider text-amber-300">
-                  Judges 1-Minute Showcase
+                  Judges 3-Minute Real-Life Showcase
                 </span>
               </div>
               <h3 className="text-sm sm:text-base font-black">
-                Automated 60-Second Product Journey
+                3-Minute Real-Life Journey with BGM & Voiceover
               </h3>
               <p className="text-[11px] text-purple-200">
-                Self-playing 8-stage presentation with countdown timer & zero data changes.
+                Self-playing 8-stage story featuring Arun Das, Dr. Anita & family with AI speech.
               </p>
             </div>
 
@@ -141,7 +141,7 @@ export const HackathonDemoModal: React.FC<{ isOpen: boolean; onClose: () => void
               className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black text-xs hover:scale-105 active:scale-95 transition cursor-pointer shadow-md flex items-center gap-1.5 shrink-0"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              <span>▶ Start 1-Minute Demo</span>
+              <span>▶ Start 3-Min Demo</span>
             </button>
           </div>
 

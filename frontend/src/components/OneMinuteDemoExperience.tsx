@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import {
   Play,
@@ -20,7 +19,9 @@ import {
   Award,
   Clock,
   Shield,
-  Volume2
+  Volume2,
+  VolumeX,
+  Radio
 } from 'lucide-react';
 import { Abha3DOrb } from './Abha3DOrb';
 
@@ -32,17 +33,99 @@ interface StageConfig {
   subtitle: string;
   badge: string;
   icon: string;
+  narrationText: string;
+  narrationHindi: string;
 }
 
 const STAGES: StageConfig[] = [
-  { id: 1, startSec: 0, endSec: 7, title: 'Patient Profile & Daily Companion', subtitle: 'Meet Mr. Arun Das (PAT-DEMO-000001)', badge: '01. PATIENT DASHBOARD', icon: '👵' },
-  { id: 2, startSec: 7, endSec: 14, title: 'Zero-Hallucination Voice Assistant', subtitle: 'Querying: "What is my routine today?"', badge: '02. VOICE COMPANION', icon: '🎤' },
-  { id: 3, startSec: 14, endSec: 25, title: 'Cognitive Activity & Memory Exercise', subtitle: 'Playing Memory Match (Level 2) with real-time latency tracking', badge: '03. COGNITIVE GAME', icon: '🎴' },
-  { id: 4, startSec: 25, endSec: 35, title: 'Adaptive AI Difficulty & Personalization', subtitle: 'Score 85% > 80% Threshold ➔ Level adapted to Level 3', badge: '04. ADAPTIVE AI ENGINE', icon: '🧠' },
-  { id: 5, startSec: 35, endSec: 45, title: 'Caregiver Portal & 4-Pillar Analytics', subtitle: 'Memory: 82% | Attention: 76% | Speed: 1.8s | Consistency: 84%', badge: '05. CAREGIVER METRICS', icon: '📊' },
-  { id: 6, startSec: 45, endSec: 52, title: 'Smart Alerts & Threshold Monitoring', subtitle: 'Simulated Demo Alert: Missed afternoon dose ➔ Priority Alert', badge: '06. SMART ALERTS', icon: '🚨' },
-  { id: 7, startSec: 52, endSec: 57, title: 'Offline-First Vault & Auto Sync', subtitle: 'Local SQLite/IndexedDB queue ➔ Auto-synced on reconnect', badge: '07. OFFLINE SYNC', icon: '📡' },
-  { id: 8, startSec: 57, endSec: 60, title: 'AABHA AI — SIH26003 Product Vision', subtitle: 'Supporting memory. Empowering independence. Connecting caregivers.', badge: '08. SUMMARY', icon: '🏆' }
+  {
+    id: 1,
+    startSec: 0,
+    endSec: 7,
+    title: 'Patient Profile & Daily Companion',
+    subtitle: 'Meet Mr. Arun Das (PAT-DEMO-000001)',
+    badge: '01. PATIENT DASHBOARD',
+    icon: '👵',
+    narrationText: 'Welcome to Aabha AI, an intelligent cognitive companion for elderly care. Here is Mr. Arun Das\'s high contrast, elderly-friendly patient dashboard with one-tap access to medicine, hydration, and routine checkoffs.',
+    narrationHindi: 'आभा एआई में आपका स्वागत है। यह है श्री अरुण दास का एल्डरली-फ्रेंडली डैशबोर्ड जहाँ दवाई, पानी और दिनचर्या एक टैप में सुलभ है।'
+  },
+  {
+    id: 2,
+    startSec: 7,
+    endSec: 14,
+    title: 'Zero-Hallucination Voice Assistant',
+    subtitle: 'Querying: "What is my routine today?"',
+    badge: '02. VOICE COMPANION',
+    icon: '🎤',
+    narrationText: 'Aabha AI voice assistant provides multilingual conversational care. When Arun asks for his schedule, it retrieves real database records with zero medical hallucination.',
+    narrationHindi: 'आभा वॉइस असिस्टेंट बिना किसी भ्रम के असली डेटाबेस से सही समय और दिनचर्या बोलकर बताता है।'
+  },
+  {
+    id: 3,
+    startSec: 14,
+    endSec: 25,
+    title: 'Cognitive Activity & Memory Exercise',
+    subtitle: 'Playing Memory Match (Level 2) with real-time latency tracking',
+    badge: '03. COGNITIVE GAME',
+    icon: '🎴',
+    narrationText: 'Next, Arun plays the Memory Match cognitive exercise. The system tracks pair matching accuracy, visual recall, and response latency in real time.',
+    narrationHindi: 'अब अरुण जी मेमोरी मैच गेम खेल रहे हैं। सिस्टम उनकी एक्यूरेसी और रिफ्लेक्स स्पीड को लाइव ट्रैक कर रहा है।'
+  },
+  {
+    id: 4,
+    startSec: 25,
+    endSec: 35,
+    title: 'Adaptive AI Difficulty & Personalization',
+    subtitle: 'Score 85% > 80% Threshold ➔ Level adapted to Level 3',
+    badge: '04. ADAPTIVE AI ENGINE',
+    icon: '🧠',
+    narrationText: 'Our Adaptive AI Engine analyzes his eighty-five percent performance score and dynamically scales difficulty from level two to level three, personalizing the next activity.',
+    narrationHindi: 'हमारा एडेप्टिव एआई इंजन 85% स्कोर देखकर गेम का लेवल 2 से लेवल 3 में अपने आप अपग्रेड कर देता है।'
+  },
+  {
+    id: 5,
+    startSec: 35,
+    endSec: 45,
+    title: 'Caregiver Portal & 4-Pillar Analytics',
+    subtitle: 'Memory: 82% | Attention: 76% | Speed: 1.8s | Consistency: 84%',
+    badge: '05. CAREGIVER METRICS',
+    icon: '📊',
+    narrationText: 'Family caregivers and doctors can monitor non-medical cognitive health across four key pillars: Memory, Attention, Reaction Speed, and Consistency.',
+    narrationHindi: 'केयरगिवर डैशबोर्ड 4 मुख्य स्तंभों - मेमोरी, अटेंशन, स्पीड और कंसिस्टेंसी का लाइव डेटा दिखाता है।'
+  },
+  {
+    id: 6,
+    startSec: 45,
+    endSec: 52,
+    title: 'Smart Alerts & Threshold Monitoring',
+    subtitle: 'Simulated Demo Alert: Missed afternoon dose ➔ Priority Alert',
+    badge: '06. SMART ALERTS',
+    icon: '🚨',
+    narrationText: 'Smart threshold alerts proactively notify caregivers when a medication is overdue or routine baseline deviates, keeping loved ones safe.',
+    narrationHindi: 'स्मार्ट अलर्ट्स दवाई छूटने या दिनचर्या मिस होने पर केयरगिवर को तुरंत सूचना भेजते हैं।'
+  },
+  {
+    id: 7,
+    startSec: 52,
+    endSec: 57,
+    title: 'Offline-First Vault & Auto Sync',
+    subtitle: 'Local SQLite/IndexedDB queue ➔ Auto-synced on reconnect',
+    badge: '07. OFFLINE SYNC',
+    icon: '📡',
+    narrationText: 'Offline-first architecture ensures all games, checkoffs, and reminders work without internet connectivity, auto syncing seamlessly upon reconnect.',
+    narrationHindi: 'ऑफलाइन-फर्स्ट टेक्नोलॉजी से इंटरनेट न होने पर भी सभी गेम्स और अलार्म काम करते हैं, और इंटरनेट आते ही सिंक हो जाते हैं।'
+  },
+  {
+    id: 8,
+    startSec: 57,
+    endSec: 60,
+    title: 'AABHA AI — SIH26003 Product Vision',
+    subtitle: 'Supporting memory. Empowering independence. Connecting caregivers.',
+    badge: '08. SUMMARY',
+    icon: '🏆',
+    narrationText: 'Aabha AI: Supporting memory, empowering independence, and connecting caregivers. Smart India Hackathon problem statement SIH 26003.',
+    narrationHindi: 'आभा एआई: यादों का संबल, स्वतंत्रता का संबल। स्मार्ट इंडिया हैकाथॉन SIH26003।'
+  }
 ];
 
 interface OneMinuteDemoExperienceProps {
@@ -56,8 +139,56 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
 }) => {
   const [seconds, setSeconds] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [isVoiceoverOn, setIsVoiceoverOn] = useState(true);
+  const [voiceLang, setVoiceLang] = useState<'EN' | 'HI'>('EN');
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
   const totalSeconds = 60;
   const timerRef = useRef<any>(null);
+  const currentStageIdRef = useRef<number>(1);
+
+  // Stop Speech synthesis helper
+  const stopSpeech = () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
+
+  // Speak narration for given stage
+  const speakStageNarration = (stage: StageConfig) => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window) || !isVoiceoverOn) {
+      return;
+    }
+
+    try {
+      window.speechSynthesis.cancel();
+      const textToSpeak = voiceLang === 'HI' ? stage.narrationHindi : stage.narrationText;
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      utterance.rate = 1.05;
+      utterance.pitch = 1.0;
+      utterance.lang = voiceLang === 'HI' ? 'hi-IN' : 'en-US';
+
+      // Pick natural voice if available
+      const voices = window.speechSynthesis.getVoices();
+      const matchVoice = voices.find(v =>
+        voiceLang === 'HI'
+          ? v.lang.includes('hi')
+          : v.lang.includes('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Jenny'))
+      );
+      if (matchVoice) {
+        utterance.voice = matchVoice;
+      }
+
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      setIsSpeaking(false);
+    }
+  };
 
   // Prevent background scroll
   useEffect(() => {
@@ -65,15 +196,19 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
       document.body.style.overflow = 'hidden';
       setSeconds(0);
       setIsPlaying(true);
+      currentStageIdRef.current = 1;
+      speakStageNarration(STAGES[0]);
     } else {
       document.body.style.overflow = '';
+      stopSpeech();
     }
     return () => {
       document.body.style.overflow = '';
+      stopSpeech();
     };
   }, [isOpen]);
 
-  // 60-Second Timer
+  // 60-Second Timer with Automatic Playback
   useEffect(() => {
     if (isOpen && isPlaying) {
       timerRef.current = setInterval(() => {
@@ -91,25 +226,79 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
     return () => clearInterval(timerRef.current);
   }, [isOpen, isPlaying]);
 
-  if (!isOpen || typeof document === 'undefined') return null;
-
+  // Trigger speech on stage change
   const currentStage =
     STAGES.find(s => seconds >= s.startSec && seconds < s.endSec) ||
     STAGES[STAGES.length - 1];
+
+  useEffect(() => {
+    if (isOpen && isPlaying && isVoiceoverOn && currentStage.id !== currentStageIdRef.current) {
+      currentStageIdRef.current = currentStage.id;
+      speakStageNarration(currentStage);
+    }
+  }, [currentStage.id, isOpen, isPlaying, isVoiceoverOn, voiceLang]);
+
+  // Handle Play/Pause
+  const handleTogglePlay = () => {
+    if (isPlaying) {
+      setIsPlaying(false);
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.pause();
+      }
+    } else {
+      setIsPlaying(true);
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+        } else if (isVoiceoverOn) {
+          speakStageNarration(currentStage);
+        }
+      }
+    }
+  };
+
+  const handleRestart = () => {
+    stopSpeech();
+    setSeconds(0);
+    currentStageIdRef.current = 1;
+    setIsPlaying(true);
+    speakStageNarration(STAGES[0]);
+  };
+
+  const handleJumpToStage = (stage: StageConfig) => {
+    stopSpeech();
+    setSeconds(stage.startSec);
+    currentStageIdRef.current = stage.id;
+    speakStageNarration(stage);
+  };
+
+  const handleToggleVoiceover = () => {
+    if (isVoiceoverOn) {
+      stopSpeech();
+      setIsVoiceoverOn(false);
+    } else {
+      setIsVoiceoverOn(true);
+      speakStageNarration(currentStage);
+    }
+  };
+
+  const handleToggleLang = () => {
+    stopSpeech();
+    const nextLang = voiceLang === 'EN' ? 'HI' : 'EN';
+    setVoiceLang(nextLang);
+  };
+
+  const handleClose = () => {
+    stopSpeech();
+    onClose();
+  };
+
+  if (!isOpen || typeof document === 'undefined') return null;
 
   const formatTime = (sec: number) => {
     const m = Math.floor(sec / 60);
     const s = sec % 60;
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  };
-
-  const handleRestart = () => {
-    setSeconds(0);
-    setIsPlaying(true);
-  };
-
-  const handleJumpToStage = (startSec: number) => {
-    setSeconds(startSec);
   };
 
   return createPortal(
@@ -120,43 +309,71 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
     >
       <div className="relative w-full max-w-4xl bg-[var(--bg-surface)] rounded-[28px] sm:rounded-[36px] border border-[var(--border)] shadow-2xl flex flex-col max-h-[92vh] overflow-hidden my-auto animate-modal-in text-[var(--text-primary)]">
         {/* ─── TOP PRESENTATION BAR ────────────────────────────────────────── */}
-        <div className="px-5 sm:px-8 py-3.5 bg-gradient-to-r from-purple-950 via-indigo-950 to-slate-950 text-white flex items-center justify-between border-b border-white/10 shrink-0">
-          <div className="flex items-center gap-3">
+        <div className="px-4 sm:px-8 py-3.5 bg-gradient-to-r from-purple-950 via-indigo-950 to-slate-950 text-white flex items-center justify-between border-b border-white/10 shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-teal-400 p-0.5 animate-spin-slow">
               <div className="w-full h-full bg-slate-950 rounded-full flex items-center justify-center text-xs">
                 ✨
               </div>
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className="text-xs sm:text-sm font-black uppercase tracking-wider bg-gradient-to-r from-purple-300 to-teal-300 bg-clip-text text-transparent">
                   DEMO MODE • SIH26003
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-amber-400/20 text-amber-300 border border-amber-400/40">
-                  Simulated Demo Data
+                <span className="hidden sm:inline px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-amber-400/20 text-amber-300 border border-amber-400/40">
+                  Automated Video Flow
                 </span>
               </div>
               <div className="text-[10px] text-slate-400 font-medium">
-                Automated 1-Minute Comprehensive Product Journey
+                60-Second Self-Playing Walkthrough with Live AI Voiceover
               </div>
             </div>
           </div>
 
-          {/* Controls: Timer + Play/Pause + Restart + Close */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="px-3 py-1 rounded-full bg-white/10 border border-white/15 font-mono text-xs sm:text-sm font-black text-emerald-400">
+          {/* Controls: Voiceover + Lang + Timer + Play/Pause + Restart + Close */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Audio Voiceover Toggle Button */}
+            <button
+              type="button"
+              onClick={handleToggleVoiceover}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border flex items-center gap-1.5 ${
+                isVoiceoverOn
+                  ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300'
+                  : 'bg-white/10 border-white/15 text-slate-400'
+              }`}
+              title={isVoiceoverOn ? 'Voiceover Speaking (Click to Mute)' : 'Voiceover Muted (Click to Unmute)'}
+            >
+              {isVoiceoverOn ? <Volume2 className="w-3.5 h-3.5 text-emerald-400 animate-pulse" /> : <VolumeX className="w-3.5 h-3.5" />}
+              <span className="hidden md:inline text-[11px]">{isVoiceoverOn ? 'Voiceover ON' : 'Muted'}</span>
+            </button>
+
+            {/* Narration Language Switch (EN / HI) */}
+            <button
+              type="button"
+              onClick={handleToggleLang}
+              className="px-2 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-black text-white transition cursor-pointer border border-white/15"
+              title="Switch Voiceover Language"
+            >
+              {voiceLang === 'EN' ? '🇺🇸 EN' : '🇮🇳 हिं'}
+            </button>
+
+            {/* Countdown Timer */}
+            <div className="px-2.5 py-1 rounded-full bg-white/10 border border-white/15 font-mono text-xs sm:text-sm font-black text-emerald-400">
               {formatTime(seconds)} / 01:00
             </div>
 
+            {/* Play/Pause Button */}
             <button
               type="button"
-              onClick={() => setIsPlaying(!isPlaying)}
+              onClick={handleTogglePlay}
               className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer border border-white/15"
               title={isPlaying ? 'Pause Demo' : 'Resume Demo'}
             >
               {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 text-emerald-400" />}
             </button>
 
+            {/* Restart Button */}
             <button
               type="button"
               onClick={handleRestart}
@@ -166,9 +383,10 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
               <RotateCcw className="w-4 h-4" />
             </button>
 
+            {/* Close Button */}
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               className="p-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 transition cursor-pointer border border-rose-500/30 ml-1"
               title="Exit Demo"
             >
@@ -178,7 +396,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
         </div>
 
         {/* ─── PROGRESS BAR & STAGE STEPPER ────────────────────────────────── */}
-        <div className="bg-[var(--bg-surface-secondary)] px-5 sm:px-8 py-2.5 border-b border-[var(--border)] space-y-2 shrink-0">
+        <div className="bg-[var(--bg-surface-secondary)] px-4 sm:px-8 py-2.5 border-b border-[var(--border)] space-y-2 shrink-0">
           {/* Continuous Progress Line */}
           <div className="w-full bg-[var(--border)] h-1.5 rounded-full overflow-hidden">
             <div
@@ -196,7 +414,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                 <button
                   key={s.id}
                   type="button"
-                  onClick={() => handleJumpToStage(s.startSec)}
+                  onClick={() => handleJumpToStage(s)}
                   className={`px-2.5 py-1 rounded-full font-bold whitespace-nowrap transition cursor-pointer border flex items-center gap-1 ${
                     isCurrent
                       ? 'bg-purple-600 text-white border-purple-500 shadow-sm scale-105'
@@ -211,6 +429,17 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
               );
             })}
           </div>
+        </div>
+
+        {/* ─── LIVE VOICE NARRATION SUBTITLE TICKER ────────────────────────── */}
+        <div className="px-5 sm:px-8 py-2.5 bg-purple-500/10 border-b border-purple-400/20 flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400 text-xs font-black shrink-0">
+            <Radio className="w-4 h-4 animate-pulse text-purple-600 dark:text-purple-400" />
+            <span>AI Voiceover:</span>
+          </div>
+          <p className="text-xs sm:text-sm font-semibold text-[var(--text-primary)] italic line-clamp-1">
+            "{voiceLang === 'HI' ? currentStage.narrationHindi : currentStage.narrationText}"
+          </p>
         </div>
 
         {/* ─── DYNAMIC STAGE CONTENT CONTAINER ─────────────────────────────── */}
@@ -248,7 +477,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                     Large elderly-friendly touch targets with high-contrast accessibility.
                   </p>
                 </div>
-                <div className="w-14 h-14 rounded-full bg-purple-600 text-white flex items-center justify-center text-2xl shadow-lg">
+                <div className="w-14 h-14 rounded-full bg-purple-600 text-white flex items-center justify-center text-2xl shadow-lg animate-bounce">
                   🎤
                 </div>
               </div>
@@ -546,7 +775,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
             </button>
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               className="btn-glow px-5 py-1.5 text-xs font-black cursor-pointer shadow-md"
             >
               Exit Demo Mode

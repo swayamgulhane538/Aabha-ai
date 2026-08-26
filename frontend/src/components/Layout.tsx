@@ -7,9 +7,10 @@ import { LanguageSelector } from './LanguageSelector';
 import { SettingsModal } from './SettingsModal';
 import { OfflineIndicator } from './OfflineIndicator';
 import { HackathonDemoModal } from './HackathonDemoModal';
+import { OneMinuteDemoExperience } from './OneMinuteDemoExperience';
 import { AnimatedBackground } from './AnimatedBackground';
 import { Abha3DOrb } from './Abha3DOrb';
-import { Settings, Sparkles, LogOut, Bell, User, CheckCircle2, ShieldCheck, X } from 'lucide-react';
+import { Settings, Sparkles, LogOut, Bell, User, CheckCircle2, ShieldCheck, X, Play } from 'lucide-react';
 
 export const Layout = () => {
   const { t } = useTranslation();
@@ -20,6 +21,7 @@ export const Layout = () => {
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+  const [isOneMinDemoOpen, setIsOneMinDemoOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
 
@@ -172,12 +174,24 @@ export const Layout = () => {
             <OfflineIndicator />
           </div>
 
+          {/* 1-Minute Automated Demo Button */}
+          <button
+            type="button"
+            onClick={() => setIsOneMinDemoOpen(true)}
+            className="px-2.5 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-cyan-500/20 border border-emerald-400/40 text-emerald-600 dark:text-emerald-300 text-xs font-black flex items-center gap-1 hover:scale-105 active:scale-95 transition cursor-pointer shadow-2xs"
+            title="1-Minute Automated AI Voice Demo"
+          >
+            <Play className="w-3 h-3 fill-current text-emerald-500" />
+            <span className="hidden sm:inline">1-Min Demo</span>
+            <span className="sm:hidden">Demo</span>
+          </button>
+
           {/* Hackathon Tour Guide Button */}
           <button
             type="button"
             onClick={() => setIsDemoModalOpen(true)}
-            className="hidden sm:flex px-2.5 py-1.5 rounded-full bg-purple-500/15 border border-purple-400/30 text-purple-600 dark:text-purple-300 text-xs font-black items-center gap-1 hover:scale-105 active:scale-95 transition cursor-pointer shadow-2xs"
-            title="5-Minute Hackathon Demo Tour"
+            className="hidden md:flex px-2.5 py-1.5 rounded-full bg-purple-500/15 border border-purple-400/30 text-purple-600 dark:text-purple-300 text-xs font-black items-center gap-1 hover:scale-105 active:scale-95 transition cursor-pointer shadow-2xs"
+            title="Interactive Scenario Guide"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>Tour</span>
@@ -327,6 +341,7 @@ export const Layout = () => {
       {/* Settings & Demo Modals */}
       {isSettingsOpen && <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />}
       {isDemoModalOpen && <HackathonDemoModal isOpen={isDemoModalOpen} onClose={() => setIsDemoModalOpen(false)} />}
+      {isOneMinDemoOpen && <OneMinuteDemoExperience isOpen={isOneMinDemoOpen} onClose={() => setIsOneMinDemoOpen(false)} />}
     </div>
   );
 };

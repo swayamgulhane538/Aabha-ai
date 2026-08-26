@@ -675,7 +675,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
     setActiveTrack(nextT);
     if (!isMusicOn) {
       setIsMusicOn(true);
-      ambientMusic.start(0.08, nextT.id);
+      ambientMusic.start(0.28);
     }
   };
 

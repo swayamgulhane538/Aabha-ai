@@ -190,7 +190,7 @@ export const Layout = () => {
                 <div className="flex items-center justify-between border-b border-[var(--border)] pb-2">
                   <div className="flex items-center gap-1.5">
                     <Bell className="w-4 h-4 text-purple-600" />
-                    <span className="text-xs font-black uppercase text-[var(--text-primary)]">Notifications</span>
+                    <span className="text-xs font-black uppercase text-[var(--text-primary)]">{t('Notifications')}</span>
                   </div>
                   <button onClick={() => setIsNotificationsOpen(false)} className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">✕</button>
                 </div>
@@ -198,10 +198,10 @@ export const Layout = () => {
                   {notificationsList.map(n => (
                     <div key={n.id} className="p-2.5 rounded-xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] text-xs space-y-0.5">
                       <div className="flex items-center justify-between font-black text-[var(--text-primary)]">
-                        <span>{n.title}</span>
+                        <span>{t(n.title) || n.title}</span>
                         <span className="text-[10px] text-[var(--text-muted)] font-normal">{n.time}</span>
                       </div>
-                      <p className="text-[11px] text-[var(--text-secondary)] font-medium leading-relaxed">{n.desc}</p>
+                      <p className="text-[11px] text-[var(--text-secondary)] font-medium leading-relaxed">{t(n.desc) || n.desc}</p>
                     </div>
                   ))}
                 </div>

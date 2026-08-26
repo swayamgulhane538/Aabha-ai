@@ -58,7 +58,7 @@ export const AccessibilityToolbar: React.FC = () => {
         >
           <span className="text-xl">♿</span>
           <span className="hidden md:inline font-black text-xs text-emerald-500">
-            Assist Mode
+            {t('Assist Mode')}
           </span>
         </button>
       </div>

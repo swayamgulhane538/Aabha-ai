@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowRight, Sparkles, Trophy, Users } from 'lucide-react';
 
 export interface GameItem {
@@ -19,6 +20,7 @@ export interface GameCardProps {
 }
 
 export const GameCard: React.FC<GameCardProps> = ({ game, onPlay, className = '' }) => {
+  const { t } = useTranslation();
   const getBadgeColors = (badge = '') => {
     const b = badge.toLowerCase();
     if (b.includes('sih') || b.includes('core')) return 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40';
@@ -78,10 +80,10 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onPlay, className = ''
         {/* Title & Description */}
         <div className="space-y-1">
           <h3 className="font-black text-sm sm:text-base text-[var(--text-primary)] group-hover:text-emerald-400 transition-colors flex items-center gap-1.5">
-            <span>{game.title}</span>
+            <span>{t(game.title) || game.title}</span>
           </h3>
           <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed line-clamp-2">
-            {game.description}
+            {t(game.description) || game.description}
           </p>
         </div>
       </div>
@@ -90,10 +92,10 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onPlay, className = ''
       <div className="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-black text-emerald-400">
         <span className="flex items-center gap-1 text-[11px] text-[var(--text-muted)]">
           <Sparkles className="w-3 h-3 text-emerald-400" />
-          <span>Adaptive AI</span>
+          <span>{t('Adaptive AI')}</span>
         </span>
         <span className="flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-          <span>Start Game</span>
+          <span>{t('Start Game')}</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </span>
       </div>

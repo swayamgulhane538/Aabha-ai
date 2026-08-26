@@ -90,18 +90,18 @@ export const GamesHub: React.FC = () => {
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span className="px-3 py-1 bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-xs font-black rounded-full flex items-center gap-1.5">
               <Brain className="w-3.5 h-3.5" />
-              <span>SIH26003 Cognitive Hub</span>
+              <span>{t('SIH26003 Cognitive Hub')}</span>
             </span>
             <span className="px-3 py-1 bg-cyan-500/15 border border-cyan-400/30 text-cyan-300 text-xs font-black rounded-full flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Adaptive Difficulty (1–5)</span>
+              <span>{t('Adaptive Difficulty (1–5)')}</span>
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)] tracking-tight">
-            Cognitive & Memory Exercises 🧠
+            {t('Cognitive & Memory Exercises')} 🧠
           </h1>
           <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium mt-1 max-w-2xl">
-            Scientifically curated memory, attention, reaction, and routine sequencing activities. Difficulty dynamically adjusts to your comfort level.
+            {t('Scientifically curated memory, attention, reaction, and routine sequencing activities. Difficulty dynamically adjusts to your comfort level.')}
           </p>
         </div>
 
@@ -109,10 +109,10 @@ export const GamesHub: React.FC = () => {
         <div className="p-3.5 bg-[var(--bg-surface-secondary)] border border-[var(--border)] rounded-2xl text-[11px] text-[var(--text-secondary)] font-medium max-w-xs space-y-1">
           <div className="flex items-center gap-1.5 text-emerald-400 font-bold">
             <Shield className="w-3.5 h-3.5" />
-            <span>Non-Diagnostic Indicator</span>
+            <span>{t('Non-Diagnostic Indicator')}</span>
           </div>
           <p>
-            Exercises track engagement & memory activity. Designed for cognitive stimulation, not clinical diagnosis.
+            {t('Exercises track engagement & memory activity. Designed for cognitive stimulation, not clinical diagnosis.')}
           </p>
         </div>
       </div>
@@ -123,11 +123,11 @@ export const GamesHub: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className="text-xl">✨</span>
             <h2 className="text-base sm:text-lg font-black text-[var(--text-primary)]">
-              Personalized for You Today (AI Recommendations)
+              {t('Personalized for You Today (AI Recommendations)')}
             </h2>
           </div>
           <span className="text-xs font-black text-emerald-300 uppercase tracking-wider">
-            Tailored Daily Routine
+            {t('Tailored Daily Routine')}
           </span>
         </div>
 
@@ -142,20 +142,20 @@ export const GamesHub: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-2xl">{rec.icon}</span>
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/15 text-emerald-300 border border-emerald-400/30">
-                    {rec.difficultyLabel} (Lvl {rec.difficultyLevel})
+                    {t(rec.difficultyLabel)} ({t('Level')} {rec.difficultyLevel})
                   </span>
                 </div>
                 <h3 className="font-black text-sm text-[var(--text-primary)] group-hover:text-emerald-300 transition-colors">
-                  {rec.title}
+                  {t(rec.title) || rec.title}
                 </h3>
                 <p className="text-[11px] text-[var(--text-secondary)] font-medium leading-relaxed">
-                  {rec.reason}
+                  {t(rec.reason) || rec.reason}
                 </p>
               </div>
 
               <div className="mt-3 pt-2 border-t border-[var(--border)] flex items-center justify-between text-[11px] font-black text-emerald-400">
                 <span>⏱️ ~{rec.estimatedMinutes} mins</span>
-                <span className="group-hover:translate-x-1 transition-transform">Play Activity →</span>
+                <span className="group-hover:translate-x-1 transition-transform">{t('Play Activity →')}</span>
               </div>
             </div>
           ))}
@@ -165,12 +165,12 @@ export const GamesHub: React.FC = () => {
       {/* ─── 3. CATEGORY FILTER TABS ──────────────────────────────────────── */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
         {[
-          { id: 'all', label: '🌟 All Games & Activities' },
-          { id: 'sih-core', label: '🧠 6 SIH Core Games' },
-          { id: 'memory', label: '🎴 Memory & Recall' },
-          { id: 'therapy', label: '🌬️ Therapy & Relaxation' },
-          { id: 'quiz', label: '⚔️ 2-Player Battles' },
-          { id: 'fun', label: '🎉 Fun & Family' }
+          { id: 'all', label: `🌟 ${t('All Games & Activities')}` },
+          { id: 'sih-core', label: `🧠 ${t('6 SIH Core Games')}` },
+          { id: 'memory', label: `🎴 ${t('Memory & Recall')}` },
+          { id: 'therapy', label: `🌬️ ${t('Therapy & Relaxation')}` },
+          { id: 'quiz', label: `⚔️ ${t('2-Player Battles')}` },
+          { id: 'fun', label: `🎉 ${t('Fun & Family')}` }
         ].map(tab => (
           <button
             key={tab.id}

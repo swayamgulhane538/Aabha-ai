@@ -67,15 +67,15 @@ export const LandingPage: React.FC = () => {
         </div>
 
         <div className="hidden lg:flex items-center gap-6 text-xs font-bold text-[var(--text-secondary)]">
-          <a href="#problem" className="hover:text-emerald-400 transition">Problem</a>
-          <a href="#solution" className="hover:text-emerald-400 transition">Our Solution</a>
-          <a href="#intelligence" className="hover:text-emerald-400 transition">Cognitive AI</a>
-          <a href="#games" className="hover:text-emerald-400 transition">Adaptive Games</a>
-          <a href="#voice" className="hover:text-emerald-400 transition">Voice Assistant</a>
-          <a href="#caregiver" className="hover:text-emerald-400 transition">Caregiver</a>
-          <a href="#offline" className="hover:text-emerald-400 transition">Offline-First</a>
-          <a href="#impact" className="hover:text-emerald-400 transition">Impact</a>
-          <a href="#faq" className="hover:text-emerald-400 transition">FAQ</a>
+          <a href="#problem" className="hover:text-emerald-400 transition">{t('Problem')}</a>
+          <a href="#solution" className="hover:text-emerald-400 transition">{t('Our Solution')}</a>
+          <a href="#intelligence" className="hover:text-emerald-400 transition">{t('Cognitive AI')}</a>
+          <a href="#games" className="hover:text-emerald-400 transition">{t('Adaptive Games')}</a>
+          <a href="#voice" className="hover:text-emerald-400 transition">{t('Voice Assistant')}</a>
+          <a href="#caregiver" className="hover:text-emerald-400 transition">{t('Caregiver')}</a>
+          <a href="#offline" className="hover:text-emerald-400 transition">{t('Offline-First')}</a>
+          <a href="#impact" className="hover:text-emerald-400 transition">{t('Impact')}</a>
+          <a href="#faq" className="hover:text-emerald-400 transition">{t('FAQ')}</a>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
@@ -86,13 +86,13 @@ export const LandingPage: React.FC = () => {
             className="btn-glow px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-black flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-md"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>{demoLoading ? 'Starting...' : 'Demo Login'}</span>
+            <span>{demoLoading ? 'Starting...' : t('Demo Login')}</span>
           </button>
           <Link
             to="/login"
             className="btn-glass px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-bold transition"
           >
-            Sign In
+            {t('Sign In')}
           </Link>
         </div>
       </nav>
@@ -102,7 +102,7 @@ export const LandingPage: React.FC = () => {
         {/* Pill Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/10 backdrop-blur-md text-xs font-black text-emerald-300 shadow-md">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-          <span>SIH26003 • AI Cognitive & Daily-Life Healthcare Companion</span>
+          <span>SIH26003 • {t('Voice-First Clinical Health Companion')}</span>
         </div>
 
         {/* 3D Centerpiece Orb */}
@@ -116,10 +116,10 @@ export const LandingPage: React.FC = () => {
             AABHA AI
           </h1>
           <p className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent italic">
-            "A caring voice for every memory."
+            "{t('A caring voice for every memory.')}"
           </p>
           <p className="text-xs sm:text-base text-[var(--text-secondary)] font-medium max-w-2xl mx-auto leading-relaxed">
-            An AI-powered cognitive companion designed to support elderly users and empower caregivers through adaptive brain exercises, gentle daily routine alarms, voice memory assistance, and offline synchronization.
+            {t('Sign in to access your personalized memory passport, daily routine, medication alarms, and 18+ cognitive therapy games.')}
           </p>
         </div>
 
@@ -129,7 +129,7 @@ export const LandingPage: React.FC = () => {
             to="/register"
             className="btn-glow w-full sm:w-auto px-8 py-3.5 text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-xl cursor-pointer"
           >
-            <span>Get Started</span>
+            <span>{t('Get Started')}</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
 
@@ -137,7 +137,7 @@ export const LandingPage: React.FC = () => {
             href="#solution"
             className="btn-glass w-full sm:w-auto px-8 py-3.5 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span>Explore AABHA</span>
+            <span>{t('Explore AABHA')}</span>
           </a>
 
           <button
@@ -145,14 +145,14 @@ export const LandingPage: React.FC = () => {
             className="px-6 py-3.5 rounded-2xl bg-purple-500/20 border border-purple-400/40 text-purple-300 text-xs sm:text-sm font-black flex items-center justify-center gap-2 hover:bg-purple-500/30 transition cursor-pointer"
           >
             <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>1-Click Hackathon Demo</span>
+            <span>{t('1-Click Hackathon Demo')}</span>
           </button>
         </div>
 
         {/* Non-Diagnostic Disclaimer Strip */}
         <div className="p-3 bg-[var(--bg-surface-secondary)] rounded-2xl border border-[var(--border)] max-w-xl mx-auto text-[11px] text-[var(--text-secondary)] font-medium flex items-center justify-center gap-2">
           <Shield className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>AABHA provides cognitive activity engagement and is NOT a medical diagnostic tool.</span>
+          <span>{t('Non-diagnostic activity indicator')}</span>
         </div>
       </header>
 
@@ -160,35 +160,35 @@ export const LandingPage: React.FC = () => {
       <section id="problem" className="relative z-10 py-12 px-4 sm:px-6 max-w-6xl mx-auto space-y-6">
         <div className="text-center space-y-2">
           <span className="text-xs font-black uppercase tracking-wider text-rose-400 bg-rose-500/10 px-3 py-1 rounded-full border border-rose-500/30">
-            Problem Statement
+            {t('Problem Statement')}
           </span>
           <h2 className="text-2xl sm:text-4xl font-black text-[var(--text-primary)]">
-            The Challenges Elderly Users & Caregivers Face
+            {t('The Challenges Elderly Users & Caregivers Face')}
           </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
           <div className="card-3d bg-[var(--card-bg-inline)] p-6 rounded-[24px] border border-[var(--card-border-inline)] space-y-2">
             <div className="text-3xl">🧩</div>
-            <h3 className="text-base font-black text-[var(--text-primary)]">Cognitive & Memory Difficulties</h3>
+            <h3 className="text-base font-black text-[var(--text-primary)]">{t('Cognitive & Memory Difficulties')}</h3>
             <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed">
-              Elderly individuals often struggle with short-term recall, misplacing daily items, and forgetting familiar family details, leading to distress and isolation.
+              {t('Elderly individuals often struggle with short-term recall, misplacing daily items, and forgetting familiar family details, leading to distress and isolation.')}
             </p>
           </div>
 
           <div className="card-3d bg-[var(--card-bg-inline)] p-6 rounded-[24px] border border-[var(--card-border-inline)] space-y-2">
             <div className="text-3xl">💊</div>
-            <h3 className="text-base font-black text-[var(--text-primary)]">Medication & Routine Non-Adherence</h3>
+            <h3 className="text-base font-black text-[var(--text-primary)]">{t('Medication & Routine Non-Adherence')}</h3>
             <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed">
-              Missing critical doses of prescribed medicines and neglecting daily hydration leads to preventable hospitalizations and complications.
+              {t('Missing critical doses of prescribed medicines and neglecting daily hydration leads to preventable hospitalizations and complications.')}
             </p>
           </div>
 
           <div className="card-3d bg-[var(--card-bg-inline)] p-6 rounded-[24px] border border-[var(--card-border-inline)] space-y-2">
             <div className="text-3xl">👨‍⚕️</div>
-            <h3 className="text-base font-black text-[var(--text-primary)]">Caregiver Burnout & Blind Spots</h3>
+            <h3 className="text-base font-black text-[var(--text-primary)]">{t('Caregiver Burnout & Blind Spots')}</h3>
             <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed">
-              Family members and clinicians lack real-time visibility into daily adherence, baseline cognitive changes, and emergency triggers.
+              {t('Family members and clinicians lack real-time visibility into daily adherence, baseline cognitive changes, and emergency triggers.')}
             </p>
           </div>
         </div>

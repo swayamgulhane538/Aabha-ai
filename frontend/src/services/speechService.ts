@@ -3,6 +3,7 @@ class SpeechService {
   private recognition: any = null;
   private voices: SpeechSynthesisVoice[] = [];
   private currentAudio: HTMLAudioElement | null = null;
+  private isAudioUnlocked = false;
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -21,12 +22,32 @@ class SpeechService {
           };
         }
       }
+
+      // Pre-unlock audio playback on first interaction anywhere in the window
+      const unlockAudio = () => {
+        if (this.isAudioUnlocked) return;
+        this.isAudioUnlocked = true;
+        try {
+          const silentAudio = new Audio();
+          silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+          silentAudio.play().catch(() => {});
+        } catch {}
+        document.removeEventListener('click', unlockAudio);
+        document.removeEventListener('touchstart', unlockAudio);
+        document.removeEventListener('keydown', unlockAudio);
+      };
+
+      document.addEventListener('click', unlockAudio, { passive: true });
+      document.addEventListener('touchstart', unlockAudio, { passive: true });
+      document.addEventListener('keydown', unlockAudio, { passive: true });
     }
   }
 
   private loadVoices() {
     if (!this.synthesis) return;
-    this.voices = this.synthesis.getVoices() || [];
+    try {
+      this.voices = this.synthesis.getVoices() || [];
+    } catch {}
   }
 
   public isSupported(): boolean {
@@ -70,7 +91,7 @@ class SpeechService {
 
   public cleanTextForSpeech(text: string): string {
     return text
-      .replace(/[*#_`~>]/g, '') // Strip markdown formatting
+      .replace(/[*#_`~>\[\]]/g, '') // Strip markdown formatting
       .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '') // Strip emojis
       .replace(/\s+/g, ' ')
       .trim();
@@ -134,36 +155,74 @@ class SpeechService {
 
     const targetLang = this.normalizeLanguageCode(language, cleanText);
     const langPrefix = targetLang.split('-')[0];
+    const truncated = cleanText.slice(0, 300);
 
-    // Priority 1: Try Neural Audio Stream Proxy
-    const truncated = cleanText.slice(0, 350);
-    const audioUrl = `/api/ai/tts?text=${encodeURIComponent(truncated)}&lang=${encodeURIComponent(langPrefix)}`;
-    const audio = new Audio();
-    audio.src = audioUrl;
-    audio.volume = 1.0;
-    this.currentAudio = audio;
-
-    let hasEnded = false;
+    let finished = false;
     const safeEnd = () => {
-      if (!hasEnded) {
-        hasEnded = true;
+      if (!finished) {
+        finished = true;
         this.currentAudio = null;
         if (onEnd) onEnd();
       }
     };
 
+    // Primary Strategy: Play via High-Quality Neural Audio Stream
+    const rawApiUrl = (import.meta as any).env?.VITE_API_URL || '';
+    const backendBase = rawApiUrl ? (rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`) : '/api';
+    const primaryUrl = `${backendBase}/ai/tts?text=${encodeURIComponent(truncated)}&lang=${encodeURIComponent(langPrefix)}`;
+    const directGoogleUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(truncated)}&tl=${encodeURIComponent(langPrefix)}&client=tw-ob`;
+
+    const audio = new Audio();
+    audio.volume = 1.0;
+    this.currentAudio = audio;
+
     audio.onended = safeEnd;
 
+    // If Primary URL fails, fallback to direct Google TTS, then Web Speech API
     audio.onerror = () => {
-      // Fallback to Web Speech Synthesis if audio fails
-      this.fallbackBrowserSpeech(cleanText, targetLang, langPrefix, safeEnd);
+      console.warn('[SpeechService] Primary TTS error, trying direct Google TTS fallback...');
+      const fallbackAudio = new Audio();
+      fallbackAudio.src = directGoogleUrl;
+      fallbackAudio.volume = 1.0;
+      this.currentAudio = fallbackAudio;
+
+      fallbackAudio.onended = safeEnd;
+      fallbackAudio.onerror = () => {
+        console.warn('[SpeechService] Direct Google TTS error, falling back to Web Speech API...');
+        this.fallbackBrowserSpeech(cleanText, targetLang, langPrefix, safeEnd);
+      };
+
+      const fbPromise = fallbackAudio.play();
+      if (fbPromise !== undefined) {
+        fbPromise.catch(() => {
+          this.fallbackBrowserSpeech(cleanText, targetLang, langPrefix, safeEnd);
+        });
+      }
     };
 
+    audio.src = primaryUrl;
     const playPromise = audio.play();
+
     if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        // Fallback to Web Speech Synthesis if play was rejected
-        this.fallbackBrowserSpeech(cleanText, targetLang, langPrefix, safeEnd);
+      playPromise.catch((playErr) => {
+        console.warn('[SpeechService] Autoplay prevented or stream error, trying fallback:', playErr);
+        // Try direct fallback
+        const fallbackAudio = new Audio();
+        fallbackAudio.src = directGoogleUrl;
+        fallbackAudio.volume = 1.0;
+        this.currentAudio = fallbackAudio;
+
+        fallbackAudio.onended = safeEnd;
+        fallbackAudio.onerror = () => {
+          this.fallbackBrowserSpeech(cleanText, targetLang, langPrefix, safeEnd);
+        };
+
+        const fbPromise = fallbackAudio.play();
+        if (fbPromise !== undefined) {
+          fbPromise.catch(() => {
+            this.fallbackBrowserSpeech(cleanText, targetLang, langPrefix, safeEnd);
+          });
+        }
       });
     }
   }

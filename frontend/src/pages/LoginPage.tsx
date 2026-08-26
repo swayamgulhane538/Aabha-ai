@@ -27,7 +27,7 @@ import {
 export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { login, continueWithDemoAccount, sendOtp, loginWithOtp, lookupPatient, isLoading } = useAuthStore();
+  const { login, continueWithDemoAccount, continueWithDemoCaregiverAccount, sendOtp, loginWithOtp, lookupPatient, isLoading } = useAuthStore();
 
   const [activeTab, setActiveTab] = useState<'password' | 'otp' | 'lookup'>('password');
 
@@ -93,15 +93,29 @@ export default function LoginPage() {
     }
   };
 
-  // Handle Single Demo Account
+  // Handle Single Demo Patient Account
   const handleContinueDemo = async () => {
     setError('');
     setSubmitting(true);
     try {
-      const demoUser = await continueWithDemoAccount();
+      await continueWithDemoAccount();
       navigate('/patient', { replace: true });
     } catch (err: any) {
       setError('Failed to initialize demo session. Please try standard login.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Handle Single Demo Caregiver / Nurse Account (Jointly Linked to Patient)
+  const handleContinueDemoNurse = async () => {
+    setError('');
+    setSubmitting(true);
+    try {
+      await continueWithDemoCaregiverAccount();
+      navigate('/caregiver', { replace: true });
+    } catch (err: any) {
+      setError('Failed to initialize demo nurse session. Please try standard login.');
     } finally {
       setSubmitting(false);
     }
@@ -238,29 +252,59 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* ─── 1-CLICK DEMO PATIENT ACCESS CARD ──────────────────────────── */}
-            <div className="p-4 sm:p-5 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-indigo-500/15 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-inner">
-              <div className="text-center sm:text-left">
-                <div className="flex items-center gap-2 justify-center sm:justify-start">
+            {/* ─── 1-CLICK DEMO ACCESS CARD (PATIENT & JOINT CAREGIVER NURSE) ──────────── */}
+            <div className="p-4 sm:p-5 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-indigo-500/15 space-y-3 shadow-inner">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
                   <span className="px-2.5 py-0.5 bg-amber-400/20 border border-amber-400/40 text-amber-300 text-[10px] font-black uppercase rounded-md">
                     ⭐ {t('⭐ Quick Demo Access')}
                   </span>
-                  <span className="font-black text-sm text-[var(--text-primary)]">{t('Demo Patient Portal')}</span>
+                  <span className="font-black text-sm text-[var(--text-primary)]">
+                    {t('Joint Demo Portals')}
+                  </span>
                 </div>
-                <div className="text-xs font-mono font-bold text-[var(--text-secondary)] mt-0.5">
-                  ID: PAT-DEMO-000001 • Instant Access
-                </div>
+                <span className="text-[11px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                  🔗 Joint Patient & Caregiver Network
+                </span>
               </div>
 
-              <button
-                type="button"
-                onClick={handleContinueDemo}
-                disabled={submitting}
-                className="btn-glow w-full sm:w-auto px-5 py-2.5 text-xs font-black flex items-center justify-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                <span>{t('Continue with Demo Account →')}</span>
-              </button>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                {/* 1. Demo Patient Button */}
+                <button
+                  type="button"
+                  onClick={handleContinueDemo}
+                  disabled={submitting}
+                  className="btn-glow p-3 rounded-xl text-left flex items-center justify-between gap-2 cursor-pointer active:scale-95 transition"
+                >
+                  <div className="space-y-0.5 min-w-0">
+                    <div className="text-xs font-black text-white flex items-center gap-1.5 truncate">
+                      <span>👤 {t('Demo Patient Portal')}</span>
+                    </div>
+                    <div className="text-[10px] font-mono text-emerald-200 truncate">
+                      PAT-DEMO-000001
+                    </div>
+                  </div>
+                  <Sparkles className="w-4 h-4 text-amber-300 shrink-0" />
+                </button>
+
+                {/* 2. Demo Caregiver / Nurse Button (Linked to Patient) */}
+                <button
+                  type="button"
+                  onClick={handleContinueDemoNurse}
+                  disabled={submitting}
+                  className="px-3.5 py-3 rounded-xl bg-purple-500/25 border border-purple-400/40 hover:bg-purple-500/35 text-purple-200 text-left flex items-center justify-between gap-2 cursor-pointer active:scale-95 transition shadow-sm"
+                >
+                  <div className="space-y-0.5 min-w-0">
+                    <div className="text-xs font-black text-purple-200 flex items-center gap-1.5 truncate">
+                      <span>👩‍⚕️ {t('Caregiver Nurse Portal')}</span>
+                    </div>
+                    <div className="text-[10px] font-mono text-purple-300 truncate">
+                      CG-DEMO-000001 (Sister Anita)
+                    </div>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-purple-300 shrink-0" />
+                </button>
+              </div>
             </div>
 
             {/* Navigation Mode Tabs */}

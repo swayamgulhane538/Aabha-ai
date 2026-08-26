@@ -49,11 +49,34 @@ export const CaregiverDashboard: React.FC = () => {
   const [showReportModal, setShowReportModal] = useState(false);
 
   const [patients, setPatients] = useState<any[]>([
-    { id: 'p1', patientId: 'PAT-DEMO-000001', name: 'Mr. Arun Das', age: 68, gender: 'Male', cognitiveScore: 80, adherence: 92, lastActive: '12 mins ago' },
-    { id: 'p2', patientId: 'PAT-2026-000001', name: 'Anita Devi', age: 67, gender: 'Female', cognitiveScore: 84, adherence: 95, lastActive: '1 hour ago' }
+    { id: 'uuid-demo-patient', patientId: 'PAT-DEMO-000001', name: 'Demo Patient', age: 68, gender: 'Female', cognitiveScore: 88, adherence: 94, lastActive: 'Active Now', relationship: 'Assigned Primary Caregiver & Clinical Nurse' },
+    { id: 'uuid-anita-01', patientId: 'PAT-2026-000001', name: 'Anita Devi', age: 67, gender: 'Female', cognitiveScore: 84, adherence: 95, lastActive: '1 hour ago', relationship: 'Clinical Supervising Nurse' },
+    { id: 'uuid-rajesh-03', patientId: 'PAT-2026-000003', name: 'Rajesh Kumar', age: 71, gender: 'Male', cognitiveScore: 78, adherence: 89, lastActive: '3 hours ago', relationship: 'Assigned Clinical Nurse' }
   ]);
 
-  const [selectedPatientId, setSelectedPatientId] = useState('p1');
+  const [selectedPatientId, setSelectedPatientId] = useState('uuid-demo-patient');
+
+  // Load live linked patients from backend
+  useEffect(() => {
+    const fetchLinkedPatients = async () => {
+      try {
+        const res: any = await api.get('/caregivers/patients');
+        if (res && Array.isArray(res) && res.length > 0) {
+          setPatients(res);
+          // Prefer demo patient if present
+          const demoP = res.find((p: any) => p.patientId === 'PAT-DEMO-000001' || p.id === 'uuid-demo-patient');
+          if (demoP) {
+            setSelectedPatientId(demoP.id);
+          } else {
+            setSelectedPatientId(res[0].id);
+          }
+        }
+      } catch (err) {
+        // Fallback to initial linked patients
+      }
+    };
+    fetchLinkedPatients();
+  }, [user]);
 
   const [alerts, setAlerts] = useState<SmartAlert[]>([
     {

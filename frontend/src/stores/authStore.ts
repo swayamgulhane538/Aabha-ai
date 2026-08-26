@@ -12,15 +12,31 @@ export const DEMO_PATIENT: User = {
   age: 68,
   dateOfBirth: '1958-05-15',
   gender: 'Female',
-  emergencyContact: 'Dr. Anita Verma (+91 98765 43210)',
+  emergencyContact: 'Sister Anita Verma (+91 98765 43210)',
   address: '123 Wellness Ave, New Delhi',
   role: 'PATIENT',
+  language: 'hi'
+};
+
+export const DEMO_NURSE: User = {
+  id: 'uuid-demo-nurse',
+  patientId: 'CG-DEMO-000001',
+  name: 'Sister Anita Verma (Caregiver Nurse)',
+  email: 'demo.nurse@aabha.ai',
+  phone: '+91 98765 43210',
+  age: 38,
+  dateOfBirth: '1988-04-12',
+  gender: 'Female',
+  emergencyContact: 'Apollo Health Desk (+91 98765 00000)',
+  address: 'Apollo Memory Clinic & Care Center, New Delhi',
+  role: 'CAREGIVER',
   language: 'hi'
 };
 
 interface AuthActions {
   login: (identifier: string, pass: string) => Promise<User>;
   continueWithDemoAccount: () => Promise<User>;
+  continueWithDemoCaregiverAccount: () => Promise<User>;
   sendOtp: (email: string) => Promise<any>;
   loginWithOtp: (email: string, otp: string) => Promise<User>;
   register: (data: any) => Promise<User>;
@@ -79,6 +95,30 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             isLoading: false
           });
           return DEMO_PATIENT;
+        }
+      },
+
+      // ─── 2.1 DEMO CAREGIVER / NURSE LOGIN (LINKED TO DEMO PATIENT) ──────
+      continueWithDemoCaregiverAccount: async () => {
+        set({ isLoading: true });
+        try {
+          const res = await api.post('/auth/login', {
+            email: 'demo.nurse@aabha.ai',
+            password: 'demo123'
+          });
+          const user: User = res.user;
+          user.role = (user.role || 'CAREGIVER').toUpperCase() as Role;
+          set({ user, token: res.accessToken, isAuthenticated: true, isLoading: false });
+          return user;
+        } catch (error: any) {
+          // Fallback if offline
+          set({
+            user: DEMO_NURSE,
+            token: 'demo-token-nurse-uuid-demo-nurse',
+            isAuthenticated: true,
+            isLoading: false
+          });
+          return DEMO_NURSE;
         }
       },
 

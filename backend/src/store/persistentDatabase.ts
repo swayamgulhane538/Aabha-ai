@@ -325,7 +325,25 @@ function getInitialDatabaseData(): DatabaseSchema {
         createdAt: '2026-01-10T08:00:00.000Z',
         updatedAt: '2026-08-24T10:00:00.000Z'
       },
-      // 5. Super Admin / Coder: Swayam Gulhane
+      // 5. DEMO CAREGIVER / CLINICAL NURSE (Linked to Demo Patient)
+      {
+        id: 'uuid-demo-nurse',
+        patientId: 'CG-DEMO-000001',
+        name: 'Sister Anita Verma (Caregiver Nurse)',
+        email: 'demo.nurse@aabha.ai',
+        phone: '+91 98765 43210',
+        passwordHash: defaultPasswordHash,
+        role: 'CAREGIVER',
+        dateOfBirth: '1988-04-12',
+        age: 38,
+        gender: 'Female',
+        address: 'Apollo Memory & Care Center, New Delhi',
+        preferredLanguage: 'hi',
+        status: 'ACTIVE',
+        createdAt: '2026-01-01T08:00:00.000Z',
+        updatedAt: '2026-08-24T10:00:00.000Z'
+      },
+      // 6. Super Admin / Coder: Swayam Gulhane
       {
         id: 'uuid-admin-swayam',
         patientId: 'ADM-2026-000001',
@@ -345,6 +363,22 @@ function getInitialDatabaseData(): DatabaseSchema {
       }
     ],
     caregiverRelationships: [
+      {
+        id: 'rel-demo-nurse-patient',
+        caregiverUserId: 'uuid-demo-nurse',
+        patientUserId: 'uuid-demo-patient', // PAT-DEMO-000001 (Joint Linkage)
+        relationship: 'Assigned Primary Caregiver & Clinical Nurse',
+        permissions: ['VIEW_REPORTS', 'EDIT_PASSPORT', 'MANAGE_REMINDERS', 'MEDICATION_ALERTS', 'VITALS_TRACKER'],
+        createdAt: '2026-01-01T08:00:00.000Z'
+      },
+      {
+        id: 'rel-demo-nurse-anita',
+        caregiverUserId: 'uuid-demo-nurse',
+        patientUserId: 'uuid-anita-01', // PAT-2026-000001
+        relationship: 'Clinical Supervising Nurse',
+        permissions: ['VIEW_REPORTS', 'MANAGE_REMINDERS'],
+        createdAt: '2026-01-15T08:00:00.000Z'
+      },
       {
         id: 'rel-1',
         caregiverUserId: 'uuid-caregiver-priya',
@@ -994,6 +1028,18 @@ class PersistentDatabase {
             const demoUser = defaults.users.find(u => u.id === 'uuid-demo-patient');
             if (demoUser) users.unshift(demoUser);
           }
+          // Ensure demo caregiver nurse exists
+          if (!users.some(u => u.id === 'uuid-demo-nurse' || u.email === 'demo.nurse@aabha.ai')) {
+            const demoNurse = defaults.users.find(u => u.id === 'uuid-demo-nurse');
+            if (demoNurse) users.unshift(demoNurse);
+          }
+
+          const caregiverRelationships = [...(parsed.caregiverRelationships || defaults.caregiverRelationships)];
+          defaults.caregiverRelationships.forEach(drel => {
+            if (!caregiverRelationships.some(r => r.id === drel.id || (r.caregiverUserId === drel.caregiverUserId && r.patientUserId === drel.patientUserId))) {
+              caregiverRelationships.unshift(drel);
+            }
+          });
 
           const reports = [...(parsed.reports || defaults.reports)];
           defaults.reports.forEach(dr => {
@@ -1020,6 +1066,7 @@ class PersistentDatabase {
             ...defaults,
             ...parsed,
             users,
+            caregiverRelationships,
             reports,
             medications,
             appointments,

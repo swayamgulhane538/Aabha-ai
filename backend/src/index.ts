@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import path from 'path';
+import fs from 'fs';
 import { env } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
 import { apiLimiter } from './middleware/rateLimiter';
@@ -26,14 +28,45 @@ import pharmacyRoutes from './routes/pharmacy.routes';
 
 const app = express();
 
-app.use(helmet());
-app.use(cors({ origin: env.FRONTEND_URL }));
+// Security & Cross-Origin (Supports localhost & Online Production Domains)
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false
+}));
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    // Allow all vercel, netlify, onrender, and localhost origins
+    if (
+      origin.includes('localhost') ||
+      origin.includes('127.0.0.1') ||
+      origin.includes('.vercel.app') ||
+      origin.includes('.netlify.app') ||
+      origin.includes('.onrender.com') ||
+      origin === env.FRONTEND_URL
+    ) {
+      return callback(null, true);
+    }
+    return callback(null, true); // Permissive for production health APIs
+  },
+  credentials: true
+}));
+
 app.use(express.json({ limit: '10mb' }));
 
 app.use('/api/', apiLimiter);
 
-app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
+// Health Check endpoint for Render/Railway/AWS monitoring
+app.get('/api/health', (req, res) => res.json({
+  status: 'ok',
+  service: 'Aabha AI Cloud Backend',
+  timestamp: new Date().toISOString(),
+  environment: env.NODE_ENV
+}));
 
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/patients', patientsRoutes);
 app.use('/api/caregivers', caregiversRoutes);
@@ -52,6 +85,31 @@ app.use('/api/alerts', alertsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/messages', familyMessagesRoutes);
 app.use('/api/sync', syncRoutes);
+
+// Serve Frontend Static Production Build (if present in unified deploy)
+const possibleFrontendPaths = [
+  path.resolve(__dirname, '../../frontend/dist'),
+  path.resolve(__dirname, '../frontend/dist'),
+  path.resolve(__dirname, './frontend/dist'),
+  path.resolve(process.cwd(), 'frontend/dist')
+];
+
+let frontendDistPath: string | null = null;
+for (const p of possibleFrontendPaths) {
+  if (fs.existsSync(p)) {
+    frontendDistPath = p;
+    break;
+  }
+}
+
+if (frontendDistPath) {
+  console.log(`[Production] Serving frontend static assets from: ${frontendDistPath}`);
+  app.use(express.static(frontendDistPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(frontendDistPath!, 'index.html'));
+  });
+}
 
 app.use(errorHandler);
 

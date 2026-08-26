@@ -28,7 +28,8 @@ import {
   Smile,
   Home,
   Coffee,
-  Smartphone
+  Smartphone,
+  Eye
 } from 'lucide-react';
 import { Abha3DOrb } from './Abha3DOrb';
 import { ambientMusic } from '../services/ambientMusicService';
@@ -47,6 +48,9 @@ interface StageConfig {
     action: string;
     quote: string;
     avatar: string;
+    photoUrl: string;
+    peopleBadge: string;
+    role: string;
     metric: string;
   };
   narrationSentences: string[];
@@ -68,6 +72,9 @@ const STAGES: StageConfig[] = [
       action: 'Experiencing mild memory lapses with daily medicines and schedules',
       quote: '"I want to stay independent, but sometimes I forget if I took my morning medicine or drank enough water."',
       avatar: '👴',
+      photoUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80',
+      peopleBadge: '👴 Arun Das (72) • 👩‍⚕️ Dr. Anita (42)',
+      role: 'Elderly Patient & Family Caregiver',
       metric: 'Independence preserved with zero anxiety'
     },
     narrationSentences: [
@@ -97,6 +104,9 @@ const STAGES: StageConfig[] = [
       action: '1-Tap checkoff for Donepezil 5mg with a full glass of warm water',
       quote: '"The big buttons and clear text make it so simple. I don\'t even need my reading glasses."',
       avatar: '💊',
+      photoUrl: 'https://images.unsplash.com/photo-1581579438747-1dc8d17bbce4?auto=format&fit=crop&w=800&q=80',
+      peopleBadge: '👴 Arun Das taking medication comfortably',
+      role: 'Self-Administered Adherence',
       metric: 'Adherence: 100% Morning Dose Taken'
     },
     narrationSentences: [
@@ -126,6 +136,9 @@ const STAGES: StageConfig[] = [
       action: 'Voice query in Hindi: "Aabha, mera aaj ka kya program hai?"',
       quote: '"Aabha talks to me warmly like a family member, reminding me of lunch and my evening walk."',
       avatar: '🤖',
+      photoUrl: 'https://images.unsplash.com/photo-1516307365426-bea591f05011?auto=format&fit=crop&w=800&q=80',
+      peopleBadge: '👴 Arun Das chatting with Aabha Voice Companion',
+      role: 'Natural Conversational Dialogue',
       metric: 'Latency: 0.3s Speech Intent Resolution'
     },
     narrationSentences: [
@@ -157,6 +170,9 @@ const STAGES: StageConfig[] = [
       action: 'Matching familiar cards & ordering chronological routines',
       quote: '"My granddaughter cheers every time I find a matching pair! It feels like fun, not medical therapy."',
       avatar: '🎯',
+      photoUrl: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=800&q=80',
+      peopleBadge: '👴 Arun Das & 👧 Granddaughter Priya (9)',
+      role: 'Intergenerational Bonding & Mind Training',
       metric: 'Visual Recall Score: 85% Accuracy'
     },
     narrationSentences: [
@@ -188,6 +204,9 @@ const STAGES: StageConfig[] = [
       action: 'Automatically scaling card grid from 3×2 to 4×4 with distractor cards',
       quote: '"Great job Arun! You completed Level 2 with 85% accuracy. Let\'s try Level 3 next."',
       avatar: '⚡',
+      photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=800&q=80',
+      peopleBadge: '👴 Arun Das celebrating milestone',
+      role: 'Dynamic Neuro-Stimulation Scaling',
       metric: 'Difficulty: Level 2 ➔ Level 3 (Adaptive)'
     },
     narrationSentences: [
@@ -219,6 +238,9 @@ const STAGES: StageConfig[] = [
       action: 'Reviewing 4-pillar scores: Memory 82%, Attention 76%, Speed 1.8s, Consistency 84%',
       quote: '"Even while busy seeing patients at the clinic, I know father is taking his medicines and staying mentally sharp."',
       avatar: '👩‍⚕️',
+      photoUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=800&q=80',
+      peopleBadge: '👩‍⚕️ Dr. Anita Verma at her Clinic',
+      role: 'Family Caregiver & Medical Consultant',
       metric: 'Caregiver Status: All 3 Alarms Confirmed'
     },
     narrationSentences: [
@@ -248,6 +270,9 @@ const STAGES: StageConfig[] = [
       action: 'Local IndexedDB offline vault caches routine checkoffs & audio alerts',
       quote: '"No internet in the park? No problem. Aabha still rings on time and records everything."',
       avatar: '📡',
+      photoUrl: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=800&q=80',
+      peopleBadge: '👴 Arun Das enjoying active outdoor walk',
+      role: '100% Offline Vault Operation',
       metric: 'Sync State: 🔴 Offline Vault ➔ 🟢 Auto-Synced'
     },
     narrationSentences: [
@@ -277,6 +302,9 @@ const STAGES: StageConfig[] = [
       action: 'A caring voice for every memory across 5 regional languages',
       quote: '"Aabha AI gives my father his confidence back, and gives our family peace of mind."',
       avatar: '🇮🇳',
+      photoUrl: 'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=crop&w=800&q=80',
+      peopleBadge: '👨‍👩‍👧 Indian Family Connected with Dignity',
+      role: 'Bridging Care Across Generations',
       metric: 'SIH26003: Ready for Pan-India Deployment'
     },
     narrationSentences: [
@@ -399,14 +427,13 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
         if (isPlayingRef.current && isVoiceoverOnRef.current) {
           const nextIdx = safeIdx + 1;
           stageSentenceIdxRef.current = nextIdx;
-          // Loop seamlessly within stage sentences
           setTimeout(() => {
             if (isPlayingRef.current && isVoiceoverOnRef.current) {
               const currentS =
                 STAGES.find(s => s.id === currentStageIdRef.current) || stage;
               playContinuousSentence(currentS, nextIdx);
             }
-          }, 120);
+          }, 100);
         }
       };
 
@@ -576,9 +603,9 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-[999999] flex items-center justify-center p-3 sm:p-6 bg-slate-950/90 backdrop-blur-2xl animate-fade-in font-sans select-none overflow-hidden"
+      className="fixed inset-0 z-[999999] flex items-center justify-center p-3 sm:p-5 md:p-6 bg-slate-950/90 backdrop-blur-2xl animate-fade-in font-sans select-none overflow-hidden"
     >
-      <div className="relative w-full max-w-5xl bg-[var(--bg-surface)] rounded-[28px] sm:rounded-[36px] border border-[var(--border)] shadow-2xl flex flex-col max-h-[94vh] overflow-hidden my-auto animate-modal-in text-[var(--text-primary)]">
+      <div className="relative w-full max-w-6xl bg-[var(--bg-surface)] rounded-[28px] sm:rounded-[36px] border border-[var(--border)] shadow-2xl flex flex-col max-h-[95vh] overflow-hidden my-auto animate-modal-in text-[var(--text-primary)]">
         {/* ─── TOP PRESENTATION BAR ────────────────────────────────────────── */}
         <div className="px-4 sm:px-8 py-3 bg-gradient-to-r from-purple-950 via-indigo-950 to-slate-950 text-white flex items-center justify-between border-b border-white/10 shrink-0">
           <div className="flex items-center gap-2.5 sm:gap-3">
@@ -590,14 +617,14 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className="text-xs sm:text-sm font-black uppercase tracking-wider bg-gradient-to-r from-purple-300 to-teal-300 bg-clip-text text-transparent">
-                  AABHA AI • 3-MIN CONTINUOUS SHOWCASE
+                  AABHA AI • 3-MIN REAL-LIFE SHOWCASE
                 </span>
                 <span className="hidden sm:inline px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-400/20 text-emerald-300 border border-emerald-400/40">
-                  Continuous Speech Narration
+                  Real People in Action
                 </span>
               </div>
               <div className="text-[10px] text-slate-400 font-medium">
-                Uninterrupted Voiceover with Ambient Wellness Background Music
+                Live Indian Family Stories with Continuous Voiceover & Ambient BGM
               </div>
             </div>
           </div>
@@ -728,50 +755,70 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
           </p>
         </div>
 
-        {/* ─── DYNAMIC STAGE CONTENT CONTAINER (REAL-LIFE STORIES) ─────────── */}
-        <div className="flex-1 p-5 sm:p-7 overflow-y-auto space-y-5">
-          {/* Real-Life Human Scenario Spotlight Card */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-teal-500/10 border border-purple-400/25 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="flex items-start gap-3.5">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border)] shadow-md flex items-center justify-center text-3xl shrink-0 animate-bounce">
-                {currentStage.humanScene.avatar}
+        {/* ─── DYNAMIC STAGE CONTENT CONTAINER (REAL PEOPLE + LIVE APP UI) ── */}
+        <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5">
+          {/* Top Header Split: Real Person Portrait Card & Scenario Details */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-stretch">
+            {/* Real Person Photo & Role Card */}
+            <div className="md:col-span-5 rounded-2xl overflow-hidden bg-gradient-to-br from-purple-900 to-slate-900 border border-purple-500/30 text-white relative shadow-lg flex flex-col justify-between p-4 group min-h-[160px]">
+              <div className="absolute inset-0 bg-cover bg-center opacity-40 group-hover:scale-105 transition-transform duration-700 pointer-events-none" style={{ backgroundImage: `url(${currentStage.humanScene.photoUrl})` }} />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent pointer-events-none" />
+
+              <div className="relative z-10 flex items-center justify-between">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-500/40 border border-purple-400/50 text-purple-200 backdrop-blur-md">
+                  {currentStage.humanScene.role}
+                </span>
+                <span className="text-2xl">{currentStage.humanScene.avatar}</span>
               </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs font-black text-purple-600 dark:text-purple-400 uppercase tracking-wider">
-                    {currentStage.humanScene.character}
-                  </span>
-                  <span className="text-[10px] text-[var(--text-muted)] font-mono">
-                    📍 {currentStage.humanScene.setting}
-                  </span>
+
+              <div className="relative z-10 space-y-1 mt-6">
+                <div className="text-xs font-black text-emerald-300 flex items-center gap-1">
+                  <Users className="w-3.5 h-3.5" />
+                  <span>{currentStage.humanScene.peopleBadge}</span>
                 </div>
-                <h3 className="text-base sm:text-lg font-black text-[var(--text-primary)]">
-                  {currentStage.title}
-                </h3>
-                <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium italic">
-                  {currentStage.humanScene.quote}
-                </p>
+                <div className="text-[11px] text-slate-300 font-medium line-clamp-2">
+                  📍 {currentStage.humanScene.setting}
+                </div>
               </div>
             </div>
 
-            <div className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] text-right self-stretch md:self-center shrink-0">
-              <div className="text-[10px] uppercase font-black text-[var(--text-muted)]">Live Impact Metric</div>
-              <div className="text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400">
-                {currentStage.humanScene.metric}
+            {/* Real Life Story & Action Dialogue Card */}
+            <div className="md:col-span-7 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-teal-500/10 border border-purple-400/25 flex flex-col justify-between gap-3 shadow-sm">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-purple-500/20 text-purple-600 dark:text-purple-300">
+                    {currentStage.badge}
+                  </span>
+                  <span className="text-[10px] font-mono font-bold text-[var(--text-muted)]">
+                    Sec {currentStage.startSec}s – {currentStage.endSec}s
+                  </span>
+                </div>
+
+                <h3 className="text-base sm:text-lg font-black text-[var(--text-primary)]">
+                  {currentStage.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium italic leading-relaxed">
+                  {currentStage.humanScene.quote}
+                </p>
+              </div>
+
+              <div className="pt-2 border-t border-[var(--border)] flex items-center justify-between text-xs">
+                <span className="text-[11px] text-[var(--text-muted)] font-medium">Impact Outcome:</span>
+                <strong className="text-emerald-600 dark:text-emerald-400 font-bold">{currentStage.humanScene.metric}</strong>
               </div>
             </div>
           </div>
 
           {/* ─── STAGE 1: Real Life & The Aging Challenge ──────────────────── */}
           {currentStage.id === 1 && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 animate-fade-in">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 animate-fade-in">
               <div className="p-4 rounded-2xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] space-y-2">
                 <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-600 flex items-center justify-center text-base">
                   👵
                 </div>
-                <h4 className="text-xs sm:text-sm font-black text-[var(--text-primary)]">Mild Memory Challenges</h4>
+                <h4 className="text-xs sm:text-sm font-black text-[var(--text-primary)]">Arun's Memory Concerns</h4>
                 <p className="text-xs text-[var(--text-secondary)]">
-                  Forgetting morning dosages, hydration targets, and doctor appointments causes hesitation and stress.
+                  Forgetting whether Donepezil 5mg was taken at 08:30 AM causes repetitive worry and hesitation.
                 </p>
               </div>
 
@@ -779,9 +826,9 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                 <div className="w-8 h-8 rounded-xl bg-teal-500/20 text-teal-600 flex items-center justify-center text-base">
                   👩‍⚕️
                 </div>
-                <h4 className="text-xs sm:text-sm font-black text-[var(--text-primary)]">Caregiver Anxiety</h4>
+                <h4 className="text-xs sm:text-sm font-black text-[var(--text-primary)]">Dr. Anita's Busy Shift</h4>
                 <p className="text-xs text-[var(--text-secondary)]">
-                  Working daughters and sons worry constantly while at work about whether parents took critical medicines.
+                  Working long hours at the clinic, she needs reliable non-intrusive reassurance of father's health.
                 </p>
               </div>
 
@@ -789,9 +836,9 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                 <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-600 flex items-center justify-center text-base">
                   ✨
                 </div>
-                <h4 className="text-xs sm:text-sm font-black text-[var(--text-primary)]">The AABHA Solution</h4>
+                <h4 className="text-xs sm:text-sm font-black text-[var(--text-primary)]">AABHA AI Companion</h4>
                 <p className="text-xs text-[var(--text-secondary)]">
-                  An AI companion providing dignified independence, zero hallucination voice care, and real-time remote peace of mind.
+                  Bridges memory lapses with gentle vocal encouragement, adaptive games, and caregiver alerts.
                 </p>
               </div>
             </div>
@@ -799,7 +846,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
 
           {/* ─── STAGE 2: Accessible Morning Dashboard in Action ──────────── */}
           {currentStage.id === 2 && (
-            <div className="space-y-4 animate-fade-in">
+            <div className="space-y-3 animate-fade-in">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="p-3.5 rounded-xl bg-[var(--bg-surface-secondary)] border border-rose-500/30 text-center">
                   <span className="text-2xl">🚨</span>
@@ -827,11 +874,11 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
 
           {/* ─── STAGE 3: Natural Voice Companion at Breakfast ─────────────── */}
           {currentStage.id === 3 && (
-            <div className="p-5 rounded-2xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] space-y-3 animate-fade-in">
+            <div className="p-4 sm:p-5 rounded-2xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] space-y-3 animate-fade-in">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Abha3DOrb size="sm" state="SPEAKING" interactive={false} />
-                  <span className="text-sm font-black">Conversational Dialogue (Hindi / English / 5 Languages)</span>
+                  <span className="text-xs sm:text-sm font-black">Conversational Dialogue (Hindi / English / 5 Languages)</span>
                 </div>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-purple-500/20 text-purple-600 dark:text-purple-300">
                   Zero Hallucination
@@ -852,12 +899,12 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
           {/* ─── STAGE 4: Cognitive Gaming with Grandchildren ──────────────── */}
           {currentStage.id === 4 && (
             <div className="space-y-3 animate-fade-in">
-              <div className="p-3.5 rounded-xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] flex items-center justify-between">
+              <div className="p-3 rounded-xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl">🎴</span>
+                  <span className="text-xl">🎴</span>
                   <div>
                     <div className="text-xs sm:text-sm font-black">Memory Match: Animal & Nature Pair Recall</div>
-                    <div className="text-[11px] text-[var(--text-secondary)]">Granddaughter cheering each successful match</div>
+                    <div className="text-[10px] text-[var(--text-secondary)]">Granddaughter cheering each successful match</div>
                   </div>
                 </div>
                 <div className="text-right">
@@ -866,7 +913,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                 </div>
               </div>
 
-              <div className="grid grid-cols-4 gap-2 sm:gap-3 max-w-md mx-auto">
+              <div className="grid grid-cols-4 gap-2 sm:gap-2.5 max-w-md mx-auto">
                 {[
                   { icon: '🍎', flipped: true, matched: true },
                   { icon: '🍎', flipped: true, matched: true },
@@ -879,7 +926,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                 ].map((c, i) => (
                   <div
                     key={i}
-                    className={`h-14 sm:h-16 rounded-xl border flex items-center justify-center text-xl sm:text-2xl font-black transition-all ${
+                    className={`h-12 sm:h-14 rounded-xl border flex items-center justify-center text-lg sm:text-xl font-black transition-all ${
                       c.matched
                         ? 'bg-emerald-500/20 border-emerald-400 text-emerald-600 scale-105 shadow-sm'
                         : c.flipped
@@ -896,11 +943,11 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
 
           {/* ─── STAGE 5: Adaptive AI Dynamic Scaling Engine ────────────────── */}
           {currentStage.id === 5 && (
-            <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 border border-emerald-400/30 space-y-3 animate-fade-in">
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 border border-emerald-400/30 space-y-3 animate-fade-in">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Brain className="w-5 h-5 text-emerald-500 animate-pulse" />
-                  <span className="text-sm font-black uppercase">Adaptive Neuro-Stimulation Algorithm</span>
+                  <span className="text-xs sm:text-sm font-black uppercase">Adaptive Neuro-Stimulation Algorithm</span>
                 </div>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-600">
                   Difficulty Level: 3 (Auto Scaled)
@@ -912,13 +959,13 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
               </p>
 
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-2.5 bg-[var(--bg-surface)] rounded-xl border border-[var(--border)]">
-                  <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Calculated Cognitive Index</div>
-                  <div className="text-base font-black text-emerald-500">80 / 100</div>
+                <div className="p-2 bg-[var(--bg-surface)] rounded-xl border border-[var(--border)]">
+                  <div className="text-[9px] font-bold text-[var(--text-muted)] uppercase">Calculated Cognitive Index</div>
+                  <div className="text-sm sm:text-base font-black text-emerald-500">80 / 100</div>
                 </div>
-                <div className="p-2.5 bg-[var(--bg-surface)] rounded-xl border border-[var(--border)]">
-                  <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Recommendation Engine</div>
-                  <div className="text-base font-black text-purple-500">Chronological Sequencing</div>
+                <div className="p-2 bg-[var(--bg-surface)] rounded-xl border border-[var(--border)]">
+                  <div className="text-[9px] font-bold text-[var(--text-muted)] uppercase">Recommendation Engine</div>
+                  <div className="text-sm sm:text-base font-black text-purple-500">Chronological Sequencing</div>
                 </div>
               </div>
             </div>
@@ -927,10 +974,10 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
           {/* ─── STAGE 6: Caregiver Remote Monitoring ──────────────────────── */}
           {currentStage.id === 6 && (
             <div className="space-y-3 animate-fade-in">
-              <div className="p-4 rounded-2xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] flex items-center justify-between">
+              <div className="p-3.5 rounded-2xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] flex items-center justify-between">
                 <div>
                   <div className="text-xs sm:text-sm font-black">Dr. Anita's Smartphone View at Hospital Clinic</div>
-                  <div className="text-[11px] text-[var(--text-secondary)]">Live 4-Pillar Non-Medical Cognitive Radar</div>
+                  <div className="text-[10px] text-[var(--text-secondary)]">Live 4-Pillar Non-Medical Cognitive Radar</div>
                 </div>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-600">
                   All Systems Normal
@@ -938,25 +985,25 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-                <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
-                  <div className="text-[10px] uppercase font-black text-[var(--text-secondary)]">Memory Score</div>
-                  <div className="text-lg font-black text-emerald-500 mt-1">82%</div>
-                  <div className="text-[9px] text-emerald-600 font-bold">+12% vs baseline</div>
+                <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
+                  <div className="text-[9px] uppercase font-black text-[var(--text-secondary)]">Memory Score</div>
+                  <div className="text-base sm:text-lg font-black text-emerald-500 mt-0.5">82%</div>
+                  <div className="text-[8px] text-emerald-600 font-bold">+12% vs baseline</div>
                 </div>
-                <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
-                  <div className="text-[10px] uppercase font-black text-[var(--text-secondary)]">Attention</div>
-                  <div className="text-lg font-black text-cyan-500 mt-1">76%</div>
-                  <div className="text-[9px] text-cyan-600 font-bold">Stable focus</div>
+                <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
+                  <div className="text-[9px] uppercase font-black text-[var(--text-secondary)]">Attention</div>
+                  <div className="text-base sm:text-lg font-black text-cyan-500 mt-0.5">76%</div>
+                  <div className="text-[8px] text-cyan-600 font-bold">Stable focus</div>
                 </div>
-                <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
-                  <div className="text-[10px] uppercase font-black text-[var(--text-secondary)]">Reaction Speed</div>
-                  <div className="text-lg font-black text-purple-500 mt-1">1.8s</div>
-                  <div className="text-[9px] text-purple-600 font-bold">Fast response</div>
+                <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
+                  <div className="text-[9px] uppercase font-black text-[var(--text-secondary)]">Reaction Speed</div>
+                  <div className="text-base sm:text-lg font-black text-purple-500 mt-0.5">1.8s</div>
+                  <div className="text-[8px] text-purple-600 font-bold">Fast response</div>
                 </div>
-                <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
-                  <div className="text-[10px] uppercase font-black text-[var(--text-secondary)]">Consistency</div>
-                  <div className="text-lg font-black text-amber-500 mt-1">84%</div>
-                  <div className="text-[9px] text-amber-600 font-bold">5-Day streak 🔥</div>
+                <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
+                  <div className="text-[9px] uppercase font-black text-[var(--text-secondary)]">Consistency</div>
+                  <div className="text-base sm:text-lg font-black text-amber-500 mt-0.5">84%</div>
+                  <div className="text-[8px] text-amber-600 font-bold">5-Day streak 🔥</div>
                 </div>
               </div>
             </div>
@@ -964,27 +1011,27 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
 
           {/* ─── STAGE 7: Offline-First Reliability in Park ────────────────── */}
           {currentStage.id === 7 && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center animate-fade-in">
-              <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 space-y-1">
-                <WifiOff className="w-6 h-6 text-rose-500 mx-auto" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-center animate-fade-in">
+              <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 space-y-1">
+                <WifiOff className="w-5 h-5 text-rose-500 mx-auto" />
                 <div className="text-xs font-black text-rose-500">1. Park Walk: 0 Bars</div>
-                <p className="text-[11px] text-[var(--text-secondary)]">
+                <p className="text-[10px] text-[var(--text-secondary)]">
                   Local SQLite/IndexedDB vault stores checkoffs without internet.
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-1">
-                <div className="w-6 h-6 rounded-full border-2 border-amber-500 border-t-transparent animate-spin mx-auto" />
+              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-1">
+                <div className="w-5 h-5 rounded-full border-2 border-amber-500 border-t-transparent animate-spin mx-auto" />
                 <div className="text-xs font-black text-amber-500">2. Home Wi-Fi Detected</div>
-                <p className="text-[11px] text-[var(--text-secondary)]">
+                <p className="text-[10px] text-[var(--text-secondary)]">
                   Automatic background sync pushes queued activities.
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-400/30 space-y-1">
-                <CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto" />
+              <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-400/30 space-y-1">
+                <CheckCircle2 className="w-5 h-5 text-emerald-500 mx-auto" />
                 <div className="text-xs font-black text-emerald-500">3. Synced 🟢</div>
-                <p className="text-[11px] text-[var(--text-secondary)]">
+                <p className="text-[10px] text-[var(--text-secondary)]">
                   Zero data loss. Daughter's portal updated.
                 </p>
               </div>
@@ -993,33 +1040,33 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
 
           {/* ─── STAGE 8: SIH26003 Product Impact & Vision ─────────────────── */}
           {currentStage.id === 8 && (
-            <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-purple-900 via-indigo-900 to-slate-900 text-white text-center space-y-4 animate-fade-in shadow-2xl">
-              <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-purple-500 to-teal-400 p-0.5">
-                <div className="w-full h-full bg-slate-950 rounded-full flex items-center justify-center text-2xl">
+            <div className="p-5 sm:p-7 rounded-3xl bg-gradient-to-br from-purple-900 via-indigo-900 to-slate-900 text-white text-center space-y-3 animate-fade-in shadow-2xl">
+              <div className="w-14 h-14 mx-auto rounded-full bg-gradient-to-r from-purple-500 to-teal-400 p-0.5">
+                <div className="w-full h-full bg-slate-950 rounded-full flex items-center justify-center text-xl">
                   🏆
                 </div>
               </div>
 
               <div>
-                <h3 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-purple-300 via-teal-300 to-white bg-clip-text text-transparent">
+                <h3 className="text-xl sm:text-2xl font-black bg-gradient-to-r from-purple-300 via-teal-300 to-white bg-clip-text text-transparent">
                   AABHA AI — SIH26003
                 </h3>
-                <p className="text-sm font-semibold text-purple-200 mt-1 max-w-lg mx-auto leading-relaxed">
+                <p className="text-xs sm:text-sm font-semibold text-purple-200 mt-1 max-w-lg mx-auto leading-relaxed">
                   "A caring voice for every memory. Empowering independence for elderly parents, bringing peace of mind to Indian families."
                 </p>
               </div>
 
-              <div className="pt-2 flex flex-wrap items-center justify-center gap-2 text-xs">
-                <span className="px-3 py-1 rounded-full bg-white/10 border border-white/20">
+              <div className="pt-1 flex flex-wrap items-center justify-center gap-2 text-xs">
+                <span className="px-3 py-0.5 rounded-full bg-white/10 border border-white/20">
                   ✓ 6 Cognitive Games
                 </span>
-                <span className="px-3 py-1 rounded-full bg-white/10 border border-white/20">
+                <span className="px-3 py-0.5 rounded-full bg-white/10 border border-white/20">
                   ✓ 5 Regional Languages
                 </span>
-                <span className="px-3 py-1 rounded-full bg-white/10 border border-white/20">
+                <span className="px-3 py-0.5 rounded-full bg-white/10 border border-white/20">
                   ✓ 100% Offline Vault
                 </span>
-                <span className="px-3 py-1 rounded-full bg-white/10 border border-white/20">
+                <span className="px-3 py-0.5 rounded-full bg-white/10 border border-white/20">
                   ✓ Remote Caregiver Portal
                 </span>
               </div>
@@ -1028,10 +1075,11 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
         </div>
 
         {/* ─── FOOTER BAR ──────────────────────────────────────────────────── */}
-        <div className="px-5 sm:px-8 py-3 bg-[var(--bg-surface-secondary)] border-t border-[var(--border)] flex items-center justify-between shrink-0">
+        <div className="px-4 sm:px-8 py-3 bg-[var(--bg-surface-secondary)] border-t border-[var(--border)] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)]">
             <Shield className="w-4 h-4 text-emerald-500" />
-            <span>Continuous speech active • 100% uninterrupted voiceover</span>
+            <span className="hidden sm:inline">Real people scenarios • Continuous AI speech active • Non-diagnostic companion</span>
+            <span className="sm:hidden">Real People Simulation</span>
           </div>
 
           <div className="flex items-center gap-2">

@@ -317,6 +317,29 @@ export const AabhaChat: React.FC = () => {
         </div>
       </div>
 
+      {/* ─── GEMINI STATUS BANNER ────────────────────────────────────────── */}
+      {!hasGeminiKey && (
+        <div
+          onClick={() => setShowKeyModal(true)}
+          className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/20 border border-amber-400/50 text-amber-300 text-xs font-bold flex items-center justify-between cursor-pointer hover:border-amber-400 transition shadow-lg gap-2"
+        >
+          <div className="flex items-center gap-2.5">
+            <span className="text-base">🔑</span>
+            <div>
+              <div className="font-black text-amber-200">Google Gemini Connect Karen</div>
+              <div className="text-[11px] text-amber-300/80 font-normal">अभी ऑफलाइन मोड चल रहा है। 1-क्लिक में फ्री Google Gemini API Key जोड़कर लाइव AI चालू करें।</div>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setShowKeyModal(true); }}
+            className="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shrink-0 shadow cursor-pointer transition active:scale-95"
+          >
+            Connect Key ⚡
+          </button>
+        </div>
+      )}
+
       {/* ─── 3. CHAT MESSAGES LOG ─────────────────────────────────────────── */}
       <div className="card-3d bg-[var(--card-bg-inline)] backdrop-blur-xl p-5 sm:p-6 rounded-[24px] border border-[var(--card-border-inline)] space-y-4 max-h-[420px] overflow-y-auto">
         {messages.map(msg => (

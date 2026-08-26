@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { alarmAudioService, RingtoneId } from '../services/alarmAudioService';
 import { Bell, CheckCircle2, Clock, Volume2, X } from 'lucide-react';
+import { ModalPortal } from './ModalPortal';
 
 export interface ActiveAlarmData {
   id: string;
@@ -36,57 +37,59 @@ export const AlarmRingingModal: React.FC<AlarmRingingModalProps> = ({ alarm, onD
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-      <div className="bg-white rounded-3xl p-8 md:p-12 max-w-lg w-full text-center shadow-2xl border-4 border-primary-400 relative overflow-hidden animate-scale-up">
-        {/* Glowing background ring */}
-        <div className="absolute -top-24 -left-24 w-72 h-72 bg-yellow-400/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-primary-400/20 rounded-full blur-3xl pointer-events-none" />
-
+    <ModalPortal
+      isOpen={!!alarm}
+      onClose={() => onDismiss(alarm.id)}
+      maxWidth="max-w-md"
+      showCloseButton={false}
+    >
+      <div className="text-center space-y-4 font-sans py-2">
         {/* Audio Ringing Indicator */}
-        <div className="inline-flex items-center gap-2 bg-red-100 text-red-700 px-4 py-1.5 rounded-full text-sm font-extrabold uppercase tracking-widest mb-6 animate-pulse">
-          <Volume2 className="w-5 h-5 animate-bounce" />
+        <div className="inline-flex items-center gap-2 bg-rose-500/15 text-rose-600 dark:text-rose-300 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest animate-pulse border border-rose-500/30">
+          <Volume2 className="w-4 h-4 animate-bounce" />
           <span>🔔 Alarm Ringing Now!</span>
         </div>
 
-        {/* Giant Animated Icon */}
-        <div className="w-32 h-32 mx-auto mb-6 rounded-3xl bg-primary-50 border-4 border-primary-200 flex items-center justify-center text-6xl shadow-xl animate-bounce">
+        {/* Giant Icon */}
+        <div className="w-24 h-24 mx-auto rounded-3xl bg-purple-500/15 border-2 border-purple-400/40 flex items-center justify-center text-5xl shadow-xl animate-bounce">
           {getEmoji(alarm.type)}
         </div>
 
         {/* Title & Description */}
-        <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-3 leading-tight">
-          {alarm.title}
-        </h2>
-        
-        {alarm.description ? (
-          <p className="text-xl text-gray-600 mb-8 leading-relaxed font-medium">
-            {alarm.description}
-          </p>
-        ) : (
-          <p className="text-xl text-primary-600 mb-8 font-semibold">
-            It is time for your scheduled activity!
-          </p>
-        )}
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)] leading-tight">
+            {alarm.title}
+          </h2>
+          {alarm.description && (
+            <p className="text-xs sm:text-sm font-medium text-[var(--text-secondary)] mt-1">
+              {alarm.description}
+            </p>
+          )}
+        </div>
 
-        {/* Big Action Buttons */}
-        <div className="space-y-4">
+        {/* Actions */}
+        <div className="flex flex-col gap-2.5 pt-2">
           <button
+            type="button"
             onClick={() => onDismiss(alarm.id)}
-            className="w-full py-5 px-8 bg-green-600 hover:bg-green-700 active:scale-95 text-white rounded-2xl text-2xl font-black shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-3 min-h-[64px]"
+            className="btn-glow w-full py-3.5 text-sm font-black flex items-center justify-center gap-2 cursor-pointer shadow-xl"
           >
-            <CheckCircle2 className="w-8 h-8" />
-            <span>I Took It / Completed (मैंने कर लिया)</span>
+            <CheckCircle2 className="w-5 h-5" />
+            <span>I Have Done This (Dismiss)</span>
           </button>
 
           <button
+            type="button"
             onClick={() => onSnooze(alarm.id)}
-            className="w-full py-4 px-6 bg-amber-100 hover:bg-amber-200 active:scale-95 text-amber-900 rounded-2xl text-xl font-bold border-2 border-amber-300 transition-all flex items-center justify-center gap-2 min-h-[52px]"
+            className="btn-glass w-full py-3 text-xs font-black flex items-center justify-center gap-2 cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
-            <Clock className="w-6 h-6 text-amber-700" />
-            <span>Snooze for 5 Mins (5 मिनट बाद याद दिलाओ)</span>
+            <Clock className="w-4 h-4" />
+            <span>Snooze for 10 Minutes</span>
           </button>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 };
+
+export default AlarmRingingModal;

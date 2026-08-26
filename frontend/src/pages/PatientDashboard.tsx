@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/authStore';
 import { api } from '../services/api';
 import { Abha3DOrb } from '../components/Abha3DOrb';
+import { ModalPortal } from '../components/ModalPortal';
 import { AdaptiveAIEngine, CognitivePerformanceIndicators } from '../services/adaptiveAIEngine';
 import {
   Mic,
@@ -578,50 +579,48 @@ export const PatientDashboard: React.FC = () => {
       </section>
 
       {/* ─── 6. EMERGENCY SOS CONFIRMATION MODAL ─────────────────────────────── */}
-      {isSosOpen && (
-        <div className="fixed inset-0 z-50 bg-[var(--bg-modal-overlay)] backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[var(--bg-surface)] rounded-[28px] p-6 sm:p-8 max-w-md w-full border border-[var(--border)] shadow-2xl text-center space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="w-16 h-16 rounded-full bg-rose-500/15 text-rose-500 flex items-center justify-center text-3xl mx-auto border border-rose-500/30 animate-bounce">
-              🚨
-            </div>
-            <h2 className="text-xl sm:text-2xl font-black text-rose-500">
-              {sosSent ? 'Emergency SOS Sent!' : 'Confirm Emergency SOS?'}
-            </h2>
-            <p className="text-xs sm:text-sm font-medium text-[var(--text-secondary)] leading-relaxed">
-              {sosSent
-                ? 'Your caregiver (Dr. Anita Verma) and emergency contacts have been notified with your live GPS location.'
-                : 'This will notify your caregiver that you require immediate assistance.'}
-            </p>
-
-            {sosSent ? (
-              <button
-                onClick={() => {
-                  setIsSosOpen(false);
-                  setSosSent(false);
-                }}
-                className="btn-glow w-full py-3 text-xs font-black rounded-xl cursor-pointer"
-              >
-                Close Window
-              </button>
-            ) : (
-              <div className="flex gap-3 pt-2">
-                <button
-                  onClick={() => setIsSosOpen(false)}
-                  className="btn-glass flex-1 py-3 text-xs font-bold cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleTriggerSos}
-                  className="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs rounded-xl shadow-md cursor-pointer transition"
-                >
-                  Send Alert Now
-                </button>
-              </div>
-            )}
+      <ModalPortal isOpen={isSosOpen} onClose={() => { setIsSosOpen(false); setSosSent(false); }} maxWidth="max-w-md" showCloseButton={false}>
+        <div className="text-center space-y-4 font-sans">
+          <div className="w-16 h-16 rounded-full bg-rose-500/15 text-rose-500 flex items-center justify-center text-3xl mx-auto border border-rose-500/30 animate-bounce">
+            🚨
           </div>
+          <h2 className="text-xl sm:text-2xl font-black text-rose-500">
+            {sosSent ? 'Emergency SOS Sent!' : 'Confirm Emergency SOS?'}
+          </h2>
+          <p className="text-xs sm:text-sm font-medium text-[var(--text-secondary)] leading-relaxed">
+            {sosSent
+              ? 'Your caregiver (Dr. Anita Verma) and emergency contacts have been notified with your live GPS location.'
+              : 'This will notify your caregiver that you require immediate assistance.'}
+          </p>
+
+          {sosSent ? (
+            <button
+              onClick={() => {
+                setIsSosOpen(false);
+                setSosSent(false);
+              }}
+              className="btn-glow w-full py-3 text-xs font-black rounded-xl cursor-pointer"
+            >
+              Close Window
+            </button>
+          ) : (
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setIsSosOpen(false)}
+                className="btn-glass flex-1 py-3 text-xs font-bold cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleTriggerSos}
+                className="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs rounded-xl shadow-md cursor-pointer transition"
+              >
+                Send Alert Now
+              </button>
+            </div>
+          )}
         </div>
-      )}
+      </ModalPortal>
     </div>
   );
 };

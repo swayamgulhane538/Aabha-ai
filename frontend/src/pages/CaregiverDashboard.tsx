@@ -23,9 +23,11 @@ import {
   FileText,
   Download,
   Share2,
+  Lock,
   TrendingUp,
   Droplets
 } from 'lucide-react';
+import { ModalPortal } from '../components/ModalPortal';
 import { useAuthStore } from '../stores/authStore';
 import { api } from '../services/api';
 import { AdaptiveAIEngine } from '../services/adaptiveAIEngine';
@@ -361,91 +363,84 @@ export const CaregiverDashboard: React.FC = () => {
       </div>
 
       {/* ─── 6. WEEKLY AI SUMMARY REPORT MODAL ──────────────────────────────── */}
-      {showReportModal && (
-        <div className="fixed inset-0 z-50 bg-[var(--bg-modal-overlay)] backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[var(--bg-surface)] rounded-[28px] p-6 sm:p-8 max-w-2xl w-full border border-[var(--border)] shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
-              <div>
-                <span className="text-[10px] font-black uppercase text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-400/30">
-                  SIH26003 AI Report Generator
-                </span>
-                <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] mt-1">
-                  AABHA Weekly Summary Report
-                </h2>
+      <ModalPortal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        maxWidth="max-w-2xl"
+        title={
+          <div>
+            <span className="text-[10px] font-black uppercase text-emerald-500 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-400/30">
+              SIH26003 AI Report Generator
+            </span>
+            <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] mt-1">
+              AABHA Weekly Summary Report
+            </h2>
+          </div>
+        }
+      >
+        <div className="space-y-4 text-xs sm:text-sm font-medium text-[var(--text-primary)] font-sans">
+          <div className="p-4 bg-[var(--bg-surface-secondary)] rounded-2xl border border-[var(--border)] space-y-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+              <div className="p-2 bg-[var(--bg-surface)] rounded-xl border border-[var(--border)]">
+                <div className="text-[10px] uppercase text-[var(--text-secondary)] font-black">Memory Activity</div>
+                <div className="text-base font-black text-emerald-500">+12%</div>
               </div>
-              <button
-                onClick={() => setShowReportModal(false)}
-                className="text-lg font-black text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="space-y-4 text-xs sm:text-sm font-medium text-[var(--text-primary)]">
-              <div className="p-4 bg-[var(--bg-surface-secondary)] rounded-2xl border border-[var(--border)] space-y-2">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-                  <div className="p-2 bg-[var(--bg-surface)] rounded-xl border border-[var(--border)]">
-                    <div className="text-[10px] uppercase text-[var(--text-secondary)] font-black">Memory Activity</div>
-                    <div className="text-base font-black text-emerald-400">+12%</div>
-                  </div>
-                  <div className="p-2 bg-[var(--bg-surface)] rounded-xl border border-[var(--border)]">
-                    <div className="text-[10px] uppercase text-[var(--text-secondary)] font-black">Attention Activity</div>
-                    <div className="text-base font-black text-cyan-400">+8%</div>
-                  </div>
-                  <div className="p-2 bg-[var(--bg-surface)] rounded-xl border border-[var(--border)]">
-                    <div className="text-[10px] uppercase text-[var(--text-secondary)] font-black">Avg Response</div>
-                    <div className="text-base font-black text-purple-400">1.8 sec</div>
-                  </div>
-                  <div className="p-2 bg-[var(--bg-surface)] rounded-xl border border-[var(--border)]">
-                    <div className="text-[10px] uppercase text-[var(--text-secondary)] font-black">Routines Done</div>
-                    <div className="text-base font-black text-amber-400">87%</div>
-                  </div>
-                </div>
+              <div className="p-2 bg-[var(--bg-surface)] rounded-xl border border-[var(--border)]">
+                <div className="text-[10px] uppercase text-[var(--text-secondary)] font-black">Attention Activity</div>
+                <div className="text-base font-black text-cyan-500">+8%</div>
               </div>
-
-              <div className="space-y-2">
-                <h3 className="font-black text-sm text-[var(--text-primary)]">
-                  Personalized AI Caregiver Recommendation:
-                </h3>
-                <p className="p-3.5 bg-emerald-500/10 border border-emerald-400/30 rounded-2xl text-emerald-300 font-medium leading-relaxed">
-                  "Patient demonstrated strong visual recall consistency on Memory Match (Level 2). Continue medium-level memory activities and familiar-object exercises. Hydration target was met on 5 out of 7 days."
-                </p>
+              <div className="p-2 bg-[var(--bg-surface)] rounded-xl border border-[var(--border)]">
+                <div className="text-[10px] uppercase text-[var(--text-secondary)] font-black">Avg Response</div>
+                <div className="text-base font-black text-purple-500">1.8 sec</div>
               </div>
-
-              {/* Explicit Disclaimer */}
-              <div className="p-3.5 bg-[var(--bg-surface-secondary)] border border-[var(--border)] rounded-2xl text-[11px] text-[var(--text-secondary)] leading-relaxed space-y-1">
-                <div className="font-black text-rose-400 flex items-center gap-1.5">
-                  <Shield className="w-3.5 h-3.5" />
-                  <span>Important Medical Notice:</span>
-                </div>
-                <p>
-                  "This report summarizes application engagement and cognitive activity scores. It is designed for caregiver awareness and is NOT a clinical medical diagnosis."
-                </p>
+              <div className="p-2 bg-[var(--bg-surface)] rounded-xl border border-[var(--border)]">
+                <div className="text-[10px] uppercase text-[var(--text-secondary)] font-black">Routines Done</div>
+                <div className="text-base font-black text-amber-500">87%</div>
               </div>
-            </div>
-
-            <div className="flex gap-3 pt-2">
-              <button
-                onClick={() => {
-                  alert('Weekly AI Report PDF exported successfully.');
-                  setShowReportModal(false);
-                }}
-                className="btn-glow flex-1 py-3 text-xs font-black flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Download className="w-4 h-4" />
-                <span>Download Report Summary</span>
-              </button>
-
-              <button
-                onClick={() => setShowReportModal(false)}
-                className="btn-glass px-6 py-3 text-xs font-bold cursor-pointer"
-              >
-                Close
-              </button>
             </div>
           </div>
+
+          <div className="space-y-2">
+            <h3 className="font-black text-sm text-[var(--text-primary)]">
+              Personalized AI Caregiver Recommendation:
+            </h3>
+            <p className="p-3.5 bg-emerald-500/10 border border-emerald-400/30 rounded-2xl text-emerald-600 dark:text-emerald-300 font-medium leading-relaxed">
+              "Patient demonstrated strong visual recall consistency on Memory Match (Level 2). Continue medium-level memory activities and familiar-object exercises. Hydration target was met on 5 out of 7 days."
+            </p>
+          </div>
+
+          {/* Explicit Disclaimer */}
+          <div className="p-3.5 bg-[var(--bg-surface-secondary)] border border-[var(--border)] rounded-2xl text-[11px] text-[var(--text-secondary)] leading-relaxed space-y-1">
+            <div className="font-black text-rose-500 flex items-center gap-1.5">
+              <Shield className="w-3.5 h-3.5" />
+              <span>Important Medical Notice:</span>
+            </div>
+            <p>
+              "This report summarizes application engagement and cognitive activity scores. It is designed for caregiver awareness and is NOT a clinical medical diagnosis."
+            </p>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <button
+              onClick={() => {
+                alert('Weekly AI Report PDF exported successfully.');
+                setShowReportModal(false);
+              }}
+              className="btn-glow flex-1 py-3 text-xs font-black flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Download className="w-4 h-4" />
+              <span>Download Report Summary</span>
+            </button>
+
+            <button
+              onClick={() => setShowReportModal(false)}
+              className="btn-glass px-6 py-3 text-xs font-bold cursor-pointer"
+            >
+              Close
+            </button>
+          </div>
         </div>
-      )}
+      </ModalPortal>
     </div>
   );
 };

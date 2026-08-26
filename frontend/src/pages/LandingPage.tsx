@@ -23,12 +23,14 @@ import {
   Droplets,
   Pill
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { Abha3DOrb } from '../components/Abha3DOrb';
 import { AnimatedBackground } from '../components/AnimatedBackground';
 import { useAuthStore } from '../stores/authStore';
 
 export const LandingPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { continueWithDemoAccount } = useAuthStore();
   const [demoLoading, setDemoLoading] = useState(false);

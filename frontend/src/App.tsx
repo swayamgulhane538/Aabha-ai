@@ -5,6 +5,7 @@ import { Layout } from './components/Layout';
 import { CaregiverLayout } from './components/CaregiverLayout';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { AccessibilityToolbar } from './components/AccessibilityToolbar';
+import { useTranslation } from 'react-i18next';
 
 // Public pages
 import LandingPage from './pages/LandingPage';
@@ -67,11 +68,13 @@ const ThemeInitializer: React.FC<{ children: React.ReactNode }> = ({ children })
 };
 
 const App: React.FC = () => {
+  const { i18n } = useTranslation();
+
   return (
     <BrowserRouter>
       <AlarmProvider>
         <ThemeInitializer>
-        <div className="min-h-screen font-sans relative" style={{ backgroundColor: 'var(--bg-page)', color: 'var(--text-primary)' }}>
+        <div key={i18n.language} className="min-h-screen font-sans relative" style={{ backgroundColor: 'var(--bg-page)', color: 'var(--text-primary)' }}>
           <OfflineIndicator />
           <AccessibilityToolbar />
           <Routes>

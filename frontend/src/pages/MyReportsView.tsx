@@ -172,7 +172,7 @@ export default function MyReportsView() {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 text-xs font-bold text-emerald-300 mb-2">
             <Shield className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Secure Medical Records Vault</span>
+            <span>{t('Secure Medical Records Vault')}</span>
             <span>•</span>
             <span className="font-mono">{user?.patientId || 'PAT-2026-000001'}</span>
           </div>
@@ -181,7 +181,7 @@ export default function MyReportsView() {
             <span>📄</span> {t('My Medical & Assessment Reports')}
           </h1>
           <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium mt-1">
-            Personal health evaluations, clinical cognitive assessments, and physician documents
+            {t('Personal health evaluations, clinical cognitive assessments, and physician documents')}
           </p>
         </div>
 
@@ -191,7 +191,7 @@ export default function MyReportsView() {
             className="btn-glow px-5 py-2.5 text-xs font-black flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
-            <span>Upload Document</span>
+            <span>{t('Upload Document')}</span>
           </button>
         </div>
       </div>
@@ -203,7 +203,7 @@ export default function MyReportsView() {
           <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--text-secondary)]" />
           <input
             type="text"
-            placeholder="Search reports by title, doctor, diagnosis, or keyword..."
+            placeholder={t('Search reports by title, doctor, diagnosis, or keyword...')}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--input-text)] font-medium text-xs sm:text-sm focus:border-emerald-400 focus:outline-none shadow-sm transition"
@@ -213,12 +213,12 @@ export default function MyReportsView() {
         {/* Filter Pills */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
           {[
-            { id: 'ALL', label: `All Reports (${reports.length})` },
-            { id: 'COGNITIVE_ASSESSMENT', label: '🧠 Cognitive Assessments' },
-            { id: 'MEDICAL', label: '📄 Medical & Labs' },
-            { id: 'DOCTOR_CONSULTATION', label: '🩺 Doctor Consultations' },
-            { id: 'MEMORY_TEST', label: '🧩 Memory Tests' },
-            { id: 'DOCUMENT', label: '📋 Documents' },
+            { id: 'ALL', label: `${t('All Reports')} (${reports.length})` },
+            { id: 'COGNITIVE_ASSESSMENT', label: `🧠 ${t('Cognitive Assessments')}` },
+            { id: 'MEDICAL', label: `📄 ${t('Medical & Labs')}` },
+            { id: 'DOCTOR_CONSULTATION', label: `🩺 ${t('Doctor Consultations')}` },
+            { id: 'MEMORY_TEST', label: `🧩 ${t('Memory Tests')}` },
+            { id: 'DOCUMENT', label: `📋 ${t('Documents')}` },
           ].map(tab => (
             <button
               key={tab.id}
@@ -346,9 +346,9 @@ export default function MyReportsView() {
       ) : (
         <div className="card-3d bg-[var(--card-bg-inline)] p-12 rounded-[24px] border border-[var(--card-border-inline)] text-center space-y-3">
           <span className="text-5xl">📑</span>
-          <h3 className="text-xl font-black text-[var(--text-primary)]">No Reports Found</h3>
+          <h3 className="text-xl font-black text-[var(--text-primary)]">{t('No Reports Found')}</h3>
           <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium max-w-md mx-auto">
-            {searchQuery ? `No reports matched "${searchQuery}".` : 'No clinical reports have been filed under your Patient ID yet.'}
+            {searchQuery ? `${t('No reports matched')} "${searchQuery}".` : t('No clinical reports have been filed under your Patient ID yet.')}
           </p>
         </div>
       )}

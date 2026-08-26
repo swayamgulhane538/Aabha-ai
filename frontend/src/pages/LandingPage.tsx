@@ -198,43 +198,43 @@ export const LandingPage: React.FC = () => {
       <section id="solution" className="relative z-10 py-12 px-4 sm:px-6 max-w-6xl mx-auto space-y-6">
         <div className="text-center space-y-2">
           <span className="text-xs font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-400/30">
-            Our Solution
+            {t('Our Solution')}
           </span>
           <h2 className="text-2xl sm:text-4xl font-black text-[var(--text-primary)]">
-            How AABHA AI Empowers Elderly Care
+            {t('How AABHA AI Empowers Elderly Care')}
           </h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
           <div className="card-3d bg-[var(--card-bg-inline)] p-5 rounded-[24px] border border-[var(--card-border-inline)] space-y-2">
             <div className="text-2xl">🧠</div>
-            <h3 className="text-sm font-black text-[var(--text-primary)]">Adaptive Brain Exercises</h3>
+            <h3 className="text-sm font-black text-[var(--text-primary)]">{t('Adaptive Brain Exercises')}</h3>
             <p className="text-xs text-[var(--text-secondary)] font-medium">
-              6 scientifically structured cognitive games that automatically adapt difficulty to patient performance.
+              {t('6 scientifically structured cognitive games that automatically adapt difficulty to patient performance.')}
             </p>
           </div>
 
           <div className="card-3d bg-[var(--card-bg-inline)] p-5 rounded-[24px] border border-[var(--card-border-inline)] space-y-2">
             <div className="text-2xl">🗣️</div>
-            <h3 className="text-sm font-black text-[var(--text-primary)]">Multilingual Voice Companion</h3>
+            <h3 className="text-sm font-black text-[var(--text-primary)]">{t('Multilingual Voice Companion')}</h3>
             <p className="text-xs text-[var(--text-secondary)] font-medium">
-              Speak naturally in English, Hindi, Bengali, Assamese, or Marathi to check routines and medicines.
+              {t('Speak naturally in English, Hindi, Bengali, Assamese, or Marathi to check routines and medicines.')}
             </p>
           </div>
 
           <div className="card-3d bg-[var(--card-bg-inline)] p-5 rounded-[24px] border border-[var(--card-border-inline)] space-y-2">
             <div className="text-2xl">📖</div>
-            <h3 className="text-sm font-black text-[var(--text-primary)]">Personal Memory Bank</h3>
+            <h3 className="text-sm font-black text-[var(--text-primary)]">{t('Personal Memory Bank')}</h3>
             <p className="text-xs text-[var(--text-secondary)] font-medium">
-              Caregiver-managed repository of family relations, childhood memories, and emergency facts.
+              {t('Caregiver-managed repository of family relations, childhood memories, and emergency facts.')}
             </p>
           </div>
 
           <div className="card-3d bg-[var(--card-bg-inline)] p-5 rounded-[24px] border border-[var(--card-border-inline)] space-y-2">
             <div className="text-2xl">📊</div>
-            <h3 className="text-sm font-black text-[var(--text-primary)]">Caregiver Analytics & Alerts</h3>
+            <h3 className="text-sm font-black text-[var(--text-primary)]">{t('Caregiver Analytics & Alerts')}</h3>
             <p className="text-xs text-[var(--text-secondary)] font-medium">
-              4-pillar activity scores, weekly AI summary reports, and instant smart alerts on baseline variations.
+              {t('4-pillar activity scores, weekly AI summary reports, and instant smart alerts on baseline variations.')}
             </p>
           </div>
         </div>
@@ -246,40 +246,40 @@ export const LandingPage: React.FC = () => {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-[var(--border)] pb-4">
             <div>
               <span className="text-xs font-black uppercase tracking-wider text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-400/30">
-                Cognitive Intelligence
+                {t('Cognitive Intelligence')}
               </span>
               <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)] mt-2">
-                4-Pillar Non-Diagnostic Performance Engine
+                {t('4-Pillar Non-Diagnostic Performance Engine')}
               </h2>
             </div>
             <div className="p-3 bg-[var(--bg-surface-secondary)] rounded-2xl border border-[var(--border)] text-xs font-bold text-emerald-400">
-              Composite Activity Index: 80/100
+              {t('Composite Activity Index')}: 80/100
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="p-4 bg-[var(--bg-surface-secondary)] rounded-2xl border border-[var(--border)] space-y-1 text-center">
-              <div className="text-xs font-black text-[var(--text-secondary)] uppercase">Memory Score</div>
+              <div className="text-xs font-black text-[var(--text-secondary)] uppercase">{t('Memory Score')}</div>
               <div className="text-3xl font-black text-emerald-400">82%</div>
-              <p className="text-[10px] text-[var(--text-muted)]">Visual & sequence card recall</p>
+              <p className="text-[10px] text-[var(--text-muted)]">{t('Visual & sequence card recall')}</p>
             </div>
 
             <div className="p-4 bg-[var(--bg-surface-secondary)] rounded-2xl border border-[var(--border)] space-y-1 text-center">
-              <div className="text-xs font-black text-[var(--text-secondary)] uppercase">Attention Score</div>
+              <div className="text-xs font-black text-[var(--text-secondary)] uppercase">{t('Attention Score')}</div>
               <div className="text-3xl font-black text-cyan-400">76%</div>
-              <p className="text-[10px] text-[var(--text-muted)]">Focus & distractor discrimination</p>
+              <p className="text-[10px] text-[var(--text-muted)]">{t('Focus & distractor discrimination')}</p>
             </div>
 
             <div className="p-4 bg-[var(--bg-surface-secondary)] rounded-2xl border border-[var(--border)] space-y-1 text-center">
-              <div className="text-xs font-black text-[var(--text-secondary)] uppercase">Reaction Speed</div>
+              <div className="text-xs font-black text-[var(--text-secondary)] uppercase">{t('Reaction Speed')}</div>
               <div className="text-3xl font-black text-purple-400">79%</div>
-              <p className="text-[10px] text-[var(--text-muted)]">Average response: 1.8 seconds</p>
+              <p className="text-[10px] text-[var(--text-muted)]">{t('Average response: 1.8 seconds')}</p>
             </div>
 
             <div className="p-4 bg-[var(--bg-surface-secondary)] rounded-2xl border border-[var(--border)] space-y-1 text-center">
-              <div className="text-xs font-black text-[var(--text-secondary)] uppercase">Consistency</div>
+              <div className="text-xs font-black text-[var(--text-secondary)] uppercase">{t('Consistency')}</div>
               <div className="text-3xl font-black text-amber-400">84%</div>
-              <p className="text-[10px] text-[var(--text-muted)]">5-day consecutive exercise streak</p>
+              <p className="text-[10px] text-[var(--text-muted)]">{t('5-day consecutive exercise streak')}</p>
             </div>
           </div>
         </div>
@@ -289,10 +289,10 @@ export const LandingPage: React.FC = () => {
       <section id="games" className="relative z-10 py-12 px-4 sm:px-6 max-w-6xl mx-auto space-y-6">
         <div className="text-center space-y-2">
           <span className="text-xs font-black uppercase tracking-wider text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-400/30">
-            SIH26003 Games Suite
+            {t('SIH26003 Games Suite')}
           </span>
           <h2 className="text-2xl sm:text-4xl font-black text-[var(--text-primary)]">
-            6 Polished Core Cognitive Exercises
+            {t('6 Polished Core Cognitive Exercises')}
           </h2>
         </div>
 
@@ -307,8 +307,8 @@ export const LandingPage: React.FC = () => {
           ].map(g => (
             <div key={g.id} className="card-3d bg-[var(--card-bg-inline)] p-5 rounded-[24px] border border-[var(--card-border-inline)] space-y-2">
               <div className="text-3xl">{g.icon}</div>
-              <h3 className="text-sm font-black text-[var(--text-primary)]">{g.title}</h3>
-              <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed">{g.desc}</p>
+              <h3 className="text-sm font-black text-[var(--text-primary)]">{t(g.title)}</h3>
+              <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed">{t(g.desc)}</p>
             </div>
           ))}
         </div>
@@ -319,32 +319,32 @@ export const LandingPage: React.FC = () => {
         <div className="card-3d bg-gradient-to-r from-emerald-500/10 via-[var(--bg-surface)] to-teal-500/10 p-6 sm:p-10 rounded-[32px] border border-emerald-400/30 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-3 max-w-xl">
             <span className="text-xs font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/15 px-3 py-1 rounded-full border border-emerald-400/30">
-              Offline-First Technology
+              {t('Offline-First Technology')}
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)]">
-              Uninterrupted Care, Even Without Internet
+              {t('Uninterrupted Care, Even Without Internet')}
             </h2>
             <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium leading-relaxed">
-              Cognitive games, medicine alarms, daily routines, and memory bank profiles run completely offline using local client storage. When connectivity is restored, all data automatically syncs with duplicate resolution.
+              {t('Cognitive games, medicine alarms, daily routines, and memory bank profiles run completely offline using local client storage. When connectivity is restored, all data automatically syncs with duplicate resolution.')}
             </p>
             <div className="flex items-center gap-3 pt-2">
               <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-black">
-                🟢 Synced
+                🟢 {t('Synced')}
               </span>
               <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black">
-                🟠 Syncing
+                🟠 {t('Syncing')}
               </span>
               <span className="px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-black">
-                🔴 Offline
+                🔴 {t('Offline')}
               </span>
             </div>
           </div>
 
           <div className="p-6 bg-[var(--bg-surface-secondary)] rounded-3xl border border-[var(--border)] text-center space-y-2 shrink-0 w-full md:w-72">
             <div className="text-4xl">📡</div>
-            <div className="text-sm font-black text-[var(--text-primary)]">Zero Data Loss</div>
+            <div className="text-sm font-black text-[var(--text-primary)]">{t('Zero Data Loss')}</div>
             <p className="text-xs text-[var(--text-secondary)] font-medium">
-              Offline queue guarantees 100% session persistence.
+              {t('Offline queue guarantees 100% session persistence.')}
             </p>
           </div>
         </div>
@@ -354,35 +354,35 @@ export const LandingPage: React.FC = () => {
       <section id="impact" className="relative z-10 py-12 px-4 sm:px-6 max-w-6xl mx-auto space-y-6">
         <div className="text-center space-y-2">
           <span className="text-xs font-black uppercase tracking-wider text-teal-400 bg-teal-500/10 px-3 py-1 rounded-full border border-teal-400/30">
-            Real-World Impact & Privacy
+            {t('Real-World Impact & Privacy')}
           </span>
           <h2 className="text-2xl sm:text-4xl font-black text-[var(--text-primary)]">
-            Trustworthy, Accessible & Secure
+            {t('Trustworthy, Accessible & Secure')}
           </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
           <div className="card-3d bg-[var(--card-bg-inline)] p-6 rounded-[24px] border border-[var(--card-border-inline)] space-y-2">
             <div className="text-3xl">👵</div>
-            <h3 className="text-sm font-black text-[var(--text-primary)]">Elderly-Centric Design</h3>
+            <h3 className="text-sm font-black text-[var(--text-primary)]">{t('Elderly-Centric Design')}</h3>
             <p className="text-xs text-[var(--text-secondary)] font-medium">
-              High-contrast typography, large 1-tap touch targets, minimal typing, and gentle audio prompts.
+              {t('High-contrast typography, large 1-tap touch targets, minimal typing, and gentle audio prompts.')}
             </p>
           </div>
 
           <div className="card-3d bg-[var(--card-bg-inline)] p-6 rounded-[24px] border border-[var(--card-border-inline)] space-y-2">
             <div className="text-3xl">🔒</div>
-            <h3 className="text-sm font-black text-[var(--text-primary)]">Strict Role-Based Security</h3>
+            <h3 className="text-sm font-black text-[var(--text-primary)]">{t('Strict Role-Based Security')}</h3>
             <p className="text-xs text-[var(--text-secondary)] font-medium">
-              Patients and caregivers have strict authorization barriers. No personal memory facts are leaked or hallucinated.
+              {t('Patients and caregivers have strict authorization barriers. No personal memory facts are leaked or hallucinated.')}
             </p>
           </div>
 
           <div className="card-3d bg-[var(--card-bg-inline)] p-6 rounded-[24px] border border-[var(--card-border-inline)] space-y-2">
             <div className="text-3xl">🇮🇳</div>
-            <h3 className="text-sm font-black text-[var(--text-primary)]">Multilingual Inclusivity</h3>
+            <h3 className="text-sm font-black text-[var(--text-primary)]">{t('Multilingual Inclusivity')}</h3>
             <p className="text-xs text-[var(--text-secondary)] font-medium">
-              Native translations and voice synthesis in English, Hindi, Bengali, Assamese, and Marathi.
+              {t('Native translations and voice synthesis in English, Hindi, Bengali, Assamese, and Marathi.')}
             </p>
           </div>
         </div>
@@ -392,10 +392,10 @@ export const LandingPage: React.FC = () => {
       <section id="faq" className="relative z-10 py-12 px-4 sm:px-6 max-w-4xl mx-auto space-y-6">
         <div className="text-center space-y-2">
           <span className="text-xs font-black uppercase tracking-wider text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-400/30">
-            Frequently Asked Questions
+            {t('Frequently Asked Questions')}
           </span>
           <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)]">
-            Got Questions About AABHA AI?
+            {t('Got Questions About AABHA AI?')}
           </h2>
         </div>
 
@@ -407,8 +407,8 @@ export const LandingPage: React.FC = () => {
             { q: 'Which languages are supported?', a: 'AABHA supports English, Hindi (हिंदी), Bengali (বাংলা), Assamese (অসমীয়া), and Marathi (मराठी).' }
           ].map((item, idx) => (
             <div key={idx} className="p-4 bg-[var(--bg-surface)] rounded-2xl border border-[var(--border)] space-y-1">
-              <h3 className="text-xs sm:text-sm font-black text-[var(--text-primary)]">Q: {item.q}</h3>
-              <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed">{item.a}</p>
+              <h3 className="text-xs sm:text-sm font-black text-[var(--text-primary)]">Q: {t(item.q)}</h3>
+              <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed">{t(item.a)}</p>
             </div>
           ))}
         </div>
@@ -422,7 +422,7 @@ export const LandingPage: React.FC = () => {
         </div>
         <p>© 2026 AABHA AI. Developed for Smart India Hackathon Problem Statement SIH26003.</p>
         <p className="text-[10px] text-[var(--text-muted)]">
-          Cognitive companion & non-diagnostic healthcare prototype. All rights reserved.
+          {t('Cognitive companion & non-diagnostic healthcare prototype. All rights reserved.')}
         </p>
       </footer>
     </div>

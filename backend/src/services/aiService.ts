@@ -81,32 +81,36 @@ export const chat = async (userId: string, message: string, conversationId?: str
     }
   }
 
-  // ─── 1. GOOGLE GEMINI AI (PRIMARY ENGINE) ──────────────────────────────────
+  // ─── 1. GOOGLE GEMINI AI (PRIMARY ENGINE WITH MULTI-MODEL FALLBACK) ────────
   const activeGeminiKey = customApiKey?.trim() || geminiApiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '';
   if (activeGeminiKey) {
-    try {
-      const dynamicGenAI = new GoogleGenerativeAI(activeGeminiKey);
-      // Try gemini-1.5-flash, fallback to gemini-2.0-flash or gemini-pro
-      const model = dynamicGenAI.getGenerativeModel({
-        model: 'gemini-1.5-flash',
-        systemInstruction: SYSTEM_PROMPT + contextPromptStr + `\nTarget Language: ${language === 'mr' ? 'Marathi' : language === 'hi' ? 'Hindi' : 'Indian English'}.`
-      });
+    const candidateModels = ['gemini-1.5-flash', 'gemini-1.5-flash-latest', 'gemini-2.0-flash', 'gemini-pro', 'gemini-1.5-pro'];
+    const dynamicGenAI = new GoogleGenerativeAI(activeGeminiKey);
 
-      const result = await model.generateContent(message);
-      const geminiReply = result.response.text().trim();
+    for (const modelName of candidateModels) {
+      try {
+        const model = dynamicGenAI.getGenerativeModel({
+          model: modelName,
+          systemInstruction: SYSTEM_PROMPT + contextPromptStr + `\nTarget Language: ${language === 'mr' ? 'Marathi' : language === 'hi' ? 'Hindi' : 'Indian English'}.`
+        });
 
-      if (geminiReply) {
-        return {
-          reply: geminiReply,
-          response: geminiReply,
-          engine: 'google-gemini',
-          model: 'gemini-1.5-flash',
-          conversationId: conversationId || ('conv-' + Date.now()),
-          language: isMarathi ? 'mr' : isHindi ? 'hi' : 'en'
-        };
+        const result = await model.generateContent(message);
+        const geminiReply = result.response.text().trim();
+
+        if (geminiReply) {
+          return {
+            reply: geminiReply,
+            response: geminiReply,
+            engine: 'google-gemini',
+            model: modelName,
+            conversationId: conversationId || ('conv-' + Date.now()),
+            language: isMarathi ? 'mr' : isHindi ? 'hi' : 'en'
+          };
+        }
+      } catch (geminiErr: any) {
+        // Try next candidate model
+        console.warn(`Model ${modelName} encountered an error, trying next candidate:`, geminiErr?.message || geminiErr);
       }
-    } catch (geminiErr: any) {
-      console.warn('Google Gemini API call encountered an error, falling back to next engine:', geminiErr?.message || geminiErr);
     }
   }
 

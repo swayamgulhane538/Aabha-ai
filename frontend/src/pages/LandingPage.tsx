@@ -149,6 +149,38 @@ export const LandingPage: React.FC = () => {
           </button>
         </div>
 
+        {/* ─── NEW FEATURE • SIH26003: SIGNBRIDGE ISL HERO SPOTLIGHT ────────── */}
+        <div className="p-6 sm:p-8 rounded-[32px] bg-gradient-to-r from-purple-950/70 via-indigo-950/70 to-slate-950/80 border-2 border-purple-400/50 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 text-left relative overflow-hidden">
+          <div className="flex items-center gap-4 sm:gap-5">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-purple-500/20 text-purple-300 border border-purple-400/40 flex items-center justify-center text-4xl sm:text-5xl shrink-0 shadow-inner animate-pulse">
+              🤟
+            </div>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-3 py-0.5 rounded-full bg-purple-500/30 text-purple-200 border border-purple-400/40 text-[10px] font-black uppercase tracking-wider">
+                  New Feature • SIH26003
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-400/40 text-xs font-mono font-bold">
+                  Indian Sign Language (ISL)
+                </span>
+              </div>
+              <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight">
+                SignBridge – Sign Language Doctor Consultation
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-300 font-medium max-w-2xl leading-relaxed">
+                Real-time WebRTC teleconsultation for deaf and non-literate patients: Doctor natural speech translates into an animated 3D ISL Avatar; optical camera AI translates patient hand signs to voice & text with emergency triage.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={handleInstantDemo}
+            className="btn-glow w-full md:w-auto px-7 py-4 rounded-2xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-xl cursor-pointer shrink-0 whitespace-nowrap"
+          >
+            <span>Try SignBridge Live →</span>
+          </button>
+        </div>
+
         {/* Non-Diagnostic Disclaimer Strip */}
         <div className="p-3 bg-[var(--bg-surface-secondary)] rounded-2xl border border-[var(--border)] max-w-xl mx-auto text-[11px] text-[var(--text-secondary)] font-medium flex items-center justify-center gap-2">
           <Shield className="w-4 h-4 text-emerald-400 shrink-0" />

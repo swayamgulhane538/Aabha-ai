@@ -5,6 +5,7 @@ import { Layout } from './components/Layout';
 import { CaregiverLayout } from './components/CaregiverLayout';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { AccessibilityToolbar } from './components/AccessibilityToolbar';
+import { DOMTranslationObserver } from './components/DOMTranslationObserver';
 import { useTranslation } from 'react-i18next';
 
 // Public pages
@@ -75,6 +76,7 @@ const App: React.FC = () => {
       <AlarmProvider>
         <ThemeInitializer>
         <div key={i18n.language} className="min-h-screen font-sans relative" style={{ backgroundColor: 'var(--bg-page)', color: 'var(--text-primary)' }}>
+          <DOMTranslationObserver />
           <OfflineIndicator />
           <AccessibilityToolbar />
           <Routes>

@@ -41,7 +41,7 @@ const ForgotPasswordPage = () => {
     >
       <AnimatedBackground />
 
-      <div className="relative z-10 max-w-4xl mx-auto w-full flex items-center justify-between py-2">
+      <div className="relative z-50 max-w-4xl mx-auto w-full flex items-center justify-between py-2">
         <Link to="/" className="flex items-center gap-2.5">
           <Abha3DOrb size="sm" state="IDLE" interactive={false} />
           <span className="font-black text-2xl tracking-tight bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">

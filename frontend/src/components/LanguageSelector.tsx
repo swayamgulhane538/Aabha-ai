@@ -15,7 +15,7 @@ interface LanguageSelectorProps {
 }
 
 export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ className = '' }) => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -63,7 +63,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ className = 
   };
 
   return (
-    <div ref={dropdownRef} className={`relative inline-block text-left select-none ${className}`}>
+    <div ref={dropdownRef} className={`relative z-50 inline-block text-left select-none ${className}`}>
       {/* Compact Single Language Button */}
       <button
         type="button"
@@ -91,14 +91,14 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ className = 
         <div
           role="listbox"
           aria-label="Language selection"
-          className="absolute right-0 mt-2 w-48 sm:w-56 bg-[var(--bg-surface)] rounded-[20px] border border-[var(--border)] shadow-2xl py-2 z-50 animate-fade-in font-sans"
+          className="absolute right-0 mt-2 w-48 sm:w-56 bg-[var(--bg-surface)] rounded-[20px] border border-[var(--border)] shadow-2xl py-2 z-[99999] animate-fade-in font-sans"
           style={{ backgroundColor: 'var(--bg-surface)' }}
         >
           {/* Header */}
           <div className="px-3.5 py-2 border-b border-[var(--border)] flex items-center justify-between text-[11px] font-black uppercase text-[var(--text-secondary)] tracking-wider">
             <div className="flex items-center gap-1.5">
               <Globe className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-              <span>Select Language</span>
+              <span>{t('Change Language')}</span>
             </div>
             <span className="text-[10px] text-[var(--text-muted)] lowercase font-mono">5 languages</span>
           </div>

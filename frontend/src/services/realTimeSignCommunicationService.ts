@@ -1,17 +1,14 @@
 /**
  * SignBridge – Real-Time Two-Way Sign Communication Service
  * 
- * Manages instant peer-to-peer sign language messaging and speech subtitle delivery between:
- * - Patient Screen (Patient -> Doctor)
- * - Doctor Screen (Doctor -> Patient)
- * 
- * Transport Layers:
- * 1. BroadcastChannel (Instant cross-window / multi-tab local synchronization)
- * 2. REST Signaling API (`/api/signbridge/messages`) for server-backed persistence
+ * Manages instantaneous peer-to-peer sign language messaging and speech subtitle delivery between:
+ * - Patient Screen (Patient Camera ISL -> Doctor Text & Voice)
+ * - Doctor Screen (Doctor Voice / Text -> Patient ISL Avatar Animation Sequence)
  */
 
 import { api } from './api';
 import { RecognitionResult } from './signRecognitionService';
+import { ISLGlossToken, ISLTranslationResult } from './textToISLService';
 
 export type CommunicationMode = 'SIGN_LANGUAGE' | 'VOICE' | 'TEXT';
 
@@ -20,7 +17,7 @@ export interface SignBridgeLiveMessage {
   roomId: string;
   senderRole: 'PATIENT' | 'DOCTOR' | 'CAREGIVER';
   senderName: string;
-  type: 'PATIENT_SIGN' | 'DOCTOR_SIGN' | 'DOCTOR_SPEECH_SUBTITLE' | 'TEXT_CHAT' | 'EMERGENCY_ALERT' | 'MODE_CHANGE';
+  type: 'PATIENT_SIGN' | 'DOCTOR_SIGN' | 'DOCTOR_VOICE_TO_ISL_SEQUENCE' | 'DOCTOR_SPEECH_SUBTITLE' | 'TEXT_CHAT' | 'EMERGENCY_ALERT' | 'MODE_CHANGE';
   text: string;
   hindiText?: string;
   marathiText?: string;
@@ -31,6 +28,8 @@ export interface SignBridgeLiveMessage {
   timestamp: string;
   icon?: string;
   mode?: CommunicationMode;
+  islGlossArray?: string[];
+  islTokens?: ISLGlossToken[];
 }
 
 export type MessageListener = (msg: SignBridgeLiveMessage) => void;
@@ -79,6 +78,28 @@ class RealTimeSignCommunicationService {
       isEmergency: result.isEmergency,
       timestamp: new Date().toISOString(),
       icon: result.icon
+    };
+
+    this.dispatchLocal(msg);
+    this.sendToServer(msg);
+  }
+
+  /**
+   * Broadcast Doctor Voice-Translated ISL Sign Sequence to Patient Screen (ISL Avatar Playback)
+   */
+  public async sendDoctorVoiceToISL(translation: ISLTranslationResult, senderName = 'Dr. Anita Verma'): Promise<void> {
+    const msg: SignBridgeLiveMessage = {
+      id: 'isl-seq-' + Date.now(),
+      roomId: this.roomId,
+      senderRole: 'DOCTOR',
+      senderName,
+      type: translation.isEmergency ? 'EMERGENCY_ALERT' : 'DOCTOR_VOICE_TO_ISL_SEQUENCE',
+      text: translation.originalText,
+      confidence: 96,
+      isEmergency: translation.isEmergency,
+      timestamp: new Date().toISOString(),
+      islGlossArray: translation.islGlossArray,
+      islTokens: translation.tokens
     };
 
     this.dispatchLocal(msg);
@@ -150,7 +171,7 @@ class RealTimeSignCommunicationService {
   }
 
   /**
-   * Start periodic server polling fallback for background tab synchronization
+   * Start periodic server polling fallback
    */
   public startPolling(intervalMs = 2000) {
     if (this.pollingIntervalId) return;

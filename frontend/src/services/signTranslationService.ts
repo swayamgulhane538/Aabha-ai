@@ -1,9 +1,9 @@
 /**
  * SignBridge – Indian Sign Language (ISL) Translation & Vocabulary Service
  * 
- * Contains standardized Medical ISL Vocabulary for Two-Way Clinical Communication:
- * - Patient -> Doctor Vocabulary (16 Signs)
- * - Doctor -> Patient Vocabulary (13 Signs)
+ * Complete Medical ISL Vocabulary for Two-Way Clinical Communication:
+ * - Patient -> Doctor Vocabulary (21 Comprehensive Signs)
+ * - Doctor -> Patient Vocabulary (16 Clinical Signs)
  * - Multilingual translation mappings (English, Hindi, Marathi, Bengali, Assamese)
  */
 
@@ -22,7 +22,7 @@ export interface ISLSign {
   description: string;
 }
 
-// ─── 1. PATIENT → DOCTOR ISL MEDICAL DICTIONARY (16 SIGNS) ────────────────────
+// ─── 1. PATIENT → DOCTOR ISL MEDICAL DICTIONARY (21 SIGNS) ────────────────────
 export const PATIENT_ISL_DICTIONARY: ISLSign[] = [
   {
     id: 'p_hello',
@@ -47,7 +47,7 @@ export const PATIENT_ISL_DICTIONARY: ISLSign[] = [
     assamese: 'হয় / বুজি পালোঁ',
     category: 'RESPONSE',
     handPattern: 'UP_DOWN',
-    icon: '✅',
+    icon: '👍',
     description: 'Fist nodding up and down like head movement'
   },
   {
@@ -60,7 +60,7 @@ export const PATIENT_ISL_DICTIONARY: ISLSign[] = [
     assamese: 'নহয় / এনে নহয়',
     category: 'RESPONSE',
     handPattern: 'SIDE_TO_SIDE',
-    icon: '❌',
+    icon: '👎',
     description: 'Index and middle fingers tapping thumb horizontally'
   },
   {
@@ -104,17 +104,31 @@ export const PATIENT_ISL_DICTIONARY: ISLSign[] = [
     description: 'Fist clenched with trembling motion near affected area'
   },
   {
-    id: 'p_headache',
+    id: 'p_severe_pain',
     role: 'PATIENT',
-    label: 'Headache / Head pain',
-    hindi: 'सिर में तेज दर्द है',
-    marathi: 'डोके खूप दुखत आहे',
-    bengali: 'মাথায় তীব্র যন্ত্রণা হচ্ছে',
-    assamese: 'মূৰৰ তীব্ৰ বিষ হৈছে',
+    label: 'Severe acute pain',
+    hindi: 'असहनीय तेज दर्द है',
+    marathi: 'खूप जास्त तीव्र वेदना आहेत',
+    bengali: 'অসহ্য তীব্র যন্ত্রণা',
+    assamese: 'অসহ্যকৰ তীব্ৰ বিষ',
+    category: 'URGENCY',
+    isEmergency: true,
+    handPattern: 'CROSS_CHEST',
+    icon: '⚡',
+    description: 'Both hands clutching chest tightly with head shaking'
+  },
+  {
+    id: 'p_mild_pain',
+    role: 'PATIENT',
+    label: 'Mild / Slight pain',
+    hindi: 'हल्का सा दर्द है',
+    marathi: 'किंचित दुखत आहे',
+    bengali: 'সামান্য ব্যথা আছে',
+    assamese: 'সামান্য বিষ আছে',
     category: 'SYMPTOM',
-    handPattern: 'TOUCH_HEAD',
-    icon: '🤕',
-    description: 'Both index fingers tapping temple / forehead region'
+    handPattern: 'HOLD_STATIC',
+    icon: '🤏',
+    description: 'Thumb and index pinch gesture with gentle nod'
   },
   {
     id: 'p_chest_pain',
@@ -131,6 +145,19 @@ export const PATIENT_ISL_DICTIONARY: ISLSign[] = [
     description: 'Open hand placed firmly over center chest with tight grip'
   },
   {
+    id: 'p_headache',
+    role: 'PATIENT',
+    label: 'Headache / Head pain',
+    hindi: 'सिर में तेज दर्द है',
+    marathi: 'डोके खूप दुखत आहे',
+    bengali: 'মাথায় তীব্র যন্ত্রণা হচ্ছে',
+    assamese: 'মূৰৰ তীব্ৰ বিষ হৈছে',
+    category: 'SYMPTOM',
+    handPattern: 'TOUCH_HEAD',
+    icon: '🤕',
+    description: 'Both index fingers tapping temple / forehead region'
+  },
+  {
     id: 'p_stomach_pain',
     role: 'PATIENT',
     label: 'Stomach / Abdominal pain',
@@ -142,6 +169,19 @@ export const PATIENT_ISL_DICTIONARY: ISLSign[] = [
     handPattern: 'TOUCH_STOMACH',
     icon: '🤢',
     description: 'Hands holding lower abdomen with inward circular pressure'
+  },
+  {
+    id: 'p_back_pain',
+    role: 'PATIENT',
+    label: 'Back / Spine pain',
+    hindi: 'कमर व पीठ में दर्द है',
+    marathi: 'पाठीत व कंबरेत वेदना आहेत',
+    bengali: 'পিঠে ও কোমরে ব্যথা',
+    assamese: 'পিঠি আৰু কঁকালৰ বিষ',
+    category: 'SYMPTOM',
+    handPattern: 'CROSS_CHEST',
+    icon: '🧍',
+    description: 'Thumb reaching towards lower back with wincing expression'
   },
   {
     id: 'p_fever',
@@ -170,6 +210,20 @@ export const PATIENT_ISL_DICTIONARY: ISLSign[] = [
     description: 'Index finger moving in circular swirl above head'
   },
   {
+    id: 'p_breathe',
+    role: 'PATIENT',
+    label: 'Breathing difficulty / Asthma',
+    hindi: 'सांस लेने में बहुत तकलीफ है',
+    marathi: 'श्वास घेण्यास त्रास होत आहे',
+    bengali: 'শ্বাসকষ্ট হচ্ছে',
+    assamese: 'উশাহ লোৱাত কষ্ট হৈছে',
+    category: 'URGENCY',
+    isEmergency: true,
+    handPattern: 'CROSS_CHEST',
+    icon: '🫁',
+    description: 'Both hands clutching upper throat and gasping'
+  },
+  {
     id: 'p_water',
     role: 'PATIENT',
     label: 'I need water / Thirsty',
@@ -196,19 +250,6 @@ export const PATIENT_ISL_DICTIONARY: ISLSign[] = [
     description: 'Thumb and index finger placing imaginary pill into mouth'
   },
   {
-    id: 'p_dont_understand',
-    role: 'PATIENT',
-    label: 'I do not understand',
-    hindi: 'मुझे समझ नहीं आया',
-    marathi: 'मला समजले नाही',
-    bengali: 'আমি বুঝতে পারছি না',
-    assamese: 'মই বুজি পোৱা নাই',
-    category: 'GENERAL',
-    handPattern: 'TOUCH_HEAD',
-    icon: '❓',
-    description: 'Index finger curling near temple with head tilted sideways'
-  },
-  {
     id: 'p_feel_better',
     role: 'PATIENT',
     label: 'I feel better today',
@@ -233,10 +274,36 @@ export const PATIENT_ISL_DICTIONARY: ISLSign[] = [
     handPattern: 'SIDE_TO_SIDE',
     icon: '😞',
     description: 'Thumb down gesture with slow downward hand movement'
+  },
+  {
+    id: 'p_pain_here',
+    role: 'PATIENT',
+    label: 'Pain is exactly here',
+    hindi: 'दर्द ठीक इसी जगह है',
+    marathi: 'वेदना नक्की याच ठिकाणी आहेत',
+    bengali: 'ব্যথা ঠিক এইখানেই হচ্ছে',
+    assamese: 'বিষ ঠিক এইখিনিতেই হৈছে',
+    category: 'SYMPTOM',
+    handPattern: 'HOLD_STATIC',
+    icon: '🎯',
+    description: 'Index finger pointing directly at specific painful zone'
+  },
+  {
+    id: 'p_need_help',
+    role: 'PATIENT',
+    label: 'Please call caregiver / nurse',
+    hindi: 'कृपया नर्स या सहायक को बुलाएं',
+    marathi: 'कृपया नर्स किंवा सहाय्यकाला बोलवा',
+    bengali: 'দয়া করে সেবিকা বা সহায়তাকারীকে ডাকুন',
+    assamese: 'অনুগ্ৰহ কৰি নাৰ্ছ বা সহায়কক মাতক',
+    category: 'NEED',
+    handPattern: 'UP_DOWN',
+    icon: '👩‍⚕️',
+    description: 'Hand raised waving towards door/side'
   }
 ];
 
-// ─── 2. DOCTOR → PATIENT ISL CLINICAL DICTIONARY (13 SIGNS) ──────────────────
+// ─── 2. DOCTOR → PATIENT ISL CLINICAL DICTIONARY (16 SIGNS) ──────────────────
 export const DOCTOR_ISL_DICTIONARY: ISLSign[] = [
   {
     id: 'd_hello',
@@ -278,6 +345,19 @@ export const DOCTOR_ISL_DICTIONARY: ISLSign[] = [
     description: 'Index finger pointing and circling outward with questioning look'
   },
   {
+    id: 'd_show_pain',
+    role: 'DOCTOR',
+    label: 'Show me where it hurts',
+    hindi: 'मुझे दिखाएं कहाँ दर्द है',
+    marathi: 'मला दाखवा कोठे दुखत आहे',
+    bengali: 'আমাকে আঙুল দিয়ে দেখিয়ে দিন',
+    assamese: 'মোক আঙুলিৰে দেখুৱাই দিয়ক',
+    category: 'INSTRUCTION',
+    handPattern: 'UP_DOWN',
+    icon: '👉',
+    description: 'Both index fingers pointing towards camera then towards chest'
+  },
+  {
     id: 'd_how_long',
     role: 'DOCTOR',
     label: 'How long have you had this?',
@@ -291,17 +371,43 @@ export const DOCTOR_ISL_DICTIONARY: ISLSign[] = [
     description: 'Tapping wrist watch area followed by spread fingers'
   },
   {
-    id: 'd_show_pain',
+    id: 'd_fever_q',
     role: 'DOCTOR',
-    label: 'Show me where it hurts',
-    hindi: 'मुझे दिखाएं कहाँ दर्द है',
-    marathi: 'मला दाखवा कोठे दुखत आहे',
-    bengali: 'আমাকে আঙুল দিয়ে দেখিয়ে দিন',
-    assamese: 'মোক আঙুলিৰে দেখুৱাই দিয়ক',
-    category: 'INSTRUCTION',
-    handPattern: 'UP_DOWN',
-    icon: '👉',
-    description: 'Both index fingers pointing towards camera then towards chest'
+    label: 'Do you have fever?',
+    hindi: 'क्या आपको बुखार लग रहा है?',
+    marathi: 'तुम्हाला ताप आला आहे का?',
+    bengali: 'আপনার কি জ্বর আছে?',
+    assamese: 'আপোনাৰ জ্বৰ উঠিছে নেকি?',
+    category: 'QUESTION',
+    handPattern: 'TOUCH_HEAD',
+    icon: '🌡️',
+    description: 'Back of hand on forehead with inquiring nod'
+  },
+  {
+    id: 'd_headache_q',
+    role: 'DOCTOR',
+    label: 'Do you have headache?',
+    hindi: 'क्या सिर में दर्द है?',
+    marathi: 'डोके दुखत आहे का?',
+    bengali: 'মাথায় কি যন্ত্রণা হচ্ছে?',
+    assamese: 'মূৰৰ বিষ হৈছে নেকি?',
+    category: 'QUESTION',
+    handPattern: 'TOUCH_HEAD',
+    icon: '🤕',
+    description: 'Tapping temples with questioning raised eyebrows'
+  },
+  {
+    id: 'd_chest_q',
+    role: 'DOCTOR',
+    label: 'Do you have chest pain?',
+    hindi: 'क्या छाती में दर्द या भारीपन है?',
+    marathi: 'छातीत दुखत किंवा जड वाटत आहे का?',
+    bengali: 'বুকে কি ব্যথা বা অস্বস্তি হচ্ছে?',
+    assamese: 'বুকুত বিষ বা টান অনুভৱ হৈছে নেকি?',
+    category: 'QUESTION',
+    handPattern: 'CROSS_CHEST',
+    icon: '🫀',
+    description: 'Palm over center chest with questioning expression'
   },
   {
     id: 'd_better_q',
@@ -369,6 +475,19 @@ export const DOCTOR_ISL_DICTIONARY: ISLSign[] = [
     description: 'Both hands palms together resting against side of cheek'
   },
   {
+    id: 'd_call_caregiver',
+    role: 'DOCTOR',
+    label: 'Call your caregiver now',
+    hindi: 'अपने केयरगिवर / नर्स को बुलाएं',
+    marathi: 'तुमच्या केअरगिव्हर / नर्सला बोलवा',
+    bengali: 'আপনার কেয়ারগিভারকে ডাকুন',
+    assamese: 'আপোনাৰ কেয়াৰগিভাৰক মাতক',
+    category: 'INSTRUCTION',
+    handPattern: 'HOLD_STATIC',
+    icon: '📞',
+    description: 'Making phone shape near ear while pointing outwards'
+  },
+  {
     id: 'd_come_hospital',
     role: 'DOCTOR',
     label: 'Please visit the hospital',
@@ -394,19 +513,6 @@ export const DOCTOR_ISL_DICTIONARY: ISLSign[] = [
     handPattern: 'CIRCULAR',
     icon: '🚨',
     description: 'Both hands raised in urgent flashing wave gesture'
-  },
-  {
-    id: 'd_call_caregiver',
-    role: 'DOCTOR',
-    label: 'Call your caregiver now',
-    hindi: 'अपने केयरगिवर / नर्स को बुलाएं',
-    marathi: 'तुमच्या केअरगिव्हर / नर्सला बोलवा',
-    bengali: 'আপনার কেয়ারগিভারকে ডাকুন',
-    assamese: 'আপোনাৰ কেয়াৰগিভাৰক মাতক',
-    category: 'INSTRUCTION',
-    handPattern: 'HOLD_STATIC',
-    icon: '📞',
-    description: 'Making phone shape near ear while pointing outwards'
   }
 ];
 

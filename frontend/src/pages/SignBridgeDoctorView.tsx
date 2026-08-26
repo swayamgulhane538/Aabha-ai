@@ -22,7 +22,9 @@ import {
   HandMetal,
   Clock,
   MessageSquare,
-  Keyboard
+  VolumeX,
+  RefreshCw,
+  Layers
 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { api } from '../services/api';
@@ -36,14 +38,19 @@ import {
   ISLSign
 } from '../services/signTranslationService';
 import {
+  textToISLService,
+  ISLTranslationResult,
+  ISLGlossToken
+} from '../services/textToISLService';
+import { speechToTextService } from '../services/speechToTextService';
+import {
   realTimeSignCommunicationService,
-  CommunicationMode,
   SignBridgeLiveMessage
 } from '../services/realTimeSignCommunicationService';
 import { webrtcService, CallConnectionState } from '../services/webrtcService';
 
 export const SignBridgeDoctorView: React.FC = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
@@ -52,23 +59,18 @@ export const SignBridgeDoctorView: React.FC = () => {
 
   const [callActive, setCallActive] = useState(true);
   const [callState, setCallState] = useState<CallConnectionState>('CONNECTED');
-  const [isMuted, setIsMuted] = useState(false);
-  const [isVideoOff, setIsVideoOff] = useState(false);
-  const [callDuration, setCallDuration] = useState(72);
+  const [callDuration, setCallDuration] = useState(85);
 
-  // Two-Way Modes: SIGN_LANGUAGE | VOICE | TEXT
-  const [communicationMode, setCommunicationMode] = useState<CommunicationMode>('SIGN_LANGUAGE');
-  const [doctorSignModeActive, setDoctorSignModeActive] = useState(true);
+  // Doctor Natural Speech & ISL Gloss Pipeline state
+  const [isMicListening, setIsMicListening] = useState(false);
+  const [doctorSpokenSentence, setDoctorSpokenSentence] = useState('Where are you feeling pain?');
+  const [currentISLTranslation, setCurrentISLTranslation] = useState<ISLTranslationResult>(
+    textToISLService.translateToISL('Where are you feeling pain?')
+  );
+  const [isConvertingToISL, setIsConvertingToISL] = useState(false);
 
-  // Doctor Local Detected Sign (DOCTOR ISL GESTURE RECOGNITION)
-  const [detectedDoctorSign, setDetectedDoctorSign] = useState<string>('Where is the pain?');
-  const [detectedHindi, setDetectedHindi] = useState<string>('दर्द किस जगह पर हो रहा है?');
-  const [confidence, setConfidence] = useState<number>(94);
-  const [isLowConfidence, setIsLowConfidence] = useState<boolean>(false);
-  const [showVisualConfirmation, setShowVisualConfirmation] = useState<boolean>(false);
-
-  // Patient Remote Incoming Sign (TWO-WAY RECEIVE FROM PATIENT)
-  const [patientIncomingSign, setPatientIncomingSign] = useState<{
+  // Patient Live Sign Feed
+  const [patientDetectedSign, setPatientDetectedSign] = useState<{
     text: string;
     hindiText?: string;
     icon?: string;
@@ -79,40 +81,22 @@ export const SignBridgeDoctorView: React.FC = () => {
     text: 'I have pain',
     hindiText: 'मुझे दर्द हो रहा है',
     icon: '😣',
-    confidence: 94,
+    confidence: 95,
     time: 'Live',
     isEmergency: false
   });
 
-  // Doctor Speech-to-Text (STT) state
-  const [isListeningStt, setIsListeningStt] = useState(false);
-  const [doctorSpokenText, setDoctorSpokenText] = useState('');
-  const recognitionRef = useRef<any>(null);
-
-  // Consultation Transcript
-  const [transcript, setTranscript] = useState<Array<{
-    sender: string;
-    text: string;
-    hindiText?: string;
-    time: string;
-    role: 'PATIENT' | 'DOCTOR';
-    type?: string;
-    icon?: string;
-  }>>([
-    { sender: 'Dr. Anita Verma (Doctor)', text: 'Namaste! Two-Way SignBridge is active.', time: '10:30 AM', role: 'DOCTOR' },
-    { sender: 'Patient (ISL)', text: 'I have pain', hindiText: 'मुझे दर्द हो रहा है', time: '10:31 AM', role: 'PATIENT', icon: '😣' }
-  ]);
-
-  const [customMsg, setCustomMsg] = useState('');
+  const [autoPlayTts, setAutoPlayTts] = useState(true);
+  const [isSpeakingTts, setIsSpeakingTts] = useState(false);
 
   // Prescription modal
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
   const [medName, setMedName] = useState('Paracetamol 500mg');
   const [dosageTime, setDosageTime] = useState('02:00 PM');
-  const [instructions, setInstructions] = useState('Take with warm water after lunch');
+  const [instructions, setInstructions] = useState('Take with warm water after food');
   const [prescriptionSaved, setPrescriptionSaved] = useState(false);
 
-  // ─── 1. INITIALIZE TWO-WAY WEBRTC & REAL-TIME COMMUNICATION ───────────────
+  // ─── 1. INITIALIZE TWO-WAY DOCTOR STT & ISL TRANSLATOR ────────────────────
   useEffect(() => {
     signRecognitionService.setActiveRole('DOCTOR');
     realTimeSignCommunicationService.setRoomId(roomId);
@@ -123,8 +107,6 @@ export const SignBridgeDoctorView: React.FC = () => {
         if (doctorVideoRef.current) {
           doctorVideoRef.current.srcObject = stream;
           doctorVideoRef.current.play().catch(() => {});
-          signRecognitionService.setVideoSource(doctorVideoRef.current);
-          signRecognitionService.startAnalysis();
         }
       },
       onStateChange: (st) => setCallState(st)
@@ -134,91 +116,53 @@ export const SignBridgeDoctorView: React.FC = () => {
       if (stream && doctorVideoRef.current) {
         doctorVideoRef.current.srcObject = stream;
         doctorVideoRef.current.play().catch(() => {});
-        signRecognitionService.setVideoSource(doctorVideoRef.current);
-        signRecognitionService.startAnalysis();
       }
     });
 
-    // Local ISL recognition event callback (DOCTOR SIDE)
-    signRecognitionService.onRecognition((res: RecognitionResult) => {
-      setDetectedDoctorSign(res.text);
-      setDetectedHindi(res.hindiText);
-      setConfidence(res.confidence);
-      setIsLowConfidence(res.isLowConfidence);
-
-      if (!res.isLowConfidence) {
-        setShowVisualConfirmation(true);
-        setTimeout(() => setShowVisualConfirmation(false), 3000);
+    // Configure Doctor Speech-to-Text
+    speechToTextService.setCallbacks({
+      onInterimText: (text) => {
+        setDoctorSpokenSentence(text);
+        setIsConvertingToISL(true);
+      },
+      onFinalText: (text) => {
+        setDoctorSpokenSentence(text);
+        handleProcessDoctorSpeech(text);
+      },
+      onStateChange: (listening) => {
+        setIsMicListening(listening);
       }
-
-      // Broadcast translated doctor sign to patient screen in real-time
-      realTimeSignCommunicationService.sendDoctorSign(res, user?.name || 'Dr. Anita Verma');
     });
 
-    // Subscribe to incoming messages from PATIENT SCREEN (TWO-WAY RECEIVE)
+    // Subscribe to incoming signs from Patient
     const unsubscribe = realTimeSignCommunicationService.subscribe((msg: SignBridgeLiveMessage) => {
       if (msg.senderRole === 'PATIENT') {
         if (msg.type === 'PATIENT_SIGN' || msg.type === 'EMERGENCY_ALERT') {
-          setPatientIncomingSign({
+          const signInfo = {
             text: msg.text,
             hindiText: msg.hindiText,
             icon: msg.icon || '🤟',
-            confidence: msg.confidence || 92,
+            confidence: msg.confidence || 95,
             time: 'Just now',
             isEmergency: msg.isEmergency
-          });
+          };
+          setPatientDetectedSign(signInfo);
 
-          setTranscript(prev => [
-            ...prev,
-            {
-              sender: msg.senderName || 'Patient (ISL)',
-              text: msg.text,
-              hindiText: msg.hindiText,
-              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-              role: 'PATIENT',
-              icon: msg.icon
-            }
-          ]);
+          // Speak TTS for Doctor
+          if (autoPlayTts) {
+            handleSpeakPatientSign(msg.text);
+          }
         }
       }
     });
 
-    // Initialize Browser Speech-To-Text API for Doctor Subtitles
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        const recog = new SpeechRecognition();
-        recog.continuous = true;
-        recog.interimResults = true;
-        recog.lang = 'en-IN';
-
-        recog.onresult = (event: any) => {
-          let currentTranscript = '';
-          for (let i = event.resultIndex; i < event.results.length; ++i) {
-            currentTranscript += event.results[i][0].transcript;
-          }
-          if (currentTranscript.trim()) {
-            setDoctorSpokenText(currentTranscript);
-            realTimeSignCommunicationService.sendDoctorSubtitle(currentTranscript, user?.name || 'Dr. Anita Verma');
-          }
-        };
-
-        recog.onerror = () => setIsListeningStt(false);
-        recog.onend = () => setIsListeningStt(false);
-        recognitionRef.current = recog;
-      }
-    }
-
     return () => {
       unsubscribe();
+      speechToTextService.stopListening();
       realTimeSignCommunicationService.stopPolling();
       webrtcService.endCall();
-      signRecognitionService.stopAnalysis();
-      if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch {}
-      }
     };
-  }, [user]);
+  }, [user, autoPlayTts]);
 
   // Call timer
   useEffect(() => {
@@ -227,96 +171,39 @@ export const SignBridgeDoctorView: React.FC = () => {
   }, []);
 
   // ─── 2. HANDLERS ───────────────────────────────────────────────────────────
-  const handleToggleDoctorSignMode = () => {
-    const nextState = !doctorSignModeActive;
-    setDoctorSignModeActive(nextState);
-    signRecognitionService.setRecognitionActive(nextState);
+  const handleToggleSpeechMic = () => {
+    speechToTextService.toggleListening();
   };
 
-  const handleModeChange = (mode: CommunicationMode) => {
-    setCommunicationMode(mode);
-    realTimeSignCommunicationService.broadcastModeChange(mode, 'DOCTOR');
+  const handleProcessDoctorSpeech = (sentence: string) => {
+    setIsConvertingToISL(true);
+    const translation = textToISLService.translateToISL(sentence);
+    setCurrentISLTranslation(translation);
+    setIsConvertingToISL(false);
+
+    // Broadcast animated ISL sequence to patient screen
+    realTimeSignCommunicationService.sendDoctorVoiceToISL(translation, user?.name || 'Dr. Anita Verma');
   };
 
-  // Toggle Doctor STT
-  const handleToggleSpeechRecognition = () => {
-    if (!recognitionRef.current) {
-      alert('Speech Recognition is not supported in this browser. Please use Chrome or Edge.');
-      return;
-    }
+  const handleSpeakPatientSign = (textToSpeak: string) => {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
 
-    if (isListeningStt) {
-      recognitionRef.current.stop();
-      setIsListeningStt(false);
-    } else {
-      try {
-        recognitionRef.current.start();
-        setIsListeningStt(true);
-      } catch {
-        setIsListeningStt(false);
-      }
-    }
+    const utterance = new SpeechSynthesisUtterance(`The patient says: ${textToSpeak}`);
+    utterance.lang = 'en-IN';
+    utterance.rate = 1.0;
+
+    setIsSpeakingTts(true);
+    utterance.onend = () => setIsSpeakingTts(false);
+    utterance.onerror = () => setIsSpeakingTts(false);
+
+    window.speechSynthesis.speak(utterance);
   };
 
-  // 1-Tap Medical Shortcut Trigger (Doctor)
-  const handleSelectDoctorShortcut = (signId: string) => {
-    const res = signRecognitionService.triggerManualSign(signId, 'DOCTOR');
-    if (res) {
-      setDetectedDoctorSign(res.text);
-      setDetectedHindi(res.hindiText);
-      setConfidence(res.confidence);
-      setIsLowConfidence(false);
-      setShowVisualConfirmation(true);
-      setTimeout(() => setShowVisualConfirmation(false), 3000);
-
-      setTranscript(prev => [
-        ...prev,
-        {
-          sender: 'You (Dr. Anita Verma)',
-          text: res.text,
-          hindiText: res.hindiText,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          role: 'DOCTOR',
-          icon: res.icon
-        }
-      ]);
-
-      realTimeSignCommunicationService.sendDoctorSign(res, user?.name || 'Dr. Anita Verma');
-    }
-  };
-
-  // Send Custom Doctor Text
-  const handleSendCustomDoctorMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!customMsg.trim()) return;
-
-    const manualResult: RecognitionResult = {
-      signId: 'd_custom',
-      role: 'DOCTOR',
-      text: customMsg.trim(),
-      hindiText: '',
-      confidence: 100,
-      isEmergency: false,
-      category: 'GENERAL',
-      timestamp: Date.now(),
-      isLowConfidence: false,
-      motionIntensity: 100,
-      icon: '💬'
-    };
-
-    setTranscript(prev => [
-      ...prev,
-      {
-        sender: 'You (Dr. Anita Verma)',
-        text: customMsg.trim(),
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        role: 'DOCTOR',
-        icon: '💬'
-      }
-    ]);
-
-    realTimeSignCommunicationService.sendDoctorSign(manualResult, user?.name || 'Dr. Anita Verma');
-    setCustomMsg('');
+  // 1-Tap Doctor Shortcut Click
+  const handleSelectDoctorShortcut = (sign: ISLSign) => {
+    setDoctorSpokenSentence(sign.label);
+    handleProcessDoctorSpeech(sign.label);
   };
 
   const handleSavePrescription = async (e: React.FormEvent) => {
@@ -346,7 +233,7 @@ export const SignBridgeDoctorView: React.FC = () => {
 
   return (
     <div className="w-full max-w-7xl mx-auto space-y-6 font-sans p-3 sm:p-6 pb-24 text-[var(--text-primary)] select-none">
-      {/* ─── 1. DOCTOR TOP BAR & MULTI-MODAL CONTROLS ───────────────────────── */}
+      {/* ─── 1. DOCTOR TOP BAR ──────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 sm:p-5 card-3d rounded-[28px] border border-[var(--border)]" style={{ backgroundColor: 'var(--bg-surface)' }}>
         <div className="flex items-center gap-3">
           <Link
@@ -359,64 +246,36 @@ export const SignBridgeDoctorView: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-black uppercase tracking-wider">
-                🩺 Two-Way Doctor Desk
+                🩺 Doctor Speech-to-ISL Desk
               </span>
               <span className="px-2.5 py-0.5 rounded-md bg-purple-500/15 border border-purple-500/30 text-purple-300 text-[10px] font-mono font-bold">
                 LIVE CONSULTATION: {formatCallTime(callDuration)}
               </span>
             </div>
             <h1 className="text-lg sm:text-2xl font-black text-[var(--text-primary)]">
-              Two-Way Sign Language Clinical Consultation
+              Two-Way Indian Sign Language Telehealth
             </h1>
           </div>
         </div>
 
-        {/* Multi-Modal Mode Switcher: Sign ↔ Voice ↔ Text */}
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-[var(--bg-surface-secondary)] border border-[var(--border)]">
-            <button
-              type="button"
-              onClick={() => handleModeChange('SIGN_LANGUAGE')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer ${
-                communicationMode === 'SIGN_LANGUAGE'
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              <HandMetal className="w-3.5 h-3.5" />
-              <span>🤟 Sign Language</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleModeChange('VOICE')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer ${
-                communicationMode === 'VOICE'
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              <Mic className="w-3.5 h-3.5" />
-              <span>🎤 Voice (STT)</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleModeChange('TEXT')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer ${
-                communicationMode === 'TEXT'
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              <Keyboard className="w-3.5 h-3.5" />
-              <span>⌨ Text</span>
-            </button>
-          </div>
+          {/* Auto-TTS Toggle */}
+          <button
+            type="button"
+            onClick={() => setAutoPlayTts(!autoPlayTts)}
+            className={`px-3.5 py-2 rounded-xl text-xs font-black transition cursor-pointer flex items-center gap-1.5 border ${
+              autoPlayTts
+                ? 'bg-amber-500/20 text-amber-300 border-amber-400/40 shadow-xs'
+                : 'bg-slate-700/30 text-slate-400 border-slate-600'
+            }`}
+          >
+            <Volume2 className="w-3.5 h-3.5" />
+            <span>Auto-Voice TTS: {autoPlayTts ? 'ON' : 'OFF'}</span>
+          </button>
 
           <button
             onClick={() => setShowPrescriptionModal(true)}
-            className="btn-glow px-4 py-2.5 rounded-2xl text-xs font-black flex items-center gap-1.5 shadow-md shrink-0"
+            className="btn-glow px-4 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-md shrink-0"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Prescribe</span>
@@ -424,12 +283,40 @@ export const SignBridgeDoctorView: React.FC = () => {
         </div>
       </div>
 
-      {/* ─── 2. TWO-WAY REAL-TIME DUAL VIDEO CONSULTATION GRID ─────────────────── */}
+      {/* ─── 2. EMERGENCY TRIAGE BANNER (IF CRITICAL SIGN DETECTED) ─────────── */}
+      {patientDetectedSign.isEmergency && (
+        <div className="p-5 rounded-[24px] bg-gradient-to-r from-rose-600/30 via-red-500/20 to-orange-500/20 border-2 border-rose-500 text-white flex flex-col md:flex-row items-center justify-between gap-4 animate-fade-in shadow-2xl">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-rose-500 text-white flex items-center justify-center text-3xl font-black shrink-0 animate-bounce">
+              🚨
+            </div>
+            <div>
+              <h3 className="text-lg sm:text-xl font-black text-rose-200">
+                🚨 POSSIBLE EMERGENCY DETECTED
+              </h3>
+              <p className="text-xs sm:text-sm text-rose-100 font-medium">
+                Patient signaled: <strong>"{patientDetectedSign.text}"</strong>. Please verify symptoms immediately.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => handleSpeakPatientSign(patientDetectedSign.text)}
+              className="btn-glass px-4 py-2.5 rounded-xl text-xs font-bold text-white flex items-center gap-1.5"
+            >
+              <Volume2 className="w-4 h-4 text-amber-300" />
+              <span>Replay Voice</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ─── 3. MAIN SPLIT: DOCTOR NATURAL SPEECH -> ISL GLOSS & PATIENT STREAM ─ */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* ─── LEFT COLUMN: PATIENT VIDEO STREAM & PATIENT DETECTED SIGN ─── */}
+        {/* LEFT COLUMN: PATIENT VIDEO STREAM & DETECTED ISL GESTURE */}
         <div className="space-y-3">
-          <div className="relative rounded-[28px] overflow-hidden bg-gradient-to-tr from-slate-950 via-slate-900 to-indigo-950 border-2 border-emerald-500/40 shadow-2xl min-h-[340px] sm:min-h-[380px] flex flex-col items-center justify-center p-6 text-center">
-            {/* Patient Stream Representation */}
+          <div className="relative rounded-[28px] overflow-hidden bg-gradient-to-tr from-slate-950 via-slate-900 to-indigo-950 border-2 border-emerald-500/40 shadow-2xl min-h-[320px] sm:min-h-[360px] flex flex-col items-center justify-center p-6 text-center">
             <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-400 border-4 border-white shadow-2xl flex items-center justify-center text-5xl mb-3 relative">
               👤
               <span className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-emerald-400 border-2 border-white ring-2 ring-emerald-500 animate-pulse" />
@@ -439,231 +326,168 @@ export const SignBridgeDoctorView: React.FC = () => {
               Demo Patient (PAT-DEMO-000001)
             </h3>
             <p className="text-xs text-emerald-300 font-bold">
-              Age 68 • Living with Dementia • Indian Sign Language Active
+              Deaf / Non-Speaking • Indian Sign Language Camera Active
             </p>
 
-            {/* Top Overlay Badge */}
             <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none z-10">
               <div className="px-3 py-1 rounded-xl bg-black/75 backdrop-blur-md border border-white/20 text-white text-xs font-black flex items-center gap-1.5 shadow-md">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                <span>PATIENT LIVE STREAM</span>
+                <span>PATIENT LIVE CAMERA FEED</span>
               </div>
 
               <span className="px-2.5 py-1 rounded-xl bg-emerald-500/80 border border-emerald-400 text-white text-[11px] font-black">
-                Two-Way Connected
+                {patientDetectedSign.confidence}% AI Match
               </span>
             </div>
           </div>
 
-          {/* Under Patient Video: PATIENT TRANSLATED SIGN DISPLAY */}
-          <div className="p-4 rounded-[22px] card-3d border-2 border-emerald-500/50 bg-gradient-to-r from-emerald-950/40 to-teal-950/30 shadow-xl space-y-2.5">
+          {/* Patient Detected Sign Output Card */}
+          <div className="p-4 sm:p-5 rounded-[24px] card-3d border-2 border-emerald-500/50 bg-gradient-to-r from-emerald-950/40 to-teal-950/30 shadow-xl space-y-2.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs font-black uppercase text-emerald-300">
                 <HandMetal className="w-4 h-4" />
-                <span>🤟 Patient's Sign (Translated to You)</span>
+                <span>🤟 Patient Recognized ISL Sign</span>
               </div>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-[10px] font-mono text-emerald-200">
-                {patientIncomingSign.confidence}% Match
-              </span>
+              <button
+                type="button"
+                onClick={() => handleSpeakPatientSign(patientDetectedSign.text)}
+                className="btn-glass px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1 text-amber-300"
+              >
+                <Volume2 className="w-3.5 h-3.5" />
+                <span>Hear Voice</span>
+              </button>
             </div>
 
             <div className="p-3.5 rounded-xl bg-black/40 border border-emerald-500/30 space-y-1">
               <div className="text-xs font-bold text-emerald-200">Patient is saying:</div>
               <div className="text-2xl sm:text-3xl font-black text-emerald-400 flex items-center gap-2">
-                <span>{patientIncomingSign.icon || '🤟'}</span>
-                <span>"{patientIncomingSign.text}"</span>
+                <span>{patientDetectedSign.icon || '🤟'}</span>
+                <span>"{patientDetectedSign.text}"</span>
               </div>
-              {patientIncomingSign.hindiText && (
+              {patientDetectedSign.hindiText && (
                 <div className="text-xs font-bold text-emerald-300">
-                  ({patientIncomingSign.hindiText})
+                  ({patientDetectedSign.hindiText})
                 </div>
               )}
             </div>
-
-            {patientIncomingSign.isEmergency && (
-              <div className="p-2.5 rounded-xl bg-rose-500/20 border border-rose-500 text-rose-300 text-xs font-black flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-rose-400" />
-                <span>CRITICAL SYMPTOM ALERT: Patient signaled emergency discomfort!</span>
-              </div>
-            )}
           </div>
         </div>
 
-        {/* ─── RIGHT COLUMN: DOCTOR CAMERA & LOCAL SIGN RECOGNITION ─── */}
+        {/* RIGHT COLUMN: DOCTOR SPEECH INPUT & ISL GLOSS CONVERSION ENGINE */}
         <div className="space-y-3">
-          <div className="relative rounded-[28px] overflow-hidden bg-slate-950 border-2 border-[var(--border)] shadow-2xl min-h-[340px] sm:min-h-[380px] flex items-center justify-center">
-            <video
-              ref={doctorVideoRef}
-              autoPlay
-              playsInline
-              muted
-              className="w-full h-full object-cover scale-x-[-1] min-h-[340px] sm:min-h-[380px]"
-            />
-
-            {/* Top Overlay Bar */}
-            <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none z-10">
-              <div className="px-3 py-1 rounded-xl bg-black/75 backdrop-blur-md border border-white/20 text-white text-xs font-black flex items-center gap-1.5 shadow-md">
-                <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
-                <span>DOCTOR (YOU)</span>
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                <span className={`px-2.5 py-1 rounded-xl backdrop-blur-md text-[11px] font-black border ${
-                  doctorSignModeActive ? 'bg-purple-500/80 border-purple-400 text-white' : 'bg-slate-700/80 border-slate-600 text-slate-300'
-                }`}>
-                  ISL: {doctorSignModeActive ? 'ON' : 'OFF'}
+          {/* Natural Speech Mic & Input Box */}
+          <div className="p-5 rounded-[28px] card-3d border-2 border-purple-500/60 bg-[var(--bg-surface)] shadow-2xl space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Mic className="w-5 h-5 text-purple-400" />
+                <span className="text-xs font-black uppercase text-purple-300 tracking-wider">
+                  Doctor Natural Speech Input (Voice ➔ ISL)
                 </span>
               </div>
-            </div>
 
-            {/* Visual Sign Confirmation Toast */}
-            {showVisualConfirmation && (
-              <div className="absolute top-12 left-4 right-4 z-20 p-3 rounded-2xl bg-purple-600/90 backdrop-blur-md border-2 border-purple-400 text-white shadow-2xl flex items-center justify-between animate-fade-in">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-purple-200 shrink-0" />
-                  <div>
-                    <div className="text-[10px] font-black uppercase tracking-wider text-purple-200">✓ Doctor Sign Sent to Patient</div>
-                    <div className="text-sm font-black">{detectedDoctorSign}</div>
-                  </div>
-                </div>
-                <div className="text-xs font-mono font-bold px-2 py-0.5 bg-black/30 rounded-lg">
-                  {confidence}%
-                </div>
-              </div>
-            )}
-
-            {/* Gesture Tracking Reticle Frame */}
-            {doctorSignModeActive && (
-              <div className="absolute inset-x-8 inset-y-12 border-2 border-dashed border-purple-400/40 rounded-3xl pointer-events-none flex flex-col justify-between p-2">
-                <div className="flex justify-between text-[9px] font-mono text-purple-400/80">
-                  <span>SHOW_SIGN_HERE</span>
-                  <span>ISL_DOCTOR_CAM</span>
-                </div>
-                <div className="flex justify-between text-[9px] font-mono text-purple-400/80">
-                  <span>MOTION_CLASSIFIER_ACTIVE</span>
-                  <span>{confidence}%_CONF</span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Under Doctor Video: Sign Language Toggle & Detected Doctor Sign */}
-          <div className="p-4 rounded-[22px] card-3d border border-[var(--border)] space-y-2.5" style={{ backgroundColor: 'var(--bg-surface)' }}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs font-black uppercase text-[var(--text-secondary)]">
-                <HandMetal className="w-4 h-4 text-purple-400" />
-                <span>Your Sign Language (Doctor)</span>
-              </div>
-
+              {/* Big Speak Button */}
               <button
                 type="button"
-                onClick={handleToggleDoctorSignMode}
-                className={`px-3 py-1 rounded-xl text-xs font-black transition cursor-pointer ${
-                  doctorSignModeActive
-                    ? 'bg-purple-500/20 text-purple-300 border border-purple-400/40'
-                    : 'bg-slate-500/20 text-slate-400 border border-slate-500/30'
-                }`}
-              >
-                Sign Language: {doctorSignModeActive ? 'ON' : 'OFF'}
-              </button>
-            </div>
-
-            {/* Detected Sign Box */}
-            <div className="p-3 rounded-xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] space-y-1">
-              <div className="text-[11px] font-bold text-[var(--text-secondary)]">Detected Sign:</div>
-              <div className="text-xl sm:text-2xl font-black text-purple-400">
-                "{detectedDoctorSign}"
-              </div>
-              <div className="text-xs font-bold text-[var(--text-secondary)]">
-                ({detectedHindi})
-              </div>
-            </div>
-
-            {/* Voice Subtitles (Speech-to-Text) Controller */}
-            <div className="flex items-center justify-between pt-1">
-              <div className="flex items-center gap-2">
-                <Mic className="w-4 h-4 text-emerald-400" />
-                <span className="text-xs font-bold text-[var(--text-secondary)]">Voice Subtitles:</span>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleToggleSpeechRecognition}
-                className={`px-3 py-1 rounded-full text-xs font-black transition cursor-pointer flex items-center gap-1.5 ${
-                  isListeningStt
+                onClick={handleToggleSpeechMic}
+                className={`px-4 py-2 rounded-2xl text-xs font-black flex items-center gap-2 transition cursor-pointer shadow-lg ${
+                  isMicListening
                     ? 'bg-rose-500 text-white animate-pulse'
-                    : 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40'
+                    : 'btn-glow'
                 }`}
               >
-                <span className={`w-2 h-2 rounded-full ${isListeningStt ? 'bg-white' : 'bg-emerald-400'}`} />
-                <span>{isListeningStt ? 'Mic Live (Broadcasting)' : 'Start Voice Subtitles'}</span>
+                <Mic className={`w-4 h-4 ${isMicListening ? 'animate-bounce' : ''}`} />
+                <span>{isMicListening ? 'Mic Live (Listening...)' : '🎤 Speak Natural Sentence'}</span>
               </button>
+            </div>
+
+            {/* Doctor Spoken Sentence Form */}
+            <form onSubmit={(e) => { e.preventDefault(); handleProcessDoctorSpeech(doctorSpokenSentence); }} className="space-y-2">
+              <input
+                type="text"
+                value={doctorSpokenSentence}
+                onChange={e => setDoctorSpokenSentence(e.target.value)}
+                placeholder="Doctor can say or type any natural medical sentence..."
+                className="w-full p-3.5 text-sm font-bold rounded-2xl border border-[var(--border)] bg-[var(--input-bg)] text-[var(--input-text)] focus:outline-hidden"
+              />
+              <div className="flex justify-between items-center text-[11px] text-[var(--text-secondary)]">
+                <span>Supports English, Hindi & Hinglish natural sentences</span>
+                <button type="submit" className="btn-glass px-3 py-1 rounded-xl text-xs font-bold">
+                  Translate & Play on Patient Avatar ➔
+                </button>
+              </div>
+            </form>
+
+            {/* Live ISL Gloss Conversion Pipeline Display */}
+            <div className="p-4 rounded-2xl bg-purple-950/30 border border-purple-400/40 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <div className="text-[11px] font-black uppercase text-purple-300 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  <span>ISL Grammar Translation Pipeline:</span>
+                </div>
+                <span className="text-[10px] font-mono text-emerald-400 font-bold">
+                  {isConvertingToISL ? 'Converting...' : '✓ Synced with Patient Avatar'}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                {currentISLTranslation.tokens.map((tok, idx) => (
+                  <div
+                    key={idx}
+                    className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-black flex items-center gap-1.5 shadow-md"
+                  >
+                    <span>{tok.icon}</span>
+                    <span>[{tok.gloss}]</span>
+                  </div>
+                ))}
+              </div>
+
+              <p className="text-[11px] text-slate-300 font-medium">
+                The patient screen is actively rendering this sign sequence on the <strong>ISL Animated Avatar Player</strong>.
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ─── 3. 13 DOCTOR 1-TAP ISL GESTURE SHORTCUTS ──────────────────────────── */}
-      <div className="card-3d p-5 sm:p-6 rounded-[28px] border border-[var(--border)] space-y-4 shadow-xl" style={{ backgroundColor: 'var(--bg-surface)' }}>
+      {/* ─── 4. 16 DOCTOR CLINICAL ISL SHORTCUTS ───────────────────────────────── */}
+      <div className="card-3d p-6 rounded-[28px] border border-[var(--border)] space-y-4 shadow-xl" style={{ backgroundColor: 'var(--bg-surface)' }}>
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-300" />
-            <h2 className="text-base sm:text-lg font-black text-[var(--text-primary)]">
-              Doctor Clinical Sign Library (13 ISL Shortcuts)
+            <Sparkles className="w-5 h-5 text-amber-300" />
+            <h2 className="text-lg sm:text-xl font-black text-[var(--text-primary)]">
+              Doctor 1-Tap Clinical Signs (Broadcasts Directly to Patient Avatar)
             </h2>
           </div>
           <span className="text-xs text-[var(--text-secondary)] font-bold">
-            Tap any card to sign & transmit to patient screen immediately
+            Tap any sentence to generate & play animated ISL signs on patient screen
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2.5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-2.5">
           {DOCTOR_ISL_DICTIONARY.map(sign => (
             <button
               key={sign.id}
               type="button"
-              onClick={() => handleSelectDoctorShortcut(sign.id)}
-              className="p-3 rounded-2xl border text-left flex flex-col justify-between transition cursor-pointer active:scale-95 shadow-xs min-h-[90px] bg-[var(--bg-surface-secondary)] border-[var(--border)] hover:border-purple-400/60 hover:bg-purple-500/10 text-[var(--text-primary)]"
+              onClick={() => handleSelectDoctorShortcut(sign)}
+              className="p-3 rounded-2xl border text-left flex flex-col justify-between transition cursor-pointer active:scale-95 shadow-xs min-h-[95px] bg-[var(--bg-surface-secondary)] border-[var(--border)] hover:border-purple-400/60 hover:bg-purple-500/10 text-[var(--text-primary)]"
             >
               <div className="flex items-center justify-between">
                 <span className="text-xl">{sign.icon}</span>
-                <span className="px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 text-[9px] font-bold">
+                <span className="px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 text-[8px] font-bold">
                   {sign.category}
                 </span>
               </div>
 
               <div className="space-y-0.5 mt-2">
-                <div className="text-xs font-black leading-snug">
-                  {sign.label}
-                </div>
-                <div className="text-[10px] text-[var(--text-secondary)] font-bold truncate">
-                  {sign.hindi}
-                </div>
+                <div className="text-xs font-black leading-snug">{sign.label}</div>
+                <div className="text-[10px] text-[var(--text-secondary)] font-bold truncate">{sign.hindi}</div>
               </div>
             </button>
           ))}
         </div>
-
-        {/* Custom Text Chat Form */}
-        <form onSubmit={handleSendCustomDoctorMessage} className="flex gap-2 pt-2 border-t border-[var(--border)]">
-          <input
-            type="text"
-            value={customMsg}
-            onChange={e => setCustomMsg(e.target.value)}
-            placeholder="Type custom clinical message to patient..."
-            className="flex-1 px-4 py-2.5 text-xs rounded-xl border border-[var(--border)] bg-[var(--input-bg)] text-[var(--input-text)] focus:outline-hidden"
-          />
-          <button
-            type="submit"
-            className="btn-glow px-5 py-2.5 rounded-xl text-xs font-black flex items-center justify-center gap-1.5"
-          >
-            <Send className="w-3.5 h-3.5" />
-            <span>Send</span>
-          </button>
-        </form>
       </div>
 
-      {/* ─── 4. PRESCRIPTION MODAL ───────────────────────────────────────────── */}
+      {/* ─── 5. PRESCRIPTION MODAL ───────────────────────────────────────────── */}
       {showPrescriptionModal && (
         <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="card-3d max-w-md w-full p-6 rounded-[28px] border border-[var(--border)] space-y-4 shadow-2xl" style={{ backgroundColor: 'var(--bg-surface)' }}>

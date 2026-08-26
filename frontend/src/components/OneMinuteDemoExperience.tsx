@@ -34,7 +34,9 @@ import {
   MessageCircle,
   Zap,
   Check,
-  Star
+  Star,
+  GraduationCap,
+  Briefcase
 } from 'lucide-react';
 import { Abha3DOrb } from './Abha3DOrb';
 import { ambientMusic } from '../services/ambientMusicService';
@@ -48,6 +50,7 @@ interface StageConfig {
   badge: string;
   icon: string;
   storyChapter: string;
+  targetAudience: string;
   cartoonScene: {
     bgGradient: string;
     settingLabel: string;
@@ -81,340 +84,343 @@ const STAGES: StageConfig[] = [
     id: 1,
     startSec: 0,
     endSec: 22,
-    title: 'Chapter 1: Morning in New Delhi with Dadaji',
-    subtitle: '72-year-old retired teacher Arun Das and his daughter Dr. Anita',
-    badge: 'SCENE 01 • THE AGING CHALLENGE',
-    icon: '🏡',
-    storyChapter: 'Scene 1: Morning Dilemma at Home',
+    title: 'Chapter 1: One AI Companion for the Entire Family',
+    subtitle: 'From kids & students, to busy working adults, to beloved grandparents',
+    badge: 'SCENE 01 • FOR ALL GENERATIONS',
+    icon: '👨‍👩‍👧‍👦',
+    storyChapter: 'Scene 1: Universal Family AI Care',
+    targetAudience: '👧 Kids (5+) • 💼 Adults (18-60) • 👴 Seniors (60+)',
     cartoonScene: {
       bgGradient: 'from-amber-100 via-orange-50 to-amber-50 dark:from-slate-900 dark:via-purple-950 dark:to-slate-900',
-      settingLabel: '🏠 Cozy Living Room • 08:00 AM',
+      settingLabel: '🏡 The Das Household • 3 Generations Living Together',
       characterA: {
-        name: 'Dadaji (Mr. Arun Das, 72)',
-        role: 'Grandfather',
-        emoji: '👴',
-        actionText: 'Sitting on sofa searching for medicine strip',
-        dialogue: 'Subah ki dawai li thi ya nahi? Paani kitna piya tha? 🤔',
-        dialogueType: 'thought'
-      },
-      characterB: {
-        name: 'Dr. Anita (Daughter, 42)',
-        role: 'Doctor & Caregiver',
-        emoji: '👩‍⚕️',
-        actionText: 'Rushing to hospital clinic shift with stethoscope',
-        dialogue: 'Papa, chinta mat kijiye! Aabha tablet par sab bata degi! 👋',
+        name: 'Dadaji (Arun, 72) & Priya (9)',
+        role: 'Grandfather & Granddaughter',
+        emoji: '👴👧',
+        actionText: 'Planning their morning routine & brain game session',
+        dialogue: 'Aabha sirf mere liye nahi, meri poti Priya aur beti Anita ke liye bhi hai! ❤️',
         dialogueType: 'speech'
       },
-      companionAction: 'AABHA Orb floats gently, winking with reassuring smile ✨',
-      keyPropEmoji: '💊',
-      keyPropLabel: 'Morning Pill Box',
-      outcomePill: 'Dignified Self-Care Needed'
+      characterB: {
+        name: 'Dr. Anita (Working Mom, 42)',
+        role: 'Busy Doctor & Caregiver',
+        emoji: '👩‍⚕️',
+        actionText: 'Managing work-life balance and family health schedules',
+        dialogue: 'Hum sab Aabha ka use karte hain — study, routine aur health sab ek jagah! ✨',
+        dialogueType: 'speech'
+      },
+      companionAction: 'AABHA Orb floats between generations with smiling glowing eyes ✨',
+      keyPropEmoji: '🌟',
+      keyPropLabel: 'All-in-One Family Hub',
+      outcomePill: 'Empowering Minds from Age 5 to 95'
     },
     narrationSentences: [
-      'Welcome to the animated story of Aabha AI, an intelligent daily companion for elderly care.',
-      'In a quiet morning living room in Delhi, meet seventy-two-year-old grandfather Arun Das, fondly called Dadaji.',
-      'Like millions of Indian elders, Dadaji wants to stay independent, but mild memory lapses make remembering medicines and water intake stressful.',
-      'His daughter, Doctor Anita, worries about his daily care while working long shifts at the hospital clinic.',
-      'Aabha AI enters their home to transform everyday routines into joyful, guided interactions.'
+      'Welcome to Aabha AI — an intelligent cognitive and daily-life companion built for everyone.',
+      'Aabha AI is not designed solely for seniors. It is a universal cognitive ecosystem for all three generations.',
+      'From students like nine-year-old Priya sharpening their focus and memory, to working professionals like Doctor Anita organizing daily productivity, to seniors like Dadaji maintaining independent health routines.',
+      'Aabha AI brings the entire family together under one simple, empathetic, and intelligent platform.'
     ],
     narrationSentencesHindi: [
-      'आभा एआई की एनिमेटेड कहानी में आपका स्वागत है, जो बुजुर्गों के जीवन में खुशियों का रंग भरती है।',
-      'नई दिल्ली के एक शांत घर में मिलते हैं 72 वर्षीय दादाजी, श्री अरुण दास जी से।',
-      'दादाजी स्वावलंबी रहना चाहते हैं, लेकिन कभी-कभी सुबह की दवाई और पानी का समय याद रखना मुश्किल हो जाता है।',
-      'उनकी डॉक्टर बेटी अनिता अस्पताल में काम करते हुए भी पिता की सेहत को लेकर चिंतित रहती हैं।',
-      'इसीलिए उनके जीवन में आती है आभा एआई, जो हर दिनचर्या को आसान और तनावमुक्त बनाती है।'
+      'आभा एआई में आपका स्वागत है — जो सिर्फ बुजुर्गों के लिए ही नहीं, बल्कि हर उम्र के व्यक्ति के लिए एक संपूर्ण कॉग्निटिव साथी है।',
+      'यह तीन पीढ़ियों का एक साझा डिजिटल संबल है।',
+      'नन्हीं प्रिया अपनी एकाग्रता और याददाश्त बढ़ाती है, डॉक्टर अनिता अपने व्यस्त दिन का प्रबंधन करती हैं, और दादाजी अपनी सेहत व दवाइयों का ध्यान रखते हैं।',
+      'आभा एआई पूरे परिवार के मानसिक स्वास्थ्य और दिनचर्या को एक साथ जोड़ती है।'
     ]
   },
   {
     id: 2,
     startSec: 22,
     endSec: 45,
-    title: 'Chapter 2: Dadaji Taps the Big Glowing Tablet',
-    subtitle: '1-Tap medicine checkoff and water logging on high-contrast screen',
-    badge: 'SCENE 02 • ACCESSIBLE MORNING',
-    icon: '☕',
-    storyChapter: 'Scene 2: Breakfast Table & 1-Tap Dashboard',
+    title: 'Chapter 2: Daily Routines & Habit Tracking for All Ages',
+    subtitle: 'Medication for seniors, hydration for busy adults, study habits for kids',
+    badge: 'SCENE 02 • UNIVERSAL ROUTINES',
+    icon: '📅',
+    storyChapter: 'Scene 2: Multi-User Habit Dashboard',
+    targetAudience: 'Medication Alarms • Hydration Goals • Task Management',
     cartoonScene: {
       bgGradient: 'from-emerald-50 via-teal-50 to-cyan-50 dark:from-slate-900 dark:via-teal-950 dark:to-slate-900',
-      settingLabel: '☕ Breakfast Table • 08:30 AM',
+      settingLabel: '☕ Morning Routine Station • 08:30 AM',
       characterA: {
-        name: 'Dadaji',
-        role: 'Grandfather',
-        emoji: '👴',
-        actionText: 'Tapping large glowing green button on tablet',
-        dialogue: 'Arey waah! Chashme ke bina bhi sab saaf dikh raha hai! 😄',
+        name: 'Dadaji & Priya',
+        role: 'Routine Partners',
+        emoji: '👴👧',
+        actionText: 'Dadaji checks morning pill, Priya marks her morning milk & study goal',
+        dialogue: 'Maine apni dawai le li aur Priya ne apna study time table check kiya! 🥛💊',
         dialogueType: 'speech'
       },
-      companionAction: 'Aabha Tablet displays: Donepezil (5mg) Confirmed! 💧 Glass 1/6 Logged!',
+      companionAction: 'Donepezil Checked ✓ | Water 2/6 Logged ✓ | Math Study Scheduled ✓',
       keyPropEmoji: '📱',
-      keyPropLabel: 'High-Contrast Aabha Tablet',
-      outcomePill: '100% Morning Medicine Logged ✓'
+      keyPropLabel: 'Adaptive Multi-User Dashboard',
+      outcomePill: '100% Habit Adherence for Everyone'
     },
     narrationSentences: [
-      'At the breakfast table, Dadaji sits comfortably with his morning tea and tablet.',
-      'Aabha AI presents large, colorful touch buttons designed specifically for senior eyes and fingers.',
-      'With a single joyful tap, Dadaji logs his Donepezil medicine and drinks his first glass of warm water.',
-      'A cheerful green checkmark pops up on screen, giving him immediate confidence without needing reading glasses.',
-      'Emergency SOS and hydration progress stay permanently visible at the top of the screen.'
+      'Every family member has unique daily goals.',
+      'While Dadaji logs his morning Donepezil medication and warm water with large 1-tap touch buttons, Priya checks off her school study schedule and morning milk.',
+      'Anita tracks her office hydration targets and parent health updates in real-time.',
+      'The interface adapts automatically: high-contrast for seniors, engaging colors for children, and clean productivity metrics for working adults.'
     ],
     narrationSentencesHindi: [
-      'नाश्ते की मेज पर दादाजी अपनी सुबह की चाय के साथ टैबलेट लेकर बैठते हैं।',
-      'आभा एआई का बड़ा और रंगीन इंटरफेस खास बुजुर्गों की आँखों के लिए तैयार किया गया है।',
-      'दादाजी सिर्फ एक हल्के टैप से अपनी डोनेपेज़िल दवाई और पानी का पहला गिलास टिक कर देते हैं।',
-      'स्क्रीन पर तुरंत चमकता हुआ हरा निशान आ जाता है, जिससे उन्हें बिना चश्मे के भी पूरा भरोसा रहता है।'
+      'परिवार के हर सदस्य की अपनी ज़रूरतें होती हैं।',
+      'जहाँ दादाजी बड़े बटनों से अपनी डोनेपेज़िल दवाई टिक करते हैं, वहीं प्रिया अपने स्कूल और पढ़ाई का शेड्यूल देखती है।',
+      'डॉक्टर अनिता अपने पानी के लक्ष्य और क्लिनिक के समय का ध्यान रखती हैं।',
+      'यह इंटरफेस हर उम्र के अनुसार खुद को ढाल लेता है।'
     ]
   },
   {
     id: 3,
     startSec: 45,
     endSec: 75,
-    title: 'Chapter 3: Chatting with Aabha on the Balcony',
-    subtitle: 'Zero-hallucination conversational voice care in natural Hindi and English',
-    badge: 'SCENE 03 • VOICE COMPANION',
+    title: 'Chapter 3: Conversational Voice Companion for All Queries',
+    subtitle: 'From student brain riddles & schedules to elder reminders in 5 regional languages',
+    badge: 'SCENE 03 • MULTI-USER VOICE',
     icon: '🎤',
-    storyChapter: 'Scene 3: Balcony Tea & Friendly AI Voice',
+    storyChapter: 'Scene 3: Voice Dialogue for Every Generation',
+    targetAudience: 'Hindi • English • Bengali • Marathi • Assamese',
     cartoonScene: {
       bgGradient: 'from-purple-100 via-indigo-50 to-pink-50 dark:from-slate-900 dark:via-indigo-950 dark:to-slate-900',
-      settingLabel: '🪴 Sunny Balcony Garden • 09:00 AM',
+      settingLabel: '🪴 Balcony Lounge • 09:00 AM',
       characterA: {
-        name: 'Dadaji',
-        role: 'Grandfather',
-        emoji: '👴',
-        actionText: 'Sipping hot tea, speaking warmly into the air',
-        dialogue: 'Aabha, mera aaj ka kya program hai beta? 🗣️',
+        name: 'Priya & Dadaji',
+        role: 'Voice Users',
+        emoji: '👧👴',
+        actionText: 'Priya asks a riddle, Dadaji asks for his afternoon schedule',
+        dialogue: 'Priya: "Aabha, tell me a brain puzzle!" | Dadaji: "Aabha, mera routine kya hai?" 🗣️',
         dialogueType: 'speech'
       },
       characterB: {
-        name: 'Aabha AI (3D Voice Companion)',
-        role: 'Intelligent AI Companion',
+        name: 'Aabha AI (Voice Companion)',
+        role: 'Deterministic AI Assistant',
         emoji: '🤖',
-        actionText: 'Pulsing with warm purple voice waves and cheerful smile',
-        dialogue: 'Namaste Arun ji! 01:00 PM par lunch aur Memantine dawai hai, fir 5 baje park walk! ✨',
+        actionText: 'Intelligently answering both student puzzle and elder health query',
+        dialogue: 'Priya ke liye puzzle: What has hands but cannot clap? A clock! Aur Arun ji, lunch 1:00 PM par hai! ✨',
         dialogueType: 'speech'
       },
-      companionAction: 'Deterministic SQL database retrieval with ZERO hallucinations',
-      keyPropEmoji: '☕',
-      keyPropLabel: 'Steaming Cup of Chai',
-      outcomePill: '0.3s Speech Intent Resolution'
+      companionAction: 'Zero medical hallucination with contextual multi-user intent routing',
+      keyPropEmoji: '🎙️',
+      keyPropLabel: 'Voice Waveform Radiator',
+      outcomePill: 'Multi-Lingual Voice for Ages 5 to 95'
     },
     narrationSentences: [
-      'Sitting in his balcony among blooming flower pots, Dadaji speaks naturally to Aabha.',
-      'He asks warmly in Hindi: "Aabha, what is my schedule today?"',
-      'Aabha AI responds with human warmth, fetching exact stored records from local memory with zero hallucination.',
-      'She gently reminds him of lunch at one o clock, his afternoon Memantine dose, and his evening stroll.',
-      'Multi-lingual voice technology supports Hindi, English, Bengali, Assamese, and Marathi seamlessly.'
+      'Aabha AI\'s voice companion adapts its conversational personality to whoever is speaking.',
+      'When young Priya asks for an educational brain riddle or vocabulary quiz, Aabha engages her with cheerful enthusiasm.',
+      'When Dadaji asks for his medication schedule, Aabha replies with calm clarity, retrieving exact records from local storage with zero hallucination.',
+      'Multi-lingual support across five regional Indian languages makes conversational care feel natural for everyone in the home.'
     ],
     narrationSentencesHindi: [
-      'बालकनी में फूलों के बीच चाय पीते हुए दादाजी प्यार से पूछते हैं: "आभा, मेरा आज का क्या कार्यक्रम है?"',
-      'आभा एआई एक परिवार के सदस्य की तरह विनम्रता और मिठास से जवाब देती है।',
-      'वह बिना किसी गलती के असली डेटाबेस से दोपहर के भोजन, दवाई और शाम की सैर का सही समय बताती है।',
-      'यह बहुभाषी तकनीक हिंदी, अंग्रेजी, मराठी, बंगाली और असमिया में सहज बातचीत करती है।'
+      'आभा वॉइस असिस्टेंट बात करने वाले की उम्र के अनुसार अपना स्वभाव बदल लेती है।',
+      'जब नन्हीं प्रिया दिमागी पहेलियाँ या क्विज़ पूछती है, तो आभा उत्साह से जवाब देती है।',
+      'और जब दादाजी दवाइयों का समय पूछते हैं, तो आभा शांत और स्पष्ट आवाज़ में सही जानकारी देती है।',
+      'हिंदी, अंग्रेजी, मराठी, बंगाली और असमिया में यह हर किसी के लिए सहज और आत्मीय है।'
     ]
   },
   {
     id: 4,
     startSec: 75,
     endSec: 110,
-    title: 'Chapter 4: Brain Games with Granddaughter Priya',
-    subtitle: 'Memory Match & Routine Ordering turning brain exercise into family fun',
-    badge: 'SCENE 04 • COGNITIVE PLAYROOM',
-    icon: '🎴',
-    storyChapter: 'Scene 4: Joyful Intergenerational Gaming',
+    title: 'Chapter 4: Brain Training & Cognitive Games for All Minds',
+    subtitle: '6 scientifically proven cognitive exercises for children, students, and seniors',
+    badge: 'SCENE 04 • BRAIN GYM FOR ALL',
+    icon: '🧠',
+    storyChapter: 'Scene 4: Cognitive Training for All Ages',
+    targetAudience: 'Focus • Spatial Memory • Reaction Speed • Logic',
     cartoonScene: {
       bgGradient: 'from-amber-50 via-yellow-50 to-pink-50 dark:from-slate-900 dark:via-purple-950 dark:to-slate-900',
-      settingLabel: '🎨 Playroom Carpet • 03:00 PM',
+      settingLabel: '🎨 Cognitive Playroom • 03:00 PM',
       characterA: {
-        name: 'Dadaji',
-        role: 'Grandfather',
-        emoji: '👴',
-        actionText: 'Flipping colorful apple and flower memory cards',
-        dialogue: 'Mil gaya! Apple ke saath Apple! Mera score 85% ho gaya! 🎯',
+        name: 'Priya & Dadaji',
+        role: 'Brain Game Duo',
+        emoji: '👧👴',
+        actionText: 'Playing Memory Match and Reaction Speed games together',
+        dialogue: 'Dadu ki accuracy 85% aur mera reaction speed 1.2s! Hum dono master ban gaye! 🎮',
         dialogueType: 'speech'
       },
       characterB: {
-        name: 'Priya (Granddaughter, Age 9)',
-        role: 'Grandchild Cheerleader',
-        emoji: '👧',
-        actionText: 'Clapping hands and jumping with celebration confetti',
-        dialogue: 'Yayyy Dadu! Aapne saare pairs match kar diye! Super Dadu! 🎉',
+        name: 'Dr. Anita',
+        role: 'Cheering Mom',
+        emoji: '👩‍⚕️',
+        actionText: 'Watching kids and elders sharpen their minds through play',
+        dialogue: 'Games designed for all ages — no clinical boring tests, just pure brain health! 🎉',
         dialogueType: 'speech'
       },
-      companionAction: 'Real-time tracking of 85% accuracy and 1.8s reaction latency',
-      keyPropEmoji: '🎴',
-      keyPropLabel: 'Interactive Cartoon Cards',
-      outcomePill: 'Visual Recall Score: 85% Accuracy'
+      companionAction: '6 Cognitive Games: Memory Match, Stroop Focus, Routine Ordering & Reflex Speed',
+      keyPropEmoji: '🎯',
+      keyPropLabel: 'Cognitive Science Grid',
+      outcomePill: 'Memory: 85% Accuracy • Speed: 1.8s'
     },
     narrationSentences: [
-      'In the afternoon, nine-year-old granddaughter Priya joins Dadaji on the colorful living room rug.',
-      'Together they play Memory Match and Daily Routine Ordering on the tablet.',
-      'While it feels like joyful playtime, Aabha AI precisely measures Dadaji\'s visual recall, card matching accuracy, and reaction speed.',
-      'Dadaji achieves an impressive eighty-five percent score with a swift one point eight second response time.',
-      'Priya cheers with confetti, turning cognitive wellness into warm intergenerational bonding.'
+      'Cognitive stimulation is vital at every stage of life.',
+      'Children need to develop spatial memory and concentration for school.',
+      'Working adults need to reduce cognitive fatigue and stress.',
+      'Seniors need to preserve neuroplasticity and memory recall.',
+      'Aabha AI provides six gamified exercises — from Memory Match and Daily Routine Ordering to Color Stroop Focus — turning brain exercise into a fun family competition.'
     ],
     narrationSentencesHindi: [
-      'दोपहर में 9 साल की नन्हीं पोती प्रिया दादाजी के साथ गेम खेलने आ जाती है।',
-      'दोनों मिलकर टैबलेट पर मेमोरी मैच और रूटीन कार्ड्स के जोड़े बनाते हैं।',
-      'यह खेल केवल मनोरंजन नहीं है—आभा एआई बैकग्राउंड में दादाजी की याददाश्त और रिफ्लेक्स गति को मापती है।',
-      'दादाजी 85% की शानदार एक्यूरेसी लाते हैं और प्रिया तालियाँ बजाकर खुशी से झूम उठती है।'
+      'मस्तिष्क का व्यायाम हर उम्र के लिए बेहद ज़रूरी है।',
+      'बच्चों को पढ़ाई के लिए एकाग्रता चाहिए, युवाओं को तनाव से मुक्ति, और बुजुर्गों को मजबूत याददाश्त।',
+      'आभा एआई 6 वैज्ञानिक गेम्स प्रदान करती है—मेमोरी मैच, कलर स्ट्रोप और रूटीन ऑर्डरिंग।',
+      'यह उबाऊ टेस्ट के बजाय एक मजेदार पारिवारिक खेल बन जाता है।'
     ]
   },
   {
     id: 5,
     startSec: 110,
     endSec: 135,
-    title: 'Chapter 5: The AI Brain Levels Up!',
-    subtitle: 'Adaptive AI Engine dynamically scales difficulty to Level 3',
-    badge: 'SCENE 05 • ADAPTIVE AI LAB',
-    icon: '🧠',
-    storyChapter: 'Scene 5: Real-Time Neuro-Stimulation Scaling',
+    title: 'Chapter 5: Adaptive AI Engine Personalizing Every Profile',
+    subtitle: 'Speed challenges for adults, learning curves for kids, gentle pacing for elders',
+    badge: 'SCENE 05 • ADAPTIVE AI ENGINE',
+    icon: '⚡',
+    storyChapter: 'Scene 5: Multi-Tier Adaptive Intelligence',
+    targetAudience: 'Automatic Pacing & Difficulty Calibration',
     cartoonScene: {
       bgGradient: 'from-cyan-50 via-teal-50 to-emerald-50 dark:from-slate-900 dark:via-cyan-950 dark:to-slate-900',
-      settingLabel: '⚡ Aabha AI Neural Engine Core',
+      settingLabel: '⚡ Aabha Adaptive Neural Calibration Lab',
       characterA: {
-        name: 'Dadaji',
-        role: 'Grandfather',
-        emoji: '👴',
-        actionText: 'Smiling proudly as gold stars burst onto the screen',
-        dialogue: 'Level 3 aa gaya! Ab aur mazaa aayega! ⭐⭐⭐',
+        name: 'Dadaji & Priya',
+        role: 'Level Up Champions',
+        emoji: '👴👧',
+        actionText: 'Both unlock their personalized adaptive difficulty stages',
+        dialogue: 'Priya ko hard math patterns mile, mujhe 4x4 card grid! Sabke liye alag challenge! ⭐',
         dialogueType: 'speech'
       },
       characterB: {
-        name: 'Adaptive AI Engine',
-        role: 'Neuro-Calibrator',
+        name: 'Adaptive AI Brain',
+        role: 'Smart Calibration Engine',
         emoji: '🧠',
-        actionText: 'Pulsing glowing neural wires and expanding 4x4 card grid',
-        dialogue: 'Performance > 80% Detected ➔ Unlocking Level 3 Challenges! 🚀',
+        actionText: 'Dynamically tailoring cognitive tasks based on individual age & latency',
+        dialogue: 'Profile: Priya (Kid ➔ Speed Boost) | Profile: Arun (Senior ➔ Memory Focus) 🚀',
         dialogueType: 'speech'
       },
-      companionAction: 'Dynamically scales difficulty without frustration or fatigue',
-      keyPropEmoji: '⭐',
-      keyPropLabel: '3 Gold Stars & Badge',
-      outcomePill: 'Adaptive Scaling: Level 2 ➔ Level 3'
+      companionAction: 'Calibrates pacing based on user age bracket and real-time accuracy',
+      keyPropEmoji: '⚡',
+      keyPropLabel: 'Dynamic AI Difficulty Meter',
+      outcomePill: 'Personalized Neuro-Pacing for Everyone'
     },
     narrationSentences: [
-      'Inside the system, our Adaptive AI Engine evaluates Dadaji\'s progress in real time.',
-      'Because his recall accuracy exceeded eighty percent, the engine automatically upgrades his difficulty to Level 3.',
-      'It expands the card grid to four by four, introducing gentle cognitive distractor elements.',
-      'The personalization engine automatically queues his next activity: Daily Routine Chronological Ordering.',
-      'This guarantees the brain exercises remain engaging, rewarding, and never frustrating.'
+      'Our Adaptive AI Engine is profile-aware.',
+      'It dynamically calibrates the challenge based on the active user profile.',
+      'For children like Priya, it increases pace to train rapid reflex decisions.',
+      'For elders like Dadaji, it gently scales from Level 2 to Level 3, introducing distractor cards while preserving psychological comfort and confidence.',
+      'This guarantees personalized mental stimulation without fatigue or anxiety.'
     ],
     narrationSentencesHindi: [
-      'सिस्टम के अंदर आभा का एडेप्टिव एआई इंजन दादाजी के प्रदर्शन का लाइव विश्लेषण करता है।',
-      '85% का शानदार स्कोर देखकर एआई इंजन गेम को लेवल 2 से लेवल 3 में अपग्रेड कर देता है।',
-      'कार्ड ग्रिड बड़ा हो जाता है और नए दिलचस्प पैटर्न आते हैं ताकि दिमाग की कसरत होती रहे।',
-      'यह एडेप्टिव तकनीक दिमाग को हमेशा सक्रिय रखती है और किसी भी तरह की निराशा से बचाती है।'
+      'हमारा एडेप्टिव एआई इंजन हर प्रोफाइल को पहचानता है।',
+      'बच्चों के लिए यह रिफ्लेक्स और स्पीड बढ़ाता है, और बुजुर्गों के लिए सहजता से लेवल 2 से लेवल 3 में अपग्रेड करता है।',
+      'यह सुनिश्चित करता है कि दिमाग को सही चुनौती मिले और कोई तनाव या निराशा न हो।'
     ]
   },
   {
     id: 6,
     startSec: 135,
     endSec: 155,
-    title: 'Chapter 6: Dr. Anita Checks from Hospital Clinic',
-    subtitle: 'Caregiver Portal with 4-Pillar cognitive radar and peace of mind',
-    badge: 'SCENE 06 • CAREGIVER CLINIC',
-    icon: '🏥',
-    storyChapter: 'Scene 6: Remote Peace of Mind at Work',
+    title: 'Chapter 6: Family & Caregiver 4-Pillar Analytics',
+    subtitle: 'Unified dashboard to monitor cognitive health, habits, and alerts',
+    badge: 'SCENE 06 • CAREGIVER & CLINIC',
+    icon: '📊',
+    storyChapter: 'Scene 6: Holistic Family Health Radar',
+    targetAudience: 'Memory • Attention • Speed • Consistency',
     cartoonScene: {
       bgGradient: 'from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-blue-950 dark:to-slate-900',
-      settingLabel: '🏥 Hospital Clinic Desk • 04:30 PM',
+      settingLabel: '🏥 Hospital Clinic Desk & Family Phone View',
       characterA: {
         name: 'Dr. Anita Verma',
-        role: 'Doctor & Daughter',
+        role: 'Doctor & Family Caregiver',
         emoji: '👩‍⚕️',
-        actionText: 'Checking Aabha Caregiver Portal on her smartphone',
-        dialogue: 'Papa ki Memory 82%, saari dawai time par li! Dil ko kitna sukoon milta hai! 💚',
+        actionText: 'Reviewing 4-pillar analytics for Dadaji and study streak for Priya',
+        dialogue: 'Ek hi app se father ki health aur beti ki study habits dono monitor ho jati hain! 💚',
         dialogueType: 'thought'
       },
-      companionAction: 'Live 4-Pillar Radar: Memory 82%, Attention 76%, Speed 1.8s, Consistency 84%',
+      companionAction: '4-Pillars: Memory 82%, Attention 76%, Speed 1.8s, Consistency 84% 🔥',
       keyPropEmoji: '🩺',
-      keyPropLabel: 'Stethoscope & Clinic Phone',
-      outcomePill: 'Caregiver Status: 100% Peace of Mind'
+      keyPropLabel: 'Family Health Analytics Phone',
+      outcomePill: 'Complete Family Transparency & Peace of Mind'
     },
     narrationSentences: [
-      'Meanwhile, across the city at the hospital clinic, Doctor Anita takes a quick break.',
-      'She opens the Caregiver Portal on her phone and sees the live four-pillar cognitive health overview.',
-      'Memory Score is at eighty-two percent, Attention at seventy-six percent, and all three daily medications are confirmed.',
-      'Smart non-diagnostic alerts reassure her that her father is safe, active, and thriving at home.'
+      'From her clinic desk, Doctor Anita accesses the comprehensive family caregiver dashboard.',
+      'She monitors Dadaji\'s four non-diagnostic cognitive indicators: Memory at eighty-two percent, Attention at seventy-six percent, and confirmed medication routines.',
+      'At the same time, she checks Priya\'s focus streaks and brain game scores.',
+      'Doctors and caregivers receive transparent summaries and priority alerts, bridging families even across busy workdays.'
     ],
     narrationSentencesHindi: [
-      'इसी बीच, अस्पताल में मरीजों को देखने के बाद डॉक्टर अनिता अपने फोन पर आभा पोर्टल खोलती हैं।',
-      'उन्हें पिता के 4 मुख्य स्तंभों का लाइव ग्राफ दिखता है: मेमोरी 82%, अटेंशन 76%, और सभी दवाइयाँ समय पर पूरी।',
-      'स्मार्ट अलर्ट्स उन्हें आश्वस्त करते हैं कि घर पर पिता पूरी तरह सुरक्षित और खुश हैं।'
+      'अपने क्लिनिक से डॉक्टर अनिता पूरे परिवार का हेल्थ और एक्टिविटी डैशबोर्ड देखती हैं।',
+      'वे पिता के 4 मुख्य स्तंभ—मेमोरी 82%, अटेंशन 76%, और समय पर दवाइयों की पुष्टि देखती हैं।',
+      'साथ ही वे प्रिया के स्टडी और गेमिंग स्कोर पर भी नज़र रखती हैं।',
+      'यह तकनीक कामकाजी लोगों और डॉक्टरों को पूरे परिवार का भरोसा देती है।'
     ]
   },
   {
     id: 7,
     startSec: 155,
     endSec: 170,
-    title: 'Chapter 7: Evening Park Walk with Zero Internet',
-    subtitle: 'Offline-first vault chimes on time and auto-syncs upon returning home',
-    badge: 'SCENE 07 • OFFLINE PARK WALK',
-    icon: '🌳',
-    storyChapter: 'Scene 7: Offline-First Reliability',
+    title: 'Chapter 7: 100% Offline Vault for School, Park & Travel',
+    subtitle: 'Works completely offline in villages, parks, buses, and remote areas',
+    badge: 'SCENE 07 • OFFLINE ANYWHERE',
+    icon: '📡',
+    storyChapter: 'Scene 7: Offline-First Everywhere',
+    targetAudience: 'Local SQLite/IndexedDB • Auto Cloud Sync',
     cartoonScene: {
       bgGradient: 'from-emerald-50 via-green-50 to-teal-50 dark:from-slate-900 dark:via-emerald-950 dark:to-slate-900',
-      settingLabel: '🌳 Green Community Park • 05:30 PM (0 Bars)',
+      settingLabel: '🌳 Park Walk & Travel • Zero Internet Connectivity',
       characterA: {
-        name: 'Dadaji',
-        role: 'Grandfather',
-        emoji: '👴',
-        actionText: 'Enjoying evening walk in fresh park breeze',
-        dialogue: 'Park me network nahi hai, fir bhi Aabha ne time par paani pine ki ghanti bajayi! 🔔',
+        name: 'Dadaji & Priya',
+        role: 'Outdoor Walkers',
+        emoji: '👴👧',
+        actionText: 'Walking outdoors with zero mobile signal; Aabha continues working',
+        dialogue: 'Priya ne bus me game khela, maine park me reminder suna — bina internet ke bhi 100% chalta hai! 🔔',
         dialogueType: 'speech'
       },
-      companionAction: 'Cloud shows ☁️❌ Offline Vault Active ➔ Returning Home ➔ 🟢 Wi-Fi Auto-Synced!',
-      keyPropEmoji: '🌳',
-      keyPropLabel: 'Park Trees & Walking Shoes',
-      outcomePill: 'Zero Data Loss • Auto Synced'
+      companionAction: 'Cloud shows ☁️❌ Offline Mode ➔ Home Wi-Fi Reconnect ➔ 🟢 100% Auto-Synced!',
+      keyPropEmoji: '🌲',
+      keyPropLabel: 'Offline Local Encrypted Vault',
+      outcomePill: 'Zero Data Loss in Towns & Villages'
     },
     narrationSentences: [
-      'In the evening, Dadaji goes for a brisk walk in the community park where cellular internet drops completely.',
-      'Aabha AI\'s offline-first architecture continues running seamlessly on local storage, chiming a gentle reminder to drink water.',
-      'The moment Dadaji walks back through his front door, the cached offline activity queue automatically syncs with the caregiver cloud.',
-      'Zero data loss guarantees reliability across Indian towns, villages, and outdoor journeys.'
+      'Whether Priya is on the school bus, Dadaji is in a connectivity dead-zone at the park, or the family is traveling to their ancestral village, Aabha AI operates flawlessly.',
+      'Our offline-first architecture runs completely within local device storage.',
+      'Games, hydration logs, and audio reminders function without internet, and sync securely with the cloud the moment Wi-Fi reconnects.',
+      'Zero data loss guarantees reliability anywhere across India.'
     ],
     narrationSentencesHindi: [
-      'शाम को दादाजी पार्क में सैर करने जाते हैं जहाँ मोबाइल नेटवर्क पूरी तरह गायब हो जाता है।',
-      'लेकिन आभा का ऑफलाइन वॉल्ट बिना इंटरनेट के भी समय पर पानी पीने का अलार्म बजाता है।',
-      'जैसे ही दादाजी घर लौटते हैं, सारा डेटा अपने आप वाई-फाई से सिंक हो जाता है।',
-      'यह तकनीक भारत के हर गाँव और शहर में 100% विश्वसनीयता सुनिश्चित करती है।'
+      'चाहे प्रिया स्कूल बस में हो, दादाजी पार्क में हों, या पूरा परिवार गाँव की यात्रा पर हो—आभा एआई बिना इंटरनेट के भी पूरी तरह काम करती है।',
+      'सारे गेम्स, पानी के अलार्म और चेक-ऑफ फोन के अंदर सुरक्षित रहते हैं और इंटरनेट मिलते ही अपने आप सिंक हो जाते हैं।',
+      'यह भारत के हर गाँव और दूरदराज के क्षेत्र में भी 100% विश्वसनीयता देती है।'
     ]
   },
   {
     id: 8,
     startSec: 170,
     endSec: 180,
-    title: 'Chapter 8: The Happy Family Celebration & SIH Trophy',
-    subtitle: 'Supporting memory, empowering independence, and connecting Indian families',
-    badge: 'SCENE 08 • THE GRAND FINALE',
+    title: 'Chapter 8: AABHA AI — Built for Every Mind in India',
+    subtitle: 'Empowering children, busy professionals, and seniors under SIH26003',
+    badge: 'SCENE 08 • VISION FOR INDIA',
     icon: '🏆',
-    storyChapter: 'Scene 8: Dignity, Joy & Pan-India Vision',
+    storyChapter: 'Scene 8: Pan-India Universal Vision',
+    targetAudience: 'SIH26003 • Universal Cognitive Health',
     cartoonScene: {
       bgGradient: 'from-purple-100 via-pink-50 to-amber-100 dark:from-purple-950 dark:via-indigo-950 dark:to-slate-900',
-      settingLabel: '🍽️ Family Dinner Table • 08:30 PM',
+      settingLabel: '🍽️ The Reunited Family Celebration',
       characterA: {
-        name: 'Dadaji, Anita & Priya',
-        role: 'The Reunited Indian Family',
-        emoji: '👨‍👩‍👧',
-        actionText: 'Smiling together around the dinner table with gold medal',
-        dialogue: 'Aabha ne humare ghar me khushiyaan aur sukoon la diya! ❤️',
+        name: 'The Entire Family & Aabha',
+        role: '3 Generations of Empowered Minds',
+        emoji: '👨‍👩‍👧‍👦🤖',
+        actionText: 'Celebrating mental clarity, joyful bonding, and independent living',
+        dialogue: 'AABHA AI: Har umar ke liye, har dimag ke liye, har parivaar ke liye! 🇮🇳🏆',
         dialogueType: 'speech'
       },
-      companionAction: 'Aabha AI Orb glows with gold champion wreath & SIH26003 trophy 🏆',
+      companionAction: 'SIH26003 Trophy 🏆 with 5 Regional Indian Languages & 6 Cognitive Games',
       keyPropEmoji: '🏆',
       keyPropLabel: 'SIH 26003 Gold Trophy',
       outcomePill: 'Ready for Pan-India Deployment 🇮🇳'
     },
     narrationSentences: [
-      'At the dinner table, three generations sit together with smiles, laughter, and peace of mind.',
-      'Aabha AI empowers our elders to live with dignity and independence while keeping caregivers connected.',
+      'Aabha AI is the universal cognitive companion for every Indian household.',
+      'Empowering children to build sharp focus, helping working professionals stay organized, and supporting seniors with memory independence and dignified care.',
       'With six cognitive games, five regional languages, offline capability, and transparent AI analytics, Aabha AI is ready for nationwide deployment.',
       'Thank you for experiencing Aabha AI for Smart India Hackathon problem statement SIH twenty-six thousand three!'
     ],
     narrationSentencesHindi: [
-      'रात के खाने की मेज पर तीनों पीढ़ियाँ एक साथ मुस्कुराती और खुशियाँ मनाती हैं।',
-      'आभा एआई बुजुर्गों को गरिमा देती है और परिवारों को अटूट विश्वास और सुरक्षा।',
-      '6 कॉग्निटिव गेम्स, 5 भारतीय भाषाओं और 100% ऑफलाइन तकनीक के साथ हम पूरे देश की सेवा के लिए तैयार हैं।',
+      'आभा एआई हर भारतीय परिवार के हर सदस्य के लिए बनी है।',
+      'बच्चों के तेज दिमाग के लिए, युवाओं के व्यस्त जीवन के लिए, और बुजुर्गों की गरिमा व याददाश्त के लिए।',
+      '6 कॉग्निटिव गेम्स, 5 भारतीय भाषाओं और 100% ऑफलाइन तकनीक के साथ हम पूरे भारत की सेवा के लिए तैयार हैं।',
       'स्मार्ट इंडिया हैकाथॉन SIH26003 के इस विशेष प्रदर्शन को देखने के लिए आपका हार्दिक धन्यवाद!'
     ]
   }
@@ -523,7 +529,6 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
 
       utterance.onend = () => {
         isSpeakingRef.current = false;
-        // Continuously play the next sentence immediately
         if (isPlayingRef.current && isVoiceoverOnRef.current) {
           const nextIdx = safeIdx + 1;
           stageSentenceIdxRef.current = nextIdx;
@@ -711,20 +716,20 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-r from-purple-500 to-amber-400 p-0.5 animate-spin-slow">
               <div className="w-full h-full bg-slate-950 rounded-full flex items-center justify-center text-sm">
-                🎬
+                👨‍👩‍👧‍👦
               </div>
             </div>
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className="text-xs sm:text-sm font-black uppercase tracking-wider bg-gradient-to-r from-amber-300 via-purple-300 to-teal-300 bg-clip-text text-transparent">
-                  AABHA AI • ANIMATED STORY SHOWCASE
+                  AABHA AI • FOR ALL GENERATIONS
                 </span>
                 <span className="hidden sm:inline px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-amber-400/20 text-amber-300 border border-amber-400/40">
-                  Cartoon Storyboard Flow
+                  Universal Cognitive App
                 </span>
               </div>
               <div className="text-[10px] text-slate-400 font-medium hidden sm:block">
-                Illustrated Family Story with Continuous Voiceover & Ambient BGM
+                One Platform for Kids, Students, Busy Adults, Doctors & Seniors
               </div>
             </div>
           </div>
@@ -848,7 +853,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
         <div className="px-3.5 sm:px-8 py-2 bg-gradient-to-r from-amber-500/15 via-purple-500/15 to-teal-500/15 border-b border-amber-400/20 flex items-center gap-2.5 shrink-0 shadow-inner">
           <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 text-xs font-black shrink-0">
             <Radio className="w-4 h-4 animate-pulse text-amber-500" />
-            <span className="hidden sm:inline">Story Narrator:</span>
+            <span className="hidden sm:inline">Universal Story Narrator:</span>
           </div>
           <p className="text-xs sm:text-sm font-bold text-[var(--text-primary)] italic leading-relaxed animate-fade-in line-clamp-2">
             "{activeSubtitle}"
@@ -859,21 +864,26 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
         <div className="flex-1 p-3 sm:p-5 overflow-y-auto space-y-3.5 sm:space-y-4">
           {/* 🎭 THE MAIN ANIMATED CARTOON STORYBOARD STAGE ──────────────────── */}
           <div className={`p-4 sm:p-6 rounded-3xl bg-gradient-to-br ${currentStage.cartoonScene.bgGradient} border-2 border-amber-400/40 shadow-xl relative overflow-hidden transition-all duration-700 space-y-4`}>
-            {/* Top Stage Header: Setting & Scene Label */}
-            <div className="flex items-center justify-between relative z-10">
+            {/* Top Stage Header: Setting & Target Audience Label */}
+            <div className="flex flex-wrap items-center justify-between gap-2 relative z-10">
               <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-amber-500/30 text-amber-700 dark:text-amber-300 shadow-sm flex items-center gap-1.5">
                 <Sun className="w-3.5 h-3.5 text-amber-500 animate-spin-slow" />
                 <span>{currentStage.cartoonScene.settingLabel}</span>
               </span>
 
-              <span className="px-3 py-1 rounded-full text-xs font-black uppercase bg-purple-600 text-white shadow-md">
-                {currentStage.badge}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-400/40">
+                  {currentStage.targetAudience}
+                </span>
+                <span className="px-3 py-1 rounded-full text-xs font-black uppercase bg-purple-600 text-white shadow-md">
+                  {currentStage.badge}
+                </span>
+              </div>
             </div>
 
             {/* ─── ANIMATED CARTOON CHARACTERS & COMIC SPEECH BUBBLES ───────── */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center relative z-10 pt-2">
-              {/* Character A (Dadaji / Patient) Card */}
+              {/* Character A Card */}
               <div className="p-4 rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-amber-400/40 shadow-lg space-y-2.5 transform hover:scale-[1.02] transition-transform">
                 <div className="flex items-center gap-3">
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center text-3xl shadow-md border-2 border-white animate-bounce shrink-0">
@@ -950,7 +960,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                   </div>
                   <div className="space-y-1">
                     <span className="text-[10px] font-black uppercase text-amber-300 tracking-wider">
-                      AABHA AI Companion Active
+                      AABHA AI Universal Companion
                     </span>
                     <h4 className="text-sm font-black text-white">
                       {currentStage.cartoonScene.companionAction}
@@ -967,11 +977,11 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
             <div className="p-3 rounded-2xl bg-white/70 dark:bg-slate-950/60 backdrop-blur-md border border-amber-400/30 flex flex-wrap items-center justify-between gap-2 text-xs relative z-10 font-bold">
               <div className="flex items-center gap-2">
                 <span className="text-lg">{currentStage.cartoonScene.keyPropEmoji}</span>
-                <span className="text-slate-800 dark:text-slate-200">Key Prop: {currentStage.cartoonScene.keyPropLabel}</span>
+                <span className="text-slate-800 dark:text-slate-200">Key Feature: {currentStage.cartoonScene.keyPropLabel}</span>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-amber-500">✨ Story Outcome:</span>
+                <span className="text-amber-500">✨ Universal Benefit:</span>
                 <span className="text-emerald-600 dark:text-emerald-400 font-black">{currentStage.cartoonScene.outcomePill}</span>
               </div>
             </div>
@@ -991,23 +1001,23 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
               </span>
             </div>
 
-            {/* Stage-Specific App Previews */}
+            {/* Stage-Specific App Previews for ALL Generations */}
             {currentStage.id === 1 && (
-              <div className="grid grid-cols-3 gap-2.5 text-center text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-center text-xs">
                 <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
-                  <div className="text-xl">👴</div>
-                  <div className="font-bold mt-1">72-Yr Elder</div>
-                  <div className="text-[10px] text-[var(--text-muted)]">Independent living</div>
+                  <div className="text-xl">👧</div>
+                  <div className="font-bold mt-1">Kids & Students (5-18)</div>
+                  <div className="text-[10px] text-[var(--text-muted)]">Focus, Memory Games & Habits</div>
                 </div>
                 <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
-                  <div className="text-xl">👩‍⚕️</div>
-                  <div className="font-bold mt-1">Doctor Daughter</div>
-                  <div className="text-[10px] text-[var(--text-muted)]">Remote peace of mind</div>
+                  <div className="text-xl">💼</div>
+                  <div className="font-bold mt-1">Busy Adults (18-60)</div>
+                  <div className="text-[10px] text-[var(--text-muted)]">Routines, Wellness & Family Care</div>
                 </div>
                 <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
-                  <div className="text-xl">🤖</div>
-                  <div className="font-bold mt-1">Aabha Companion</div>
-                  <div className="text-[10px] text-[var(--text-muted)]">Daily friendly care</div>
+                  <div className="text-xl">👵</div>
+                  <div className="font-bold mt-1">Seniors (60+)</div>
+                  <div className="text-[10px] text-[var(--text-muted)]">Memory Care & Independence</div>
                 </div>
               </div>
             )}
@@ -1017,18 +1027,22 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                 <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30">
                   <span className="text-lg">🚨</span>
                   <div className="font-black text-rose-500">SOS 1-Tap</div>
+                  <div className="text-[9px] text-[var(--text-muted)]">Senior Safety</div>
                 </div>
                 <div className="p-2.5 rounded-xl bg-teal-500/10 border border-teal-500/30">
                   <span className="text-lg">💊</span>
-                  <div className="font-black text-teal-500">Donepezil 5mg ✓</div>
+                  <div className="font-black text-teal-500">Medication ✓</div>
+                  <div className="text-[9px] text-[var(--text-muted)]">Donepezil 5mg</div>
                 </div>
                 <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/30">
                   <span className="text-lg">💧</span>
-                  <div className="font-black text-blue-500">Warm Water 1/6 ✓</div>
+                  <div className="font-black text-blue-500">Hydration 2/6 ✓</div>
+                  <div className="text-[9px] text-[var(--text-muted)]">For Whole Family</div>
                 </div>
                 <div className="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/30">
-                  <span className="text-lg">📅</span>
-                  <div className="font-black text-indigo-500">5 Tasks Scheduled</div>
+                  <span className="text-lg">📚</span>
+                  <div className="font-black text-indigo-500">Study & Tasks ✓</div>
+                  <div className="text-[9px] text-[var(--text-muted)]">Daily Goals</div>
                 </div>
               </div>
             )}
@@ -1037,7 +1051,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
               <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">🗣️</span>
-                  <span>"Aabha, mera aaj ka kya program hai?"</span>
+                  <span>"Aabha, tell me a brain puzzle / What is my schedule today?"</span>
                 </div>
                 <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-300 font-bold">
                   Zero Hallucination ✓
@@ -1049,9 +1063,9 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
               <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] text-xs">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">🎴</span>
-                  <span>Memory Match (Grandpa & Priya Playing Together)</span>
+                  <span>6 Cognitive Games: Memory Match, Color Stroop, Routine Ordering</span>
                 </div>
-                <span className="font-mono font-bold text-emerald-500">Accuracy: 85% • Latency: 1.8s</span>
+                <span className="font-mono font-bold text-emerald-500">Fun for All Ages • Brain Fitness</span>
               </div>
             )}
 
@@ -1059,7 +1073,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
               <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-xs">
                 <div className="flex items-center gap-2">
                   <Brain className="w-4 h-4 text-emerald-500" />
-                  <span>Score 85% &gt; 80% Threshold ➔ Grid Expanded to 4×4</span>
+                  <span>Profile-Aware Adaptive Pacing: Kids (Speed) • Adults (Focus) • Seniors (Recall)</span>
                 </div>
                 <span className="font-black text-emerald-600">🚀 LEVEL 3 UNLOCKED</span>
               </div>
@@ -1090,16 +1104,16 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
               <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <WifiOff className="w-4 h-4 text-rose-500" />
-                  <span>Park Walk: 0 Cellular Bars ➔ Offline SQLite Vault Active</span>
+                  <span>Works in School Bus, Park, Remote Village & Travel (0 Internet Needed)</span>
                 </div>
                 <span className="text-emerald-500 font-bold">Auto-Syncs on Wi-Fi ✓</span>
               </div>
             )}
 
             {currentStage.id === 8 && (
-              <div className="p-3 rounded-xl bg-gradient-to-r from-purple-600 to-teal-500 text-white font-bold text-xs flex items-center justify-between">
-                <span>🏆 SIH26003: Supporting Memory, Empowering Independence</span>
-                <span>Ready for Pan-India Deployment 🇮🇳</span>
+              <div className="p-3 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-teal-500 text-white font-bold text-xs flex flex-col sm:flex-row items-center justify-between gap-1">
+                <span>🏆 SIH26003: Cognitive Care & Empowerment for Every Age in India</span>
+                <span className="text-amber-300">Ready for Pan-India Deployment 🇮🇳</span>
               </div>
             )}
           </div>
@@ -1109,8 +1123,8 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
         <div className="px-3.5 sm:px-8 py-3 bg-[var(--bg-surface-secondary)] border-t border-[var(--border)] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)]">
             <Shield className="w-4 h-4 text-emerald-500" />
-            <span className="hidden sm:inline">Animated cartoon story • Continuous AI speech active • SIH26003</span>
-            <span className="sm:hidden">Cartoon Story Flow</span>
+            <span className="hidden sm:inline">Universal Cognitive App • Kids, Adults & Seniors • SIH26003</span>
+            <span className="sm:hidden">For All Generations</span>
           </div>
 
           <div className="flex items-center gap-2">

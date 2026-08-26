@@ -78,7 +78,7 @@ export const Layout = () => {
                 AABHA AI
               </span>
               <span className="text-[9px] sm:text-[10px] font-medium text-[var(--text-secondary)] tracking-tight leading-none mt-0.5">
-                Your Cognitive Companion
+                Universal Cognitive Companion
               </span>
             </div>
           </Link>

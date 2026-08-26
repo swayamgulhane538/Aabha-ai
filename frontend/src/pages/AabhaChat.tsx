@@ -38,18 +38,28 @@ export const AabhaChat: React.FC = () => {
   const { user } = useAuthStore();
   const isOnline = useOnlineStatus();
 
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      text: t(
-        'aabha.greeting',
-        `Namaste ${user?.name || 'Mr. Arun Das'}! I am AABHA, your AI healthcare companion powered by Google Gemini. How are you feeling today? You can ask me about your medicines, memory games, daily routine, or your family.`
-      ),
-      sender: 'ai',
-      engine: 'Google Gemini 1.5 Flash',
-      timestamp: new Date()
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    const lang = (i18n.language || 'en').split('-')[0].toLowerCase();
+    let greeting = `Namaste ${user?.name || 'Mr. Arun Das'}! I am AABHA, your AI healthcare companion powered by Google Gemini. How are you feeling today? You can ask me about your medicines, memory games, daily routine, or your family.`;
+    if (lang === 'mr') {
+      greeting = `नमस्ते ${user?.name || 'श्री अरुण दास'}! मी आभा आहे, गुगल जेमिनीद्वारे समर्थित तुमची एआय आरोग्य साथीदार. आज तुम्हाला कसे वाटत आहे? तुम्ही मला तुमची औषधे, स्मरणशक्तीचे खेळ, दिनचर्या किंवा कुटुंबाबद्दल विचारू शकता.`;
+    } else if (lang === 'hi') {
+      greeting = `नमस्ते ${user?.name || 'श्री अरुण दास'}! मैं आभा हूँ, गूगल जेमिनी द्वारा संचालित आपकी एआई स्वास्थ्य साथी। आज आप कैसा महसूस कर रहे हैं? आप मुझसे अपनी दवाइयों, दिमागी खेल, दिनचर्या या परिवार के बारे में पूछ सकते हैं।`;
+    } else if (lang === 'bn') {
+      greeting = `নমস্কার ${user?.name || 'শ্রী অরুণ দাস'}! আমি আভা, গুগল জেমিনি দ্বারা চালিত আপনার এআই স্বাস্থ্য সঙ্গী। আজ আপনার কেমন লাগছে? আপনি আমাকে আপনার ওষুধ, স্মৃতি খেলা, দিনলিপি বা পরিবার সম্পর্কে জিজ্ঞাসা করতে পারেন।`;
+    } else if (lang === 'as') {
+      greeting = `নমস্কাৰ ${user?.name || 'শ্ৰী অৰুণ দাস'}! মই আভা, গুগল জেমিনিৰ দ্বাৰা চালিত আপোনাৰ এআই স্বাস্থ্য সংগী। আজি আপোনাৰ কেনে লাগিছে? আপুনি মোক আপোনাৰ ঔষধ, স্মৃতিৰ খেল, দিনচৰ্যা বা পৰিয়ালৰ বিষয়ে সুধিব পাৰে।`;
     }
-  ]);
+    return [
+      {
+        id: '1',
+        text: greeting,
+        sender: 'ai',
+        engine: 'Google Gemini 1.5 Flash',
+        timestamp: new Date()
+      }
+    ];
+  });
 
   const [input, setInput] = useState('');
   const [orbState, setOrbState] = useState<OrbState>('IDLE');
@@ -221,12 +231,12 @@ export const AabhaChat: React.FC = () => {
   };
 
   const quickPrompts = [
-    { label: '📅 What do I have today?', text: 'What is my schedule today?' },
-    { label: '💊 When is my medicine?', text: 'When is my next medicine?' },
-    { label: '🧠 Start memory game', text: 'Start a memory game' },
-    { label: '👨‍👩‍👧 Who is my family?', text: 'Who is my son and daughter?' },
-    { label: '🌟 How am I doing today?', text: 'How am I doing today and what is my cognitive score?' },
-    { label: '📜 Tell me a heartwarming story', text: 'Tell me a short heartwarming memory story about family and tea.' }
+    { label: `📅 ${t('What do I have today?')}`, text: 'What is my schedule today?' },
+    { label: `💊 ${t('When is my medicine?')}`, text: 'When is my next medicine?' },
+    { label: `🧠 ${t('Start memory game')}`, text: 'Start a memory game' },
+    { label: `👨‍👩‍👧 ${t('Who is my family?')}`, text: 'Who is my son and daughter?' },
+    { label: `🌟 ${t('How am I doing today?')}`, text: 'How am I doing today and what is my cognitive score?' },
+    { label: `📜 ${t('Tell me a heartwarming story')}`, text: 'Tell me a short heartwarming memory story about family and tea.' }
   ];
 
   return (
@@ -235,8 +245,8 @@ export const AabhaChat: React.FC = () => {
       <div className="card-3d bg-[var(--card-bg-inline)] backdrop-blur-2xl p-3.5 sm:p-5 rounded-[24px] flex items-center justify-between border border-[var(--card-border-inline)] gap-2">
         <Link to="/patient" className="btn-glass px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs flex items-center gap-1.5 hover:text-emerald-400">
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Back to Dashboard</span>
-          <span className="sm:hidden">Back</span>
+          <span className="hidden sm:inline">{t('Back to Dashboard')}</span>
+          <span className="sm:hidden">{t('Back')}</span>
         </Link>
 
         <div className="flex items-center gap-1.5 sm:gap-2">
@@ -251,7 +261,7 @@ export const AabhaChat: React.FC = () => {
             title="Configure Google Gemini API Key"
           >
             <Key className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{hasGeminiKey ? 'Gemini Active' : 'Enter Gemini Key'}</span>
+            <span className="hidden sm:inline">{hasGeminiKey ? t('Gemini Active') : t('Enter Gemini Key')}</span>
           </button>
 
           {/* Language Switch */}
@@ -273,7 +283,7 @@ export const AabhaChat: React.FC = () => {
             }`}
           >
             {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-            <span className="hidden sm:inline">{isMuted ? 'Muted' : 'Voice ON'}</span>
+            <span className="hidden sm:inline">{isMuted ? t('Muted') : t('Voice ON')}</span>
           </button>
         </div>
       </div>
@@ -286,7 +296,7 @@ export const AabhaChat: React.FC = () => {
 
         <div className="flex items-center gap-2 mt-3">
           <h1 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] tracking-tight">
-            AABHA Voice Care Companion
+            {t('AABHA Voice Care Companion')}
           </h1>
           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-teal-500/20 text-teal-300 border border-teal-400/40 flex items-center gap-1 shadow-sm">
             <Sparkles className="w-3 h-3 text-teal-400 animate-pulse" />
@@ -295,12 +305,12 @@ export const AabhaChat: React.FC = () => {
         </div>
         <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium max-w-md mt-1">
           {orbState === 'LISTENING'
-            ? 'Listening to you... Speak now in English, Hindi, Bengali, Assamese, or Marathi.'
+            ? t('Listening to you... Speak now')
             : orbState === 'THINKING'
-            ? 'Gemini is processing your query with medical memory context...'
+            ? t('Thinking & processing...')
             : orbState === 'SPEAKING'
-            ? 'Speaking response gently...'
-            : 'Tap the mic or 3D Orb to speak, or tap one of the common prompts below.'}
+            ? t('Speaking response gently...')
+            : t('Tap the mic or 3D Orb to speak, or tap one of the common prompts below.')}
         </p>
 
         {/* Quick Suggestion Chips */}
@@ -404,8 +414,8 @@ export const AabhaChat: React.FC = () => {
           onKeyDown={handleKeyDown}
           placeholder={
             orbState === 'LISTENING'
-              ? 'Listening to you... Speak now'
-              : 'Ask AABHA (e.g. "What do I have today?", "When is my medicine?")...'
+              ? t('Listening to you... Speak now')
+              : t('Ask AABHA (e.g. "What do I have today?", "When is my medicine?")...')
           }
           className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--input-text)] text-xs sm:text-sm font-medium focus:border-teal-400 focus:outline-none transition min-w-0"
         />

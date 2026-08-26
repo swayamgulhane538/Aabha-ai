@@ -49,8 +49,8 @@ interface StageConfig {
     avatar: string;
     metric: string;
   };
-  narrationText: string;
-  narrationHindi: string;
+  narrationSentences: string[];
+  narrationSentencesHindi: string[];
 }
 
 const STAGES: StageConfig[] = [
@@ -70,8 +70,18 @@ const STAGES: StageConfig[] = [
       avatar: '👴',
       metric: 'Independence preserved with zero anxiety'
     },
-    narrationText: 'Across millions of Indian households, elderly elders like seventy-two-year-old Arun Das want to live with dignity and independence. However, mild cognitive difficulties often make managing daily medications, water intake, and schedules stressful for both patients and working caregivers.',
-    narrationHindi: 'भारत के लाखों परिवारों में 72 वर्षीय अरुण दास जैसे बुजुर्ग स्वतंत्रता से जीना चाहते हैं। लेकिन समय पर दवाई लेना और दिनचर्या याद रखना बुजुर्गों और उनके परिवारों के लिए एक बड़ी चुनौती बन जाता है।'
+    narrationSentences: [
+      'Welcome to Aabha AI, an intelligent daily life companion for elderly care.',
+      'Across millions of Indian homes, elders like seventy-two-year-old Arun Das wish to live with dignity and independence.',
+      'However, mild cognitive difficulties often make managing daily medications, hydration, and appointments stressful for both patients and their working caregivers.',
+      'Aabha AI was built to solve this exact challenge, turning everyday routines into gentle, guided interactions.'
+    ],
+    narrationSentencesHindi: [
+      'आभा एआई में आपका स्वागत है, जो बुजुर्गों के लिए एक समझदार और स्नेही साथी है।',
+      'भारत के करोड़ों परिवारों में 72 वर्षीय अरुण दास जैसे वरिष्ठ नागरिक गरिमा और स्वतंत्रता के साथ जीना चाहते हैं।',
+      'लेकिन उम्र के साथ दिनचर्या और दवाइयों का समय याद रखना कठिन हो जाता है।',
+      'आभा एआई इसी चुनौती का समाधान करती है, ताकि बुजुर्ग स्वावलंबी रहें और परिवार निश्चिंत।'
+    ]
   },
   {
     id: 2,
@@ -89,8 +99,18 @@ const STAGES: StageConfig[] = [
       avatar: '💊',
       metric: 'Adherence: 100% Morning Dose Taken'
     },
-    narrationText: 'Here is Aabha AI\'s elderly-friendly dashboard in daily life. Designed with large high-contrast touch targets, Arun effortlessly logs his morning Donepezil medication, tracks his water intake, and checks off his morning routine in a single tap without needing assistance.',
-    narrationHindi: 'आभा एआई का सरल और बड़ा डैशबोर्ड अरुण जी को सुबह की दवाई लेने, पानी पीने और दिनचर्या को बिना किसी की मदद के एक टैप में पूरा करने की आज़ादी देता है।'
+    narrationSentences: [
+      'Here is the accessible elderly-friendly patient dashboard in daily action.',
+      'Designed with large high-contrast touch targets, Arun effortlessly logs his morning Donepezil medication.',
+      'With a single tap, he marks his water intake and checks off his morning routine without needing help from anyone.',
+      'The interface removes all clutter, featuring soft pastel accents, clear icons, and prominent emergency assistance controls always in reach.'
+    ],
+    narrationSentencesHindi: [
+      'यह है आभा एआई का सरल और स्पष्ट एल्डरली-फ्रेंडली डैशबोर्ड।',
+      'बड़े अक्षरों और हाई-कॉन्ट्रास्ट बटनों के साथ अरुण जी सुबह की डोनेपेज़िल दवाई को सिर्फ एक टैप में टिक करते हैं।',
+      'पानी का गिलास लॉग करना और दिन की शुरुआत करना बेहद आसान है, जिसके लिए किसी पर निर्भर नहीं रहना पड़ता।',
+      'यह इंटरफेस बुजुर्गों की आँखों और उंगलियों के लिए बेहद सहज और आरामदायक बनाया गया है।'
+    ]
   },
   {
     id: 3,
@@ -108,8 +128,20 @@ const STAGES: StageConfig[] = [
       avatar: '🤖',
       metric: 'Latency: 0.3s Speech Intent Resolution'
     },
-    narrationText: 'While sipping his morning tea, Arun speaks naturally in Hindi or English: "Aabha, what is my schedule today?" Aabha AI uses a deterministic intent engine to fetch exact records from local storage with zero hallucination, explaining his lunch time, afternoon medicine, and evening park walk warmly.',
-    narrationHindi: 'चाय पीते हुए अरुण जी पूछते हैं: "आभा, मेरा आज का क्या कार्यक्रम है?" आभा वॉइस असिस्टेंट बिना किसी भ्रम के असली डेटाबेस से सही समय और दिनचर्या बोलकर समझाता है।'
+    narrationSentences: [
+      'While having his morning tea, Arun speaks naturally to his AI companion.',
+      'He simply asks: "Aabha, what is my schedule today?" in his preferred regional language.',
+      'Aabha AI immediately resolves his voice intent using a local deterministic database with zero medical hallucination.',
+      'She gently tells him about his lunch time, afternoon Memantine dosage, and scheduled evening park walk.',
+      'The voice assistant supports Hindi, English, Bengali, Assamese, and Marathi seamlessly.'
+    ],
+    narrationSentencesHindi: [
+      'सुबह की चाय पीते हुए अरुण जी सहजता से अपनी मातृभाषा में आभा से बात करते हैं।',
+      'वे पूछते हैं: "आभा, मेरा आज का क्या कार्यक्रम है?"',
+      'आभा वॉइस असिस्टेंट बिना किसी भ्रम के असली डेटाबेस से सटीक जानकारी निकाल कर बताती है।',
+      'आभा उन्हें दोपहर के भोजन, दवाई और शाम की सैर का समय बेहद विनम्रता से याद दिलाती है।',
+      'यह वॉइस असिस्टेंट हिंदी, अंग्रेजी, मराठी, बंगाली और असमिया में सहज संवाद करता है।'
+    ]
   },
   {
     id: 4,
@@ -127,11 +159,23 @@ const STAGES: StageConfig[] = [
       avatar: '🎯',
       metric: 'Visual Recall Score: 85% Accuracy'
     },
-    narrationText: 'In the afternoon, Arun enjoys playing cognitive games like Memory Match and Daily Routine Ordering alongside his granddaughter. While it feels like a joyful game, Aabha AI precisely measures card-matching accuracy, spatial memory, and decision reaction latency.',
-    narrationHindi: 'दोपहर में अरुण जी अपनी पोती के साथ मेमोरी मैच और रूटीन ऑर्डरिंग जैसे मनोरंजक खेल खेलते हैं। इससे उनकी याददाश्त और रिफ्लेक्स का लाइव अभ्यास होता है।'
+    narrationSentences: [
+      'In the afternoon, Arun enjoys playing cognitive memory exercises alongside his nine-year-old granddaughter.',
+      'They play Memory Match and Daily Routine Ordering together, turning cognitive stimulation into family bonding.',
+      'While it feels just like an enjoyable game, Aabha AI continuously tracks visual recall, card accuracy, and reaction speed.',
+      'The system records an impressive eighty-five percent accuracy with an average tap response latency of one point eight seconds.',
+      'This positive reinforcement builds mental sharpness and emotional confidence without clinical fatigue.'
+    ],
+    narrationSentencesHindi: [
+      'दोपहर के समय अरुण जी अपनी पोती के साथ मनोरंजक मेमोरी गेम्स खेलते हैं।',
+      'मेमोरी मैच और दिनचर्या क्रमबद्धता जैसे खेलों से परिवार में खुशियों का माहौल बनता है।',
+      'खेलते हुए आभा एआई उनकी याददाश्त, कार्ड मिलान सटीकता और रिफ्लेक्स गति को बैकग्राउंड में मापती है।',
+      'सिस्टम 85 प्रतिशत एक्यूरेसी और मात्र 1.8 सेकंड की प्रतिक्रिया गति दर्ज करता है।',
+      'यह खेल बुजुर्गों के मस्तिष्क को सक्रिय और ऊर्जावान बनाए रखने में मदद करते हैं।'
+    ]
   },
   {
-    id: 110,
+    id: 5,
     startSec: 110,
     endSec: 135,
     title: 'Adaptive AI Engine Adjusting Difficulty',
@@ -146,11 +190,23 @@ const STAGES: StageConfig[] = [
       avatar: '⚡',
       metric: 'Difficulty: Level 2 ➔ Level 3 (Adaptive)'
     },
-    narrationText: 'In the background, our Adaptive AI Engine evaluates his eighty-five percent performance. Because his recall was fast and accurate, the system automatically adapts to Level 3, introducing gentle cognitive challenges to keep his neuroplasticity stimulated without causing frustration.',
-    narrationHindi: 'आभा का एडेप्टिव एआई इंजन अरुण जी के 85% बेहतरीन प्रदर्शन को देखकर गेम का लेवल 2 से लेवल 3 में अपग्रेड करता है, जिससे दिमाग हमेशा सक्रिय रहता है।'
+    narrationSentences: [
+      'Now observe our Adaptive AI Engine working quietly behind the scenes.',
+      'Because Arun achieved a consistent eighty-five percent composite score, the algorithm dynamically scales the difficulty to Level 3.',
+      'It expands the card grid to four by four and introduces subtle distractor elements to gently exercise his focus.',
+      'The personalization engine automatically queues his next tailored exercise: Daily Routine Chronological Ordering.',
+      'This adaptive pacing ensures the exercises are never too easy and never frustratingly hard.'
+    ],
+    narrationSentencesHindi: [
+      'अब देखिए आभा का एडेप्टिव एआई इंजन कैसे खुद को ढालता है।',
+      'अरुण जी के 85 प्रतिशत उत्कृष्ट प्रदर्शन को देखकर सिस्टम डिफिकल्टी को लेवल 2 से लेवल 3 में अपग्रेड कर देता है।',
+      'कार्ड ग्रिड को बड़ा किया जाता है और नए दिलचस्प पैटर्न जोड़े जाते हैं ताकि एकाग्रता मजबूत हो।',
+      'पर्सनलाइज़ेशन इंजन उनके लिए अगला अनुकूलित व्यायाम स्वतः तैयार कर देता है।',
+      'यह निरंतर संतुलन सुनिश्चित करता है कि दिमाग को सही चुनौती मिले और कोई तनाव न हो।'
+    ]
   },
   {
-    id: 135,
+    id: 6,
     startSec: 135,
     endSec: 155,
     title: 'Caregiver Remote Monitoring & Peace of Mind',
@@ -165,11 +221,21 @@ const STAGES: StageConfig[] = [
       avatar: '👩‍⚕️',
       metric: 'Caregiver Status: All 3 Alarms Confirmed'
     },
-    narrationText: 'Meanwhile, his daughter Anita checks the Caregiver Dashboard on her phone from work. She reviews the four key non-diagnostic cognitive indicators: Memory, Attention, Reaction Speed, and Consistency, giving the family complete peace of mind throughout the day.',
-    narrationHindi: 'अस्पताल में काम करते हुए बेटी अनिता अपने फोन पर 4 स्तंभों - मेमोरी, अटेंशन, स्पीड और कंसिस्टेंसी का लाइव डेटा देखकर पूरी तरह आश्वस्त रहती हैं।'
+    narrationSentences: [
+      'Meanwhile, his daughter Dr. Anita checks the Caregiver Portal on her smartphone from the hospital clinic.',
+      'She reviews the four non-medical cognitive health pillars: Memory Score at eighty-two percent, Attention at seventy-six percent, Reaction Latency at one point eight seconds, and a strong five-day Consistency streak.',
+      'Smart proactive threshold alerts reassure her that all scheduled medications were confirmed on time.',
+      'This provides complete remote transparency and reassurance to families across cities.'
+    ],
+    narrationSentencesHindi: [
+      'इसी बीच, अस्पताल में काम करते हुए बेटी डॉक्टर अनिता अपने मोबाइल पर केयरगिवर पोर्टल देखती हैं।',
+      'वे 4 मुख्य स्तंभों का विश्लेषण देखती हैं: मेमोरी 82%, अटेंशन 76%, रिस्पॉन्स 1.8 सेकंड और 5 दिन की शानदार स्ट्रीक।',
+      'स्मार्ट अलर्ट्स यह पुष्टि करते हैं कि सभी दवाइयाँ समय पर ले ली गई हैं।',
+      'यह तकनीक कामकाजी परिवारों को मीलों दूर रहकर भी पूरी मानसिक शांति प्रदान करती है।'
+    ]
   },
   {
-    id: 155,
+    id: 7,
     startSec: 155,
     endSec: 170,
     title: 'Real-World Offline Reliability in the Park',
@@ -184,11 +250,21 @@ const STAGES: StageConfig[] = [
       avatar: '📡',
       metric: 'Sync State: 🔴 Offline Vault ➔ 🟢 Auto-Synced'
     },
-    narrationText: 'During his evening garden walk, mobile network drops. Aabha AI\'s offline-first architecture ensures that hydration logging, reminders, and games operate flawlessly without internet, automatically synchronizing with the cloud as soon as he returns home.',
-    narrationHindi: 'शाम को पार्क में इंटरनेट न होने पर भी आभा का ऑफलाइन वॉल्ट पूरी तरह काम करता है, और घर लौटते ही सारा डेटा सुरक्षित सिंक हो जाता है।'
+    narrationSentences: [
+      'During his evening walk in the community park, cellular connectivity drops to zero bars.',
+      'Aabha AI offline-first architecture ensures that hydration checkoffs, local chime reminders, and games operate uninterrupted.',
+      'All interaction logs are safely cached in the encrypted local vault, and sync seamlessly the instant Arun connects to home Wi-Fi.',
+      'Zero data loss guarantees reliability in Indian towns, villages, and during travel.'
+    ],
+    narrationSentencesHindi: [
+      'शाम को पार्क में सैर करते समय मोबाइल नेटवर्क पूरी तरह चला जाता है।',
+      'लेकिन आभा एआई का ऑफलाइन-फर्स्ट वॉल्ट बिना इंटरनेट के भी सभी अलार्म और चेक-ऑफ चालू रखता है।',
+      'सारा डेटा फोन में सुरक्षित रहता है और घर आकर वाई-फाई मिलते ही अपने आप क्लाउड पर सिंक हो जाता है।',
+      'यह भारत के दूरदराज इलाकों और यात्रा के दौरान भी 100 प्रतिशत विश्वसनीयता देता है।'
+    ]
   },
   {
-    id: 170,
+    id: 8,
     startSec: 170,
     endSec: 180,
     title: 'AABHA AI — SIH26003 Product Vision',
@@ -203,8 +279,16 @@ const STAGES: StageConfig[] = [
       avatar: '🇮🇳',
       metric: 'SIH26003: Ready for Pan-India Deployment'
     },
-    narrationText: 'Aabha AI transforms elderly care: supporting memory, empowering independence, and connecting caregivers. Designed for India across five regional languages. Smart India Hackathon problem statement SIH 26003.',
-    narrationHindi: 'आभा एआई: यादों का संबल, स्वतंत्रता का संबल। स्मार्ट इंडिया हैकाथॉन SIH26003 - पूरे भारत के बुजुर्गों के सम्मान और देखभाल के लिए समर्पित।'
+    narrationSentences: [
+      'Aabha AI transforms elderly care: supporting memory, empowering independence, and connecting caregivers.',
+      'With six cognitive games, five regional Indian languages, offline reliability, and adaptive analytics, we are ready for nationwide deployment.',
+      'Thank you for experiencing Aabha AI for Smart India Hackathon problem statement SIH twenty-six thousand three.'
+    ],
+    narrationSentencesHindi: [
+      'आभा एआई बुजुर्गों की देखभाल में एक नई क्रांति है: यादों का संबल, स्वतंत्रता का संबल और परिवारों का विश्वास।',
+      '6 कॉग्निटिव गेम्स, 5 भारतीय भाषाओं और 100% ऑफलाइन तकनीक के साथ हम पूरे भारत में सेवा के लिए तैयार हैं।',
+      'स्मार्ट इंडिया हैकाथॉन SIH26003 के इस जीवंत प्रदर्शन को देखने के लिए आपका बहुत-बहुत धन्यवाद।'
+    ]
   }
 ];
 
@@ -222,52 +306,117 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
   const [isVoiceoverOn, setIsVoiceoverOn] = useState(true);
   const [isMusicOn, setIsMusicOn] = useState(true);
   const [voiceLang, setVoiceLang] = useState<'EN' | 'HI'>('EN');
-  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [currentSentenceIdx, setCurrentSentenceIdx] = useState(0);
 
   const totalSeconds = 180; // 3 Minutes
   const timerRef = useRef<any>(null);
+  const heartbeatRef = useRef<any>(null);
+  const isSpeakingRef = useRef<boolean>(false);
+  const isPlayingRef = useRef<boolean>(true);
+  const isVoiceoverOnRef = useRef<boolean>(true);
+  const voiceLangRef = useRef<'EN' | 'HI'>('EN');
+  const stageSentenceIdxRef = useRef<number>(0);
   const currentStageIdRef = useRef<number>(1);
+
+  // Sync ref values
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+    isVoiceoverOnRef.current = isVoiceoverOn;
+    voiceLangRef.current = voiceLang;
+  }, [isPlaying, isVoiceoverOn, voiceLang]);
+
+  // Chrome speech synthesis heartbeat to prevent browser speech timeout bug
+  useEffect(() => {
+    heartbeatRef.current = setInterval(() => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+          window.speechSynthesis.pause();
+          window.speechSynthesis.resume();
+        }
+      }
+    }, 8000);
+
+    return () => clearInterval(heartbeatRef.current);
+  }, []);
 
   // Stop Speech synthesis helper
   const stopSpeech = () => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      setIsSpeaking(false);
+      isSpeakingRef.current = false;
     }
   };
 
-  // Speak narration for given stage
-  const speakStageNarration = (stage: StageConfig) => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window) || !isVoiceoverOn) {
+  // Play next continuous sentence in current stage
+  const playContinuousSentence = (stage: StageConfig, sentenceIndex: number) => {
+    if (
+      typeof window === 'undefined' ||
+      !('speechSynthesis' in window) ||
+      !isVoiceoverOnRef.current ||
+      !isPlayingRef.current
+    ) {
       return;
     }
 
+    const sentences =
+      voiceLangRef.current === 'HI'
+        ? stage.narrationSentencesHindi
+        : stage.narrationSentences;
+
+    const safeIdx = sentenceIndex % sentences.length;
+    const textToSpeak = sentences[safeIdx];
+
     try {
       window.speechSynthesis.cancel();
-      const textToSpeak = voiceLang === 'HI' ? stage.narrationHindi : stage.narrationText;
       const utterance = new SpeechSynthesisUtterance(textToSpeak);
-      utterance.rate = 1.02;
+      utterance.rate = 1.05;
       utterance.pitch = 1.0;
-      utterance.lang = voiceLang === 'HI' ? 'hi-IN' : 'en-US';
+      utterance.lang = voiceLangRef.current === 'HI' ? 'hi-IN' : 'en-US';
 
-      // Pick natural voice if available
       const voices = window.speechSynthesis.getVoices();
       const matchVoice = voices.find(v =>
-        voiceLang === 'HI'
+        voiceLangRef.current === 'HI'
           ? v.lang.includes('hi')
-          : v.lang.includes('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Jenny'))
+          : v.lang.includes('en') &&
+            (v.name.includes('Natural') ||
+              v.name.includes('Google') ||
+              v.name.includes('Samantha') ||
+              v.name.includes('Jenny') ||
+              v.name.includes('David'))
       );
       if (matchVoice) {
         utterance.voice = matchVoice;
       }
 
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
+      utterance.onstart = () => {
+        isSpeakingRef.current = true;
+        setCurrentSentenceIdx(safeIdx);
+      };
+
+      utterance.onend = () => {
+        isSpeakingRef.current = false;
+        // Continuously play the next sentence immediately!
+        if (isPlayingRef.current && isVoiceoverOnRef.current) {
+          const nextIdx = safeIdx + 1;
+          stageSentenceIdxRef.current = nextIdx;
+          // Loop seamlessly within stage sentences
+          setTimeout(() => {
+            if (isPlayingRef.current && isVoiceoverOnRef.current) {
+              const currentS =
+                STAGES.find(s => s.id === currentStageIdRef.current) || stage;
+              playContinuousSentence(currentS, nextIdx);
+            }
+          }, 120);
+        }
+      };
+
+      utterance.onerror = () => {
+        isSpeakingRef.current = false;
+      };
 
       window.speechSynthesis.speak(utterance);
     } catch {
-      setIsSpeaking(false);
+      isSpeakingRef.current = false;
     }
   };
 
@@ -278,13 +427,13 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
       setSeconds(0);
       setIsPlaying(true);
       currentStageIdRef.current = 1;
+      stageSentenceIdxRef.current = 0;
 
-      // Start gentle ambient background music
       if (isMusicOn) {
         ambientMusic.start(0.06);
       }
 
-      speakStageNarration(STAGES[0]);
+      playContinuousSentence(STAGES[0], 0);
     } else {
       document.body.style.overflow = '';
       stopSpeech();
@@ -315,15 +464,17 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
     return () => clearInterval(timerRef.current);
   }, [isOpen, isPlaying]);
 
-  // Trigger speech on stage change
+  // Current stage tracker based on seconds
   const currentStage =
     STAGES.find(s => seconds >= s.startSec && seconds < s.endSec) ||
     STAGES[STAGES.length - 1];
 
+  // Trigger continuous speech on stage transition
   useEffect(() => {
     if (isOpen && isPlaying && isVoiceoverOn && currentStage.id !== currentStageIdRef.current) {
       currentStageIdRef.current = currentStage.id;
-      speakStageNarration(currentStage);
+      stageSentenceIdxRef.current = 0;
+      playContinuousSentence(currentStage, 0);
     }
   }, [currentStage.id, isOpen, isPlaying, isVoiceoverOn, voiceLang]);
 
@@ -331,16 +482,18 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
   const handleTogglePlay = () => {
     if (isPlaying) {
       setIsPlaying(false);
+      isPlayingRef.current = false;
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.pause();
       }
     } else {
       setIsPlaying(true);
+      isPlayingRef.current = true;
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         if (window.speechSynthesis.paused) {
           window.speechSynthesis.resume();
         } else if (isVoiceoverOn) {
-          speakStageNarration(currentStage);
+          playContinuousSentence(currentStage, stageSentenceIdxRef.current);
         }
       }
     }
@@ -350,27 +503,32 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
     stopSpeech();
     setSeconds(0);
     currentStageIdRef.current = 1;
+    stageSentenceIdxRef.current = 0;
     setIsPlaying(true);
+    isPlayingRef.current = true;
     if (isMusicOn) {
       ambientMusic.start(0.06);
     }
-    speakStageNarration(STAGES[0]);
+    playContinuousSentence(STAGES[0], 0);
   };
 
   const handleJumpToStage = (stage: StageConfig) => {
     stopSpeech();
     setSeconds(stage.startSec);
     currentStageIdRef.current = stage.id;
-    speakStageNarration(stage);
+    stageSentenceIdxRef.current = 0;
+    playContinuousSentence(stage, 0);
   };
 
   const handleToggleVoiceover = () => {
     if (isVoiceoverOn) {
       stopSpeech();
       setIsVoiceoverOn(false);
+      isVoiceoverOnRef.current = false;
     } else {
       setIsVoiceoverOn(true);
-      speakStageNarration(currentStage);
+      isVoiceoverOnRef.current = true;
+      playContinuousSentence(currentStage, stageSentenceIdxRef.current);
     }
   };
 
@@ -388,6 +546,8 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
     stopSpeech();
     const nextLang = voiceLang === 'EN' ? 'HI' : 'EN';
     setVoiceLang(nextLang);
+    voiceLangRef.current = nextLang;
+    playContinuousSentence(currentStage, 0);
   };
 
   const handleClose = () => {
@@ -403,6 +563,14 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
     const s = sec % 60;
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
+
+  const currentSentences =
+    voiceLang === 'HI'
+      ? currentStage.narrationSentencesHindi
+      : currentStage.narrationSentences;
+  const activeSubtitle =
+    currentSentences[currentSentenceIdx % currentSentences.length] ||
+    currentSentences[0];
 
   return createPortal(
     <div
@@ -422,14 +590,14 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className="text-xs sm:text-sm font-black uppercase tracking-wider bg-gradient-to-r from-purple-300 to-teal-300 bg-clip-text text-transparent">
-                  AABHA AI • 3-MIN REAL-LIFE SHOWCASE
+                  AABHA AI • 3-MIN CONTINUOUS SHOWCASE
                 </span>
                 <span className="hidden sm:inline px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-400/20 text-emerald-300 border border-emerald-400/40">
-                  SIH26003
+                  Continuous Speech Narration
                 </span>
               </div>
               <div className="text-[10px] text-slate-400 font-medium">
-                Real-World Elderly & Caregiver Scenarios with AI Voiceover & Background Music
+                Uninterrupted Voiceover with Ambient Wellness Background Music
               </div>
             </div>
           </div>
@@ -460,7 +628,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                   ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300'
                   : 'bg-white/10 border-white/15 text-slate-400'
               }`}
-              title={isVoiceoverOn ? 'Voiceover Speaking' : 'Voiceover Muted'}
+              title={isVoiceoverOn ? 'Continuous Voiceover Speaking' : 'Voiceover Muted'}
             >
               {isVoiceoverOn ? <Volume2 className="w-3.5 h-3.5 text-emerald-400 animate-pulse" /> : <VolumeX className="w-3.5 h-3.5" />}
               <span className="hidden lg:inline text-[11px]">{isVoiceoverOn ? 'Voice ON' : 'Muted'}</span>
@@ -549,14 +717,14 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
           </div>
         </div>
 
-        {/* ─── LIVE VOICE NARRATION SUBTITLE TICKER ────────────────────────── */}
-        <div className="px-4 sm:px-8 py-2 bg-gradient-to-r from-purple-500/15 to-teal-500/15 border-b border-purple-400/20 flex items-center gap-2.5 shrink-0">
+        {/* ─── LIVE VOICE NARRATION CONTINUOUS SUBTITLE TICKER ─────────────── */}
+        <div className="px-4 sm:px-8 py-2.5 bg-gradient-to-r from-purple-500/15 via-indigo-500/15 to-teal-500/15 border-b border-purple-400/20 flex items-center gap-3 shrink-0 shadow-inner">
           <div className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400 text-xs font-black shrink-0">
             <Radio className="w-4 h-4 animate-pulse text-purple-600 dark:text-purple-400" />
-            <span className="hidden sm:inline">AI Voiceover:</span>
+            <span className="hidden sm:inline">Speaking Now:</span>
           </div>
-          <p className="text-xs sm:text-sm font-semibold text-[var(--text-primary)] italic line-clamp-2">
-            "{voiceLang === 'HI' ? currentStage.narrationHindi : currentStage.narrationText}"
+          <p className="text-xs sm:text-sm font-bold text-[var(--text-primary)] italic leading-relaxed animate-fade-in line-clamp-2">
+            "{activeSubtitle}"
           </p>
         </div>
 
@@ -565,7 +733,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
           {/* Real-Life Human Scenario Spotlight Card */}
           <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-teal-500/10 border border-purple-400/25 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border)] shadow-md flex items-center justify-center text-3xl shrink-0">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border)] shadow-md flex items-center justify-center text-3xl shrink-0 animate-bounce">
                 {currentStage.humanScene.avatar}
               </div>
               <div className="space-y-1">
@@ -863,7 +1031,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
         <div className="px-5 sm:px-8 py-3 bg-[var(--bg-surface-secondary)] border-t border-[var(--border)] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)]">
             <Shield className="w-4 h-4 text-emerald-500" />
-            <span>Real-world human simulation • Non-diagnostic cognitive companion</span>
+            <span>Continuous speech active • 100% uninterrupted voiceover</span>
           </div>
 
           <div className="flex items-center gap-2">

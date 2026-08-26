@@ -7,7 +7,12 @@ const LANGUAGES = [
   { code: 'hi', label: 'Hindi', native: 'हिन्दी', short: 'हिं' },
   { code: 'mr', label: 'Marathi', native: 'मराठी', short: 'मरा' },
   { code: 'bn', label: 'Bengali', native: 'বাংলা', short: 'বাং' },
-  { code: 'as', label: 'Assamese', native: 'অসমীয়া', short: 'অস' }
+  { code: 'as', label: 'Assamese', native: 'অসমীয়া', short: 'অস' },
+  { code: 'gu', label: 'Gujarati', native: 'ગુજરાતી', short: 'ગુજ' },
+  { code: 'ta', label: 'Tamil', native: 'தமிழ்', short: 'தமி' },
+  { code: 'te', label: 'Telugu', native: 'తెలుగు', short: 'తెలు' },
+  { code: 'kn', label: 'Kannada', native: 'ಕನ್ನಡ', short: 'ಕನ್ನ' },
+  { code: 'pa', label: 'Punjabi', native: 'ਪੰਜਾਬੀ', short: 'ਪੰਜ' }
 ];
 
 interface LanguageSelectorProps {

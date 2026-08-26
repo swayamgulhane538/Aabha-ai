@@ -204,6 +204,23 @@ export const AabhaChat: React.FC = () => {
   const toggleListening = () => {
     if (!isSpeechSupported) return;
 
+    const getSpeechLangCode = (lang: string) => {
+      const map: Record<string, string> = {
+        hi: 'hi-IN',
+        mr: 'mr-IN',
+        bn: 'bn-IN',
+        as: 'as-IN',
+        gu: 'gu-IN',
+        ta: 'ta-IN',
+        te: 'te-IN',
+        kn: 'kn-IN',
+        pa: 'pa-IN',
+        en: 'en-US'
+      };
+      const clean = lang?.toLowerCase().split('-')[0] || 'en';
+      return map[clean] || 'en-US';
+    };
+
     if (orbState === 'LISTENING') {
       speechService.stopListening();
       setOrbState('IDLE');
@@ -219,16 +236,22 @@ export const AabhaChat: React.FC = () => {
         }
       },
       () => setOrbState('IDLE'),
-      i18n.language === 'bn' ? 'bn-IN' : i18n.language === 'mr' ? 'mr-IN' : i18n.language === 'hi' ? 'hi-IN' : 'en-US'
+      getSpeechLangCode(i18n.language)
     );
   };
 
-  const toggleLanguage = () => {
-    const langs = ['en', 'hi', 'bn', 'as', 'mr'];
-    const currIdx = langs.indexOf(i18n.language);
-    const nextLang = langs[(currIdx + 1) % langs.length];
-    i18n.changeLanguage(nextLang);
-  };
+  const INDIAN_LANGS = [
+    { code: 'hi', label: 'हिन्दी' },
+    { code: 'mr', label: 'मराठी' },
+    { code: 'bn', label: 'বাংলা' },
+    { code: 'as', label: 'অসমীয়া' },
+    { code: 'gu', label: 'ગુજરાતી' },
+    { code: 'ta', label: 'தமிழ்' },
+    { code: 'te', label: 'తెలుగు' },
+    { code: 'kn', label: 'ಕನ್ನಡ' },
+    { code: 'pa', label: 'ਪੰਜਾਬੀ' },
+    { code: 'en', label: 'English' }
+  ];
 
   const quickPrompts = [
     { label: `📅 ${t('What do I have today?')}`, text: 'What is my schedule today?' },
@@ -242,36 +265,42 @@ export const AabhaChat: React.FC = () => {
   return (
     <div className="w-full max-w-4xl mx-auto space-y-4 font-sans pb-24 text-[var(--text-primary)]">
       {/* ─── 1. TOP HEADER ─────────────────────────────────────────────────── */}
-      <div className="card-3d bg-[var(--card-bg-inline)] backdrop-blur-2xl p-3.5 sm:p-5 rounded-[24px] flex items-center justify-between border border-[var(--card-border-inline)] gap-2">
+      <div className="card-3d bg-[var(--card-bg-inline)] backdrop-blur-2xl p-3.5 sm:p-5 rounded-[24px] flex items-center justify-between border border-[var(--card-border-inline)] gap-2 flex-wrap sm:flex-nowrap">
         <Link to="/patient" className="btn-glass px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs flex items-center gap-1.5 hover:text-emerald-400">
           <ArrowLeft className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">{t('Back to Dashboard')}</span>
           <span className="sm:hidden">{t('Back')}</span>
         </Link>
 
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Gemini Key Config Button */}
+        {/* Multi-Lingual & Model Controls */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Multi-Language Dropdown for Gemini */}
+          <select
+            value={i18n.language.split('-')[0]}
+            onChange={e => i18n.changeLanguage(e.target.value)}
+            className="btn-glass px-2.5 py-1.5 text-xs font-black cursor-pointer rounded-xl focus:outline-none"
+            aria-label="Select AI Chat Language"
+          >
+            {INDIAN_LANGS.map(l => (
+              <option key={l.code} value={l.code} className="bg-slate-900 text-white">
+                🗣️ {l.label}
+              </option>
+            ))}
+          </select>
+
+          {/* Gemini API Key Button */}
           <button
             onClick={() => setShowKeyModal(true)}
-            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition border ${
+            className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition ${
               hasGeminiKey
-                ? 'bg-teal-500/20 border-teal-400/50 text-teal-300'
-                : 'bg-amber-500/20 border-amber-400/50 text-amber-300 animate-pulse'
+                ? 'bg-teal-500/20 text-teal-300 border-teal-400/40 shadow-sm'
+                : 'btn-glass text-amber-300 border-amber-400/40'
             }`}
             title="Configure Google Gemini API Key"
           >
-            <Key className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">{hasGeminiKey ? t('Gemini Active') : t('Enter Gemini Key')}</span>
           </button>
 
-          {/* Language Switch */}
-          <button
-            onClick={toggleLanguage}
-            className="btn-glass px-2.5 py-1.5 sm:px-3 sm:py-1.5 text-xs font-bold flex items-center gap-1"
-          >
-            <Globe className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="uppercase">{i18n.language}</span>
-          </button>
 
           {/* Voice Output Toggle */}
           <button

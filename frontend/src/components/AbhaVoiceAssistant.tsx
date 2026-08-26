@@ -18,12 +18,28 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
   const [transcript, setTranscript] = useState('');
   const [reply, setReply] = useState('');
   const [inputText, setInputText] = useState('');
-  const [language, setLanguage] = useState<'hi' | 'mr' | 'en'>('hi');
+  const [language, setLanguage] = useState<string>('hi');
   const [isMuted, setIsMuted] = useState(false);
   const [conversationHistory, setConversationHistory] = useState<Array<{ role: 'user' | 'assistant'; text: string }>>([]);
 
   const recognitionRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
+
+  const getSpeechLang = (code: string) => {
+    const map: Record<string, string> = {
+      hi: 'hi-IN',
+      mr: 'mr-IN',
+      bn: 'bn-IN',
+      as: 'as-IN',
+      gu: 'gu-IN',
+      ta: 'ta-IN',
+      te: 'te-IN',
+      kn: 'kn-IN',
+      pa: 'pa-IN',
+      en: 'en-IN'
+    };
+    return map[code] || 'en-IN';
+  };
 
   // Initialize Speech Synthesis & Speech Recognition
   useEffect(() => {
@@ -35,7 +51,7 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
         const recognition = new SpeechRecognition();
         recognition.continuous = false;
         recognition.interimResults = true;
-        recognition.lang = language === 'mr' ? 'mr-IN' : language === 'hi' ? 'hi-IN' : 'en-IN';
+        recognition.lang = getSpeechLang(language);
 
         recognition.onstart = () => {
           setState('LISTENING');
@@ -89,9 +105,16 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
 
     synthRef.current.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = language === 'mr' ? 'mr-IN' : language === 'hi' ? 'hi-IN' : 'en-IN';
-    utterance.rate = 0.9; // Slightly slower for elderly comprehension
+    utterance.lang = getSpeechLang(language);
+    utterance.rate = 0.92; // Slightly slower for elderly comprehension
     utterance.pitch = 1.05; // Warm, friendly tone
+
+    // Try finding matching native voice
+    const voices = synthRef.current.getVoices();
+    const targetVoice = voices.find(v => v.lang.includes(language) || v.lang.includes(getSpeechLang(language)));
+    if (targetVoice) {
+      utterance.voice = targetVoice;
+    }
 
     utterance.onstart = () => {
       setState('SPEAKING');
@@ -249,22 +272,24 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
               </div>
 
               <div className="flex items-center gap-2">
-                {/* Language Switcher */}
-                <div className="flex bg-gray-100 p-0.5 rounded-xl border border-gray-300 text-xs font-black">
-                  {(['hi', 'mr', 'en'] as const).map(lang => (
-                    <button
-                      key={lang}
-                      onClick={() => setLanguage(lang)}
-                      className={`px-2.5 py-1 rounded-lg transition ${
-                        language === lang
-                          ? 'bg-black text-white'
-                          : 'text-gray-700 hover:text-black'
-                      }`}
-                    >
-                      {lang === 'hi' ? 'हिंदी' : lang === 'mr' ? 'मराठी' : 'EN'}
-                    </button>
-                  ))}
-                </div>
+                {/* Multi-Lingual Selector */}
+                <select
+                  value={language}
+                  onChange={e => setLanguage(e.target.value)}
+                  className="px-2.5 py-1 rounded-xl bg-gray-100 border border-gray-300 text-xs font-black text-black cursor-pointer focus:outline-none"
+                  aria-label="Select AI Voice Language"
+                >
+                  <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
+                  <option value="mr">🇮🇳 मराठी (Marathi)</option>
+                  <option value="bn">🇮🇳 বাংলা (Bengali)</option>
+                  <option value="as">🇮🇳 অসমীয়া (Assamese)</option>
+                  <option value="gu">🇮🇳 ગુજરાતી (Gujarati)</option>
+                  <option value="ta">🇮🇳 தமிழ் (Tamil)</option>
+                  <option value="te">🇮🇳 తెలుగు (Telugu)</option>
+                  <option value="kn">🇮🇳 ಕನ್ನಡ (Kannada)</option>
+                  <option value="pa">🇮🇳 ਪੰਜਾਬੀ (Punjabi)</option>
+                  <option value="en">🇺🇸 English</option>
+                </select>
 
                 {/* Mute Toggle */}
                 <button

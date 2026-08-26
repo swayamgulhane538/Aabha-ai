@@ -204,7 +204,27 @@ export class GeminiService {
   ): Promise<string | null> {
     if (!this.hasApiKey()) return null;
 
-    const systemPrompt = `You are AABHA AI (आभा एआई), a compassionate, warm, and highly intelligent cognitive and healthcare companion designed for Indian families, patients, seniors, and caregivers. Speak simply and clearly in short sentences. Understand Hindi, Marathi, Bengali, Assamese, and English naturally. Never diagnose medical conditions. If emergency, urge contacting healthcare/SOS. Provide structured, encouraging, and zero-hallucination responses.\nContext: ${contextInfo}\nLanguage: ${language}`;
+    const LANG_MAP: Record<string, string> = {
+      hi: 'Hindi (हिन्दी)',
+      mr: 'Marathi (मराठी)',
+      bn: 'Bengali (বাংলা)',
+      as: 'Assamese (অসমীয়া)',
+      gu: 'Gujarati (ગુજરાતી)',
+      ta: 'Tamil (தமிழ்)',
+      te: 'Telugu (తెలుగు)',
+      kn: 'Kannada (ಕನ್ನಡ)',
+      ml: 'Malayalam (മലയാളം)',
+      pa: 'Punjabi (ਪੰਜਾਬੀ)',
+      en: 'Indian English'
+    };
+
+    const cleanLang = language.toLowerCase().split('-')[0];
+    const targetLangName = LANG_MAP[cleanLang] || 'Indian English';
+
+    const systemPrompt = `You are AABHA AI (आभा एआई), a compassionate, warm, and highly intelligent cognitive and healthcare companion designed for Indian families, patients, seniors, and caregivers.
+MULTI-LINGUAL INSTRUCTION: You are fully fluent in Indian languages. You MUST respond fluently and naturally in ${targetLangName}. Use culturally respectful honorifics. Keep sentences clear, empathetic, and concise (2-3 sentences). Never diagnose medical conditions.
+Context: ${contextInfo}
+Target Language: ${targetLangName}`;
 
     const modelsToTry = [
       this.activeModel,

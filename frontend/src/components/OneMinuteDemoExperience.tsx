@@ -27,19 +27,23 @@ import {
   Zap,
   FolderOpen,
   HelpCircle,
-  Share2
+  Share2,
+  Globe
 } from 'lucide-react';
 import { Abha3DOrb } from './Abha3DOrb';
 import { ambientMusic } from '../services/ambientMusicService';
 
 type SpeakerId = 'narrator' | 'father' | 'daughter' | 'doctor' | 'aabha';
+type SupportedLang = 'HI' | 'EN' | 'MR';
 
 interface DialogueLine {
   speaker: SpeakerId;
   speakerName: string;
+  speakerNameMarathi?: string;
   speakerEmoji: string;
   text: string;
   textHindi: string;
+  textMarathi: string;
 }
 
 interface SceneConfig {
@@ -48,29 +52,37 @@ interface SceneConfig {
   endSec: number;
   sceneNumber: string;
   title: string;
+  titleMarathi: string;
   subtitle: string;
+  subtitleMarathi: string;
   badge: string;
   bgGradient: string;
   visualAtmosphere: string;
   visualElements: {
     icon: string;
     label: string;
+    labelMarathi: string;
     desc: string;
+    descMarathi: string;
   }[];
   activeCardProps: {
     title: string;
+    titleMarathi: string;
     subtitle: string;
+    subtitleMarathi: string;
     tag: string;
+    tagMarathi: string;
     iconEmoji: string;
   };
   dialogues: DialogueLine[];
 }
 
-const SPEAKER_PROFILES: Record<SpeakerId, { pitch: number; rate: number; label: string; color: string; bgColor: string }> = {
+const SPEAKER_PROFILES: Record<SpeakerId, { pitch: number; rate: number; label: string; labelMarathi: string; color: string; bgColor: string }> = {
   father: {
     pitch: 0.82,
     rate: 0.90,
     label: '👴 Father (Papa)',
+    labelMarathi: '👴 बाबा (वडील)',
     color: 'text-amber-600 dark:text-amber-300',
     bgColor: 'bg-amber-500/20 border-amber-400'
   },
@@ -78,6 +90,7 @@ const SPEAKER_PROFILES: Record<SpeakerId, { pitch: number; rate: number; label: 
     pitch: 1.25,
     rate: 1.05,
     label: '👩 Daughter (Beta)',
+    labelMarathi: '👩 मुलगी (अनिता)',
     color: 'text-pink-600 dark:text-pink-300',
     bgColor: 'bg-pink-500/20 border-pink-400'
   },
@@ -85,6 +98,7 @@ const SPEAKER_PROFILES: Record<SpeakerId, { pitch: number; rate: number; label: 
     pitch: 1.05,
     rate: 1.02,
     label: '👨‍⚕️ Doctor',
+    labelMarathi: '👨‍⚕️ डॉक्टर',
     color: 'text-cyan-600 dark:text-cyan-300',
     bgColor: 'bg-cyan-500/20 border-cyan-400'
   },
@@ -92,6 +106,7 @@ const SPEAKER_PROFILES: Record<SpeakerId, { pitch: number; rate: number; label: 
     pitch: 1.15,
     rate: 1.02,
     label: '🤖 AABHA AI Assistant',
+    labelMarathi: '🤖 आभा एआय (डिजिटल साथी)',
     color: 'text-purple-600 dark:text-purple-300',
     bgColor: 'bg-purple-500/20 border-purple-400'
   },
@@ -99,6 +114,7 @@ const SPEAKER_PROFILES: Record<SpeakerId, { pitch: number; rate: number; label: 
     pitch: 1.00,
     rate: 1.02,
     label: '🎙️ Voiceover Narrator',
+    labelMarathi: '🎙️ सूत्रधार (कथावाचक)',
     color: 'text-indigo-600 dark:text-indigo-300',
     bgColor: 'bg-indigo-500/20 border-indigo-400'
   }
@@ -111,42 +127,71 @@ const MASTER_SCENES: SceneConfig[] = [
     endSec: 25,
     sceneNumber: 'SCENE 1',
     title: 'THE PROBLEM: Missing Health History in Files',
+    titleMarathi: 'समस्या: फाईल्सच्या ढिगाऱ्यात हरवलेला आरोग्य इतिहास',
     subtitle: 'Medical files, scattered prescriptions, and the struggle to find reports',
+    subtitleMarathi: 'वैद्यकीय फाइल्स, विखुरलेली औषधांची प्रिस्क्रिप्शन्स आणि रिपोर्ट शोधण्याची धडपड',
     badge: '0:00 – 0:25 • THE SCATTERED FILES',
     bgGradient: 'from-stone-900 via-amber-950/70 to-slate-950',
     visualAtmosphere: 'Dark, desaturated Indian living room with paper clutter',
     visualElements: [
-      { icon: '📁', label: 'Purani Files Ka Dher', desc: 'Blood reports, X-rays aur prescriptions table par bikhre hain' },
-      { icon: '🔍', label: 'Missing History', desc: 'Pichhli report dhundhne mein waqt barbaad' },
-      { icon: '⌛', label: 'Unorganized Care', desc: 'Ek report ghar par, ek clinic par' }
+      {
+        icon: '📁',
+        label: 'Purani Files Ka Dher',
+        labelMarathi: 'जुन्या फाईल्सचा ढीग',
+        desc: 'Blood reports, X-rays aur prescriptions table par bikhre hain',
+        descMarathi: 'रक्त तपासणी रिपोर्ट, क्ष-किरण आणि औषधांचे कागद विखुरलेले'
+      },
+      {
+        icon: '🔍',
+        label: 'Missing History',
+        labelMarathi: 'इतिहास गहाळ',
+        desc: 'Pichhli report dhundhne mein waqt barbaad',
+        descMarathi: 'मागील महत्त्वाची रिपोर्ट शोधण्यात वेळ वाया'
+      },
+      {
+        icon: '⌛',
+        label: 'Unorganized Care',
+        labelMarathi: 'अव्यवस्थित नोंदी',
+        desc: 'Ek report ghar par, ek clinic par',
+        descMarathi: 'एक रिपोर्ट घरी, एक दवाखान्यात'
+      }
     ],
     activeCardProps: {
       title: 'Scattered Physical Paper Records',
+      titleMarathi: 'विखुरलेले जुने कागदी आरोग्य नोंदी',
       subtitle: 'India mein hum health ka khayal rakhte hain, par history sambhal nahi paate.',
+      subtitleMarathi: 'आपण आरोग्याची काळजी घेतो, पण आरोग्याचा इतिहास फाईल्समध्ये हरवून बसतो.',
       tag: 'Problem Statement',
+      tagMarathi: 'समस्या',
       iconEmoji: '📑'
     },
     dialogues: [
       {
         speaker: 'father',
         speakerName: 'Father',
+        speakerNameMarathi: 'बाबा',
         speakerEmoji: '👴',
-        text: 'Beta… woh meri pichhli blood report kahan rakhi thi? Dr. Verma ne maangi thi.',
-        textHindi: 'बेटा… वो मेरी पिछली ब्लड रिपोर्ट कहाँ रखी थी? डॉक्टर साहब ने माँगी थी।'
+        text: 'Beta… where did you keep my previous blood report? Dr. Verma asked for it.',
+        textHindi: 'बेटा… वो मेरी पिछली ब्लड रिपोर्ट कहाँ रखी थी? डॉक्टर साहब ने माँगी थी।',
+        textMarathi: 'मुली… माझी मागची ब्लड रिपोर्ट कुठे ठेवली होतीस? डॉक्टरांनी मागितली आहे.'
       },
       {
         speaker: 'daughter',
         speakerName: 'Daughter',
+        speakerNameMarathi: 'मुलगी',
         speakerEmoji: '👩',
-        text: 'Papa, pata nahi… shayad purani file mein hai. Ek second main dhundti hoon.',
-        textHindi: 'पापा, पता नहीं… शायद पुरानी फाइल में है। एक सेकंड मैं ढूँढती हूँ।'
+        text: 'Papa, I am not sure… it must be in that old paper file. Let me search quickly.',
+        textHindi: 'पापा, पता नहीं… शायद पुरानी फाइल में है। एक सेकंड मैं ढूँढती हूँ।',
+        textMarathi: 'बाबा, माहिती नाही… कदाचित त्या जुन्या फाईलमध्ये असेल. मी लगेच शोधून बघते.'
       },
       {
         speaker: 'narrator',
         speakerName: 'Voiceover',
+        speakerNameMarathi: 'सूत्रधार',
         speakerEmoji: '🎙️',
-        text: 'In India, we care for our health… but often lose track of our health history. One report at home, one prescription with the doctor, and years of medical history lost among files.',
-        textHindi: 'भारत में हम अपनी सेहत का ख्याल रखते हैं… लेकिन अक्सर अपनी हेल्थ की हिस्ट्री को संभाल नहीं पाते। एक रिपोर्ट घर पर… एक पर्चा डॉक्टर के पास… और पुरानी हिस्ट्री फाइलों के बीच खो जाती है।'
+        text: 'In India, we care deeply for our health… but often lose track of our health history. One report at home, one prescription with the doctor, and years of medical history lost among files.',
+        textHindi: 'भारत में हम अपनी सेहत का ख्याल रखते हैं… लेकिन अक्सर अपनी हेल्थ की हिस्ट्री को संभाल नहीं पाते। एक रिपोर्ट घर पर… एक पर्चा डॉक्टर के पास… और पुरानी हिस्ट्री फाइलों के बीच खो जाती है।',
+        textMarathi: 'भारतात आपण तब्येतीची काळजी घेतो… पण आरोग्याचा इतिहास फाईल्सच्या ढिगाऱ्यात कुठेतरी हरवून बसतो. एक रिपोर्ट घरी… एक डॉक्टरांकडे… आणि महत्त्वाचा इतिहास फाईल्समध्ये गहाळ होतो.'
       }
     ]
   },
@@ -156,49 +201,80 @@ const MASTER_SCENES: SceneConfig[] = [
     endSec: 55,
     sceneNumber: 'SCENE 2',
     title: 'THE CRITICAL MOMENT: Emergency Hospital Visit',
+    titleMarathi: 'आणीबाणीचा क्षण: मध्यरात्री दवाखान्यातील धावपळ',
     subtitle: 'Late night medical crisis where missing health information costs critical minutes',
+    subtitleMarathi: 'माहिती उपलब्ध नसल्यामुळे उपचारांत होणारा विलंब आणि डॉक्टरांची चिंता',
     badge: '0:25 – 0:55 • EMERGENCY CLINIC',
     bgGradient: 'from-rose-950 via-slate-950 to-indigo-950',
     visualAtmosphere: 'Urgent red & blue hospital lighting, ticking clock',
     visualElements: [
-      { icon: '🚨', label: 'Late Night Crisis', desc: 'Achanak tabiyat kharab hona' },
-      { icon: '🩺', label: 'Doctor Inquires', desc: 'Previous medication aur reports ki maang' },
-      { icon: '⏱️', label: 'Ticking Clock', desc: 'Emergency mein information ka missing hona' }
+      {
+        icon: '🚨',
+        label: 'Late Night Crisis',
+        labelMarathi: 'मध्यरात्री आणीबाणी',
+        desc: 'Achanak tabiyat kharab hona',
+        descMarathi: 'अचानक तब्येत बिघडणे'
+      },
+      {
+        icon: '🩺',
+        label: 'Doctor Inquires',
+        labelMarathi: 'डॉक्टरांची चौकशी',
+        desc: 'Previous medication aur reports ki maang',
+        descMarathi: 'मागील औषधे आणि जुन्या रिपोर्टची मागणी'
+      },
+      {
+        icon: '⏱️',
+        label: 'Ticking Clock',
+        labelMarathi: 'वेळेचा अपव्यय',
+        desc: 'Emergency mein information ka missing hona',
+        descMarathi: 'इमर्जन्सीमध्ये माहिती गहाळ असणे'
+      }
     ],
     activeCardProps: {
       title: 'Information Crisis in Emergency',
+      titleMarathi: 'इमर्जन्सीमध्ये माहितीचा अभाव',
       subtitle: 'Emergency mein problem sirf bimari nahi hoti — problem hoti hai information ka missing hona.',
+      subtitleMarathi: 'इमर्जन्सीमध्ये अडचण फक्त आजार नसते — खरी अडचण असते माहिती वेळेवर न मिळणे.',
       tag: 'Critical Impact',
+      tagMarathi: 'गंभीर क्षण',
       iconEmoji: '🚨'
     },
     dialogues: [
       {
         speaker: 'daughter',
         speakerName: 'Daughter',
+        speakerNameMarathi: 'मुलगी',
         speakerEmoji: '👩',
-        text: 'Papa ko achanak bechaini ho rahi hai… Papa, chaliye abhi hospital chalte hain!',
-        textHindi: 'पापा को अचानक बेचैनी हो रही है… पापा, चलिए अभी हॉस्पिटल चलते हैं!'
+        text: 'Papa is feeling suddenly unwell and breathless… Papa, let us rush to the hospital right now!',
+        textHindi: 'पापा को अचानक बेचैनी हो रही है… पापा, चलिए अभी हॉस्पिटल चलते हैं!',
+        textMarathi: 'बाबांना अचानक खूप अस्वस्थ वाटतंय… बाबा, चला आपण लगेच दवाखान्यात जाऊया!'
       },
       {
         speaker: 'doctor',
         speakerName: 'Doctor',
+        speakerNameMarathi: 'डॉक्टर',
         speakerEmoji: '👨‍⚕️',
-        text: 'Previous reports hain aapke paas? Pehle koi heart ya BP ki medication chal rahi hai kya?',
-        textHindi: 'Previous reports हैं आपके पास? पहले कोई BP या शुगर की medication चल रही है क्या?'
+        text: 'Do you have his previous reports? Is he currently on any blood pressure or heart medications?',
+        textHindi: 'Previous reports हैं आपके पास? पहले कोई BP या शुगर की medication चल रही है क्या?',
+        textMarathi: 'मागील काही रिपोर्ट्स आहेत का तुमच्याकडे? आधीपासून कोणती बीपी किंवा हृदयाची औषधे सुरू आहेत का?'
       },
       {
         speaker: 'daughter',
         speakerName: 'Daughter',
+        speakerNameMarathi: 'मुलगी',
         speakerEmoji: '👩',
-        text: 'Sir… kuch reports hain, lekin complete history nahi mil rahi. Purani file ghar par reh gayi.',
-        textHindi: 'सर… कुछ रिपोर्ट्स हैं, लेकिन कम्प्लीट हिस्ट्री नहीं मिल रही। पुरानी फाइल घर पर रह गई।'
+        text: 'Doctor… we have a few papers, but his complete history is not available here. The old folder remained at home.',
+        textHindi: 'सर… कुछ रिपोर्ट्स हैं, लेकिन कम्प्लीट हिस्ट्री नहीं मिल रही। पुरानी फाइल घर पर रह गई।',
+        textMarathi: 'सर… काही रिपोर्ट्स आहेत, पण पूर्ण इतिहास सापडत नाहीये. जुनी फाईल घरीच राहिली.'
       },
       {
         speaker: 'narrator',
         speakerName: 'Voiceover',
+        speakerNameMarathi: 'सूत्रधार',
         speakerEmoji: '🎙️',
         text: 'In an emergency, the real danger is not just the illness… The real danger is missing critical information.',
-        textHindi: 'इमरजेंसी में प्रॉब्लम सिर्फ बीमारी नहीं होती… प्रॉब्लम होती है — जानकारी का मिसिंग होना।'
+        textHindi: 'इमरजेंसी में प्रॉब्लम सिर्फ बीमारी नहीं होती… प्रॉब्लम होती है — जानकारी का मिसिंग होना।',
+        textMarathi: 'इमर्जन्सीमध्ये अडचण फक्त आजार नसते… खरी अडचण असते — खरी माहिती वेळेवर उपलब्ध नसणे.'
       }
     ]
   },
@@ -208,42 +284,71 @@ const MASTER_SCENES: SceneConfig[] = [
     endSec: 80,
     sceneNumber: 'SCENE 3',
     title: 'AABHA AI INTRODUCTION: Your Health in Your Phone',
+    titleMarathi: 'आभा एआयचा परिचय: तुमचे आरोग्य आता तुमच्या मोबाईलमध्ये',
     subtitle: 'The dark screen illuminates with an intelligent, organized health companion',
+    subtitleMarathi: 'सुरक्षित, सुटसुटीत आणि कृत्रिम बुद्धिमत्ता आधारित डिजिटल आरोग्य साथी',
     badge: '0:55 – 1:20 • PRODUCT REVEAL',
     bgGradient: 'from-indigo-950 via-purple-950 to-cyan-950',
     visualAtmosphere: 'Futuristic blue & white illumination, illuminated phone screen',
     visualElements: [
-      { icon: '✨', label: 'Illuminated Screen', desc: 'Dark screen illuminates with futuristic AABHA glow' },
-      { icon: '📱', label: 'Organized Health', desc: 'All records beautifully structured in phone' },
-      { icon: '🤖', label: 'Intelligent AI', desc: 'Your personal cognitive health companion' }
+      {
+        icon: '✨',
+        label: 'Illuminated Screen',
+        labelMarathi: 'चमकती स्क्रीन',
+        desc: 'Dark screen illuminates with futuristic AABHA glow',
+        descMarathi: 'गडद स्क्रीनवर आभा एआयची तेजस्वी निळी-पांढरी प्रभा'
+      },
+      {
+        icon: '📱',
+        label: 'Organized Health',
+        labelMarathi: 'व्यवस्थित नोंदी',
+        desc: 'All records beautifully structured in phone',
+        descMarathi: 'सर्व औषधे आणि अहवाल मोबाईलमध्ये उपलब्ध'
+      },
+      {
+        icon: '🤖',
+        label: 'Intelligent AI',
+        labelMarathi: 'हुशार एआय',
+        desc: 'Your personal cognitive health companion',
+        descMarathi: 'तुमचा वैयक्तिक कॉग्निटिव्ह आरोग्य साथी'
+      }
     ],
     activeCardProps: {
       title: 'Meet AABHA AI: Intelligent Health Companion',
+      titleMarathi: 'भेटा आभा एआयला: तुमची स्मार्ट डिजिटल आरोग्य साथी',
       subtitle: 'Agar aapki health information phone mein organized, accessible aur intelligent way mein ho?',
+      subtitleMarathi: 'जर तुमच्या आरोग्याची संपूर्ण माहिती मोबाईलमध्ये कायम उपलब्ध असेल तर?',
       tag: 'The Solution',
+      tagMarathi: 'स्मार्ट उपाय',
       iconEmoji: '✨'
     },
     dialogues: [
       {
         speaker: 'narrator',
         speakerName: 'Voiceover',
+        speakerNameMarathi: 'सूत्रधार',
         speakerEmoji: '🎙️',
-        text: 'Lekin sochiye… agar aapki health ki important information… aapke phone mein… organized, accessible aur intelligent way mein available ho?',
-        textHindi: 'लेकिन सोचिए… अगर आपकी हेल्थ की इम्पोर्टेन्ट इन्फॉर्मेशन… आपके फोन में… ऑर्गनाइज़्ड, एक्सेसिबल और इंटेलिजेंट तरीके से मौजूद हो?'
+        text: 'What if your critical health information was available right in your smartphone — organized, accessible, and intelligent?',
+        textHindi: 'लेकिन सोचिए… अगर आपकी हेल्थ की इम्पोर्टेन्ट इन्फॉर्मेशन… आपके फोन में… ऑर्गनाइज़्ड, एक्सेसिबल और इंटेलिजेंट तरीके से मौजूद हो?',
+        textMarathi: 'पण विचार करा… जर तुमच्या आरोग्याची संपूर्ण माहिती… तुमच्या मोबाईलमध्ये… व्यवस्थित, सुरक्षित आणि समजेल अशा पद्धतीने उपलब्ध असेल तर?'
       },
       {
         speaker: 'narrator',
         speakerName: 'Voiceover',
+        speakerNameMarathi: 'सूत्रधार',
         speakerEmoji: '🎙️',
-        text: 'Meet AABHA AI. Your intelligent health companion. Ab health records sirf files mein nahi, aapke saath hain.',
-        textHindi: 'मिलिए आभा एआई से। आपकी इंटेलिजेंट हेल्थ साथी। अब हेल्थ रिकॉर्ड्स सिर्फ फाइलों में नहीं, आपके साथ हैं।'
+        text: 'Meet AABHA AI. Your intelligent health companion. Health records are no longer trapped in paper files — they travel with you.',
+        textHindi: 'मिलिए आभा एआई से। आपकी इंटेलिजेंट हेल्थ साथी। अब हेल्थ रिकॉर्ड्स सिर्फ फाइलों में नहीं, आपके साथ हैं।',
+        textMarathi: 'भेटा आभा एआयला! तुमची हुशार आरोग्य साथी. आता आरोग्य नोंदी फक्त कागदी फाईल्समध्ये नाही, तुमच्या सोबत राहतील.'
       },
       {
         speaker: 'aabha',
         speakerName: 'AABHA AI',
+        speakerNameMarathi: 'आभा एआय',
         speakerEmoji: '🤖',
-        text: 'Namaste! Main hoon AABHA AI. Aapke prescriptions, lab reports aur medical timeline ko samajhna ab behad aasan hai.',
-        textHindi: 'नमस्ते! मैं हूँ आभा एआई। आपके प्रिस्क्रिप्शन्स, लैब रिपोर्ट्स और मेडिकल टाइमलाइन को समझना अब बेहद आसान है।'
+        text: 'Hello! I am AABHA AI. Organizing your prescriptions, lab reports, and medication timeline is now effortless and safe.',
+        textHindi: 'नमस्ते! मैं हूँ आभा एआई। आपके प्रिस्क्रिप्शन्स, लैब रिपोर्ट्स और मेडिकल टाइमलाइन को समझना अब बेहद आसान है।',
+        textMarathi: 'नमस्कार! मी आहे आभा एआय. तुमची औषधे, तपासणी अहवाल आणि आरोग्याचा इतिहास समजून घेणे आता अतिशय सोपे झाले आहे.'
       }
     ]
   },
@@ -253,49 +358,80 @@ const MASTER_SCENES: SceneConfig[] = [
     endSec: 125,
     sceneNumber: 'SCENE 4',
     title: 'HOW IT WORKS: 3-Step Intelligent Health Journey',
+    titleMarathi: 'कार्यपद्धती: ३ टप्प्यांत सोपे आणि स्मार्ट आरोग्य व्यवस्थापन',
     subtitle: '1. Clean Timeline • 2. AI Understands Health • 3. Ask Your Health AI',
+    subtitleMarathi: '१. डिजिटल टाइमलाइन • २. सोप्या भाषेत विश्लेषण • ३. प्रश्न विचारा व उत्तरे मिळवा',
     badge: '1:20 – 2:05 • 3-STEP ENGINE',
     bgGradient: 'from-teal-950 via-slate-900 to-indigo-950',
     visualAtmosphere: 'Live UI app recordings, interactive AI chat, timeline flow',
     visualElements: [
-      { icon: '📅', label: '1. Digital Timeline', desc: 'Old report ➔ Digital record, Prescription ➔ Medicine info' },
-      { icon: '🧠', label: '2. AI Explains Health', desc: 'Complex medical jargon translated to simple language' },
-      { icon: '💬', label: '3. Ask Health AI', desc: '"Ye medicine kisliye hai?" ➔ Instant clear answers' }
+      {
+        icon: '📅',
+        label: '1. Digital Timeline',
+        labelMarathi: '१. डिजिटल टाइमलाइन',
+        desc: 'Old report ➔ Digital record, Prescription ➔ Medicine info',
+        descMarathi: 'जुनी रिपोर्ट ➔ डिजिटल नोंद, औषध पर्चा ➔ अलार्म'
+      },
+      {
+        icon: '🧠',
+        label: '2. AI Explains Terms',
+        labelMarathi: '२. सोप्या भाषेत स्पष्टीकरण',
+        desc: 'Complex medical jargon translated to simple language',
+        descMarathi: 'कठीण वैद्यकीय संज्ञा सोप्या भाषेत समजतात'
+      },
+      {
+        icon: '💬',
+        label: '3. Ask Health AI',
+        labelMarathi: '३. आरोग्याचे प्रश्न विचारा',
+        desc: '"Ye medicine kisliye hai?" ➔ Instant clear answers',
+        descMarathi: '"ही गोळी कशासाठी आहे?" ➔ त्वरित स्पष्टीकरण'
+      }
     ],
     activeCardProps: {
       title: 'Simple Digital Health Experience',
+      titleMarathi: 'सहज आणि सोपा डिजिटल आरोग्य अनुभव',
       subtitle: 'Questions poochiye. Records ko samajhiye. Apni health journey ko better way mein track kijiye.',
+      subtitleMarathi: 'प्रश्न विचारा, रिपोर्ट समजून घ्या आणि आपल्या आरोग्यावर पूर्ण नियंत्रण मिळवा.',
       tag: 'Interactive Tech',
+      tagMarathi: 'तंत्रज्ञान',
       iconEmoji: '⚡'
     },
     dialogues: [
       {
         speaker: 'narrator',
         speakerName: 'Voiceover',
+        speakerNameMarathi: 'सूत्रधार',
         speakerEmoji: '🎙️',
-        text: 'AABHA AI transforms physical files into a clean health timeline. Old reports become digital records; prescriptions become live medicine reminders.',
-        textHindi: 'आभा एआई आपकी हेल्थ इन्फॉर्मेशन को एक साफ़ टाइमलाइन में बदल देती है। पुरानी रिपोर्ट्स डिजिटल रिकॉर्ड बन जाती हैं।'
+        text: 'AABHA AI transforms physical files into a clean health timeline. Old reports become structured digital records; prescriptions become live reminders.',
+        textHindi: 'आभा एआई आपकी हेल्थ इन्फॉर्मेशन को एक साफ़ टाइमलाइन में बदल देती है। पुरानी रिपोर्ट्स डिजिटल रिकॉर्ड बन जाती हैं।',
+        textMarathi: 'आभा एआय कागदी फाईल्सना एका स्वच्छ डिजिटल टाइमलाइनमध्ये रूपांतरित करते. जुने अहवाल डिजिटल नोंदी बनतात आणि औषधे अलार्म बनतात.'
       },
       {
         speaker: 'father',
         speakerName: 'Father',
+        speakerNameMarathi: 'बाबा',
         speakerEmoji: '👴',
-        text: 'Aabha, meri recent blood report mein kya important hai? Aur ye Donepezil medicine kisliye hai?',
-        textHindi: 'आभा, मेरी हालिया ब्लड रिपोर्ट में क्या खास है? और ये डोनेपेज़िल दवाई किसलिए है?'
+        text: 'AABHA, what is important in my recent blood report? And why did the doctor prescribe Donepezil?',
+        textHindi: 'आभा, मेरी हालिया ब्लड रिपोर्ट में क्या खास है? और ये डोनेपेज़िल दवाई किसलिए है?',
+        textMarathi: 'आभा, माझ्या ताज्या ब्लड रिपोर्टमध्ये काय महत्त्वाचं आहे? आणि ही डोनेपेझिल गोळी मला कशासाठी दिली आहे?'
       },
       {
         speaker: 'aabha',
         speakerName: 'AABHA AI',
+        speakerNameMarathi: 'आभा एआय',
         speakerEmoji: '🤖',
-        text: 'Arun ji, aapka BP aur sugar normal hai. Donepezil memory aur daily focus support ke liye hai, jo subah 8:30 baje leni hoti hai!',
-        textHindi: 'अरुण जी, आपकी रिपोर्ट सामान्य है। डोनेपेज़िल आपकी याददाश्त और फोकस के लिए है, जो सुबह 8:30 बजे नाश्ते के बाद लेनी है!'
+        text: 'Arun ji, your BP and glucose parameters are stable. Donepezil supports memory and daily focus, scheduled at 8:30 AM after breakfast!',
+        textHindi: 'अरुण जी, आपकी रिपोर्ट सामान्य है। डोनेपेज़िल आपकी याददाश्त और फोकस के लिए है, जो सुबह 8:30 बजे नाश्ते के बाद लेनी है!',
+        textMarathi: 'अरुण काका, तुमचा बीपी आणि शुगर रिपोर्ट सामान्य आहे. डोनेपेझिल गोळी तुमच्या स्मरणशक्तीसाठी आहे, जी सकाळी 8:30 वाजता घ्यायची आहे!'
       },
       {
         speaker: 'narrator',
         speakerName: 'Voiceover',
+        speakerNameMarathi: 'सूत्रधार',
         speakerEmoji: '🎙️',
-        text: 'Ask questions. Understand complex records in simple words. Empower your health journey with complete clarity.',
-        textHindi: 'सवाल्स पूछिए। रिपोर्ट्स को सरल भाषा में समझिए। अपनी सेहत के सफर को बेहतर तरीके से ट्रैक कीजिए।'
+        text: 'Ask questions. Understand complex medical terms in simple words. Track your health journey with complete clarity.',
+        textHindi: 'सवाल्स पूछिए। रिपोर्ट्स को सरल भाषा में समझिए। अपनी सेहत के सफर को बेहतर तरीके से ट्रैक कीजिए।',
+        textMarathi: 'प्रश्न विचारा, रिपोर्ट सोप्या भाषेत समजून घ्या आणि आपल्या आरोग्यावर पूर्ण नियंत्रण मिळवा.'
       }
     ]
   },
@@ -305,35 +441,62 @@ const MASTER_SCENES: SceneConfig[] = [
     endSec: 150,
     sceneNumber: 'SCENE 5',
     title: 'THE DOCTOR EXPERIENCE: Contextual Consultations',
+    titleMarathi: 'डॉक्टरांचा अनुभव: अचूक संदर्भ आणि जलद उपचार',
     subtitle: 'Doctors get instant historical context instead of starting from zero',
+    subtitleMarathi: 'मागील ६ महिन्यांचा अचूक इतिहास पाहून डॉक्टरांना अचूक निर्णय घेता येतो',
     badge: '2:05 – 2:30 • CLINIC CONSULTATION',
     bgGradient: 'from-cyan-950 via-slate-900 to-purple-950',
     visualAtmosphere: 'Professional hospital consultation room, doctor smiling at phone summary',
     visualElements: [
-      { icon: '🩺', label: 'Instant Context', desc: 'Pichhle 6 mahine ka complete timeline ek tap mein' },
-      { icon: '📈', label: '4-Pillar Radar', desc: 'Memory, Attention, Reaction Speed & Consistency' },
-      { icon: '🤝', label: 'Better Decisions', desc: 'No guesswork; accurate diagnostics & treatment' }
+      {
+        icon: '🩺',
+        label: 'Instant Context',
+        labelMarathi: 'त्वरित संदर्भ',
+        desc: 'Pichhle 6 mahine ka complete timeline ek tap mein',
+        descMarathi: 'मागील ६ महिन्यांची संपूर्ण टाइमलाइन एका क्लिकवर'
+      },
+      {
+        icon: '📈',
+        label: '4-Pillar Radar',
+        labelMarathi: '४ मुख्य स्तंभ',
+        desc: 'Memory, Attention, Reaction Speed & Consistency',
+        descMarathi: 'स्मरणशक्ती, एकाग्रता, गती आणि सातत्य'
+      },
+      {
+        icon: '🤝',
+        label: 'Better Decisions',
+        labelMarathi: 'अचूक उपचार',
+        desc: 'No guesswork; accurate diagnostics & treatment',
+        descMarathi: 'कोणतीही शंका न राहता योग्य आणि जलद उपचार'
+      }
     ],
     activeCardProps: {
       title: 'Empowering Doctors with Context',
+      titleMarathi: 'डॉक्टरांना अचूक संदर्भ मिळतो',
       subtitle: 'Jab information organized hoti hai, toh conversation sirf "aaj kya hua?" se shuru nahi hoti.',
+      subtitleMarathi: 'जेव्हा माहिती व्यवस्थित असते, तेव्हा संभाषण फक्त "आज काय झालं?" ने सुरू होत नाही.',
       tag: 'Clinical Value',
+      tagMarathi: 'वैद्यकीय मूल्य',
       iconEmoji: '🩺'
     },
     dialogues: [
       {
         speaker: 'doctor',
         speakerName: 'Doctor',
+        speakerNameMarathi: 'डॉक्टर',
         speakerEmoji: '👨‍⚕️',
-        text: 'Achha! Aapke phone mein pichhle 6 mahine ki complete history, dosage aur cognitive trend ek jagah hai! Ab mujhe complete context samajh aa raha hai.',
-        textHindi: 'अच्छा! आपके फोन में पिछले 6 महीने की कम्प्लीट हिस्ट्री और टाइमलाइन एक जगह है! अब मुझे आपकी पूरी स्थिति समझ आ रही है।'
+        text: 'Excellent! Your phone shows the last six months of dosage, timeline, and cognitive metrics in one structured dashboard! Now I have complete historical context.',
+        textHindi: 'अच्छा! आपके फोन में पिछले 6 महीने की कम्प्लीट हिस्ट्री और टाइमलाइन एक जगह है! अब मुझे आपकी पूरी स्थिति समझ आ रही है।',
+        textMarathi: 'छान! तुमच्या मोबाईलमध्ये मागच्या ६ महिन्यांचा संपूर्ण इतिहास आणि औषधांची नोंद एकाच जागी दिसतेय! आता मला तुमचा पूर्ण संदर्भ समजला आहे.'
       },
       {
         speaker: 'narrator',
         speakerName: 'Voiceover',
+        speakerNameMarathi: 'सूत्रधार',
         speakerEmoji: '🎙️',
-        text: 'When health information is structured, consultations do not start with "what happened today?". Doctors gain instant context for faster, more accurate care.',
-        textHindi: 'जब इन्फॉर्मेशन ऑर्गनाइज़्ड होती है… तो बातचीत सिर्फ "आज क्या हुआ?" से शुरू नहीं होती। डॉक्टर के पास आपकी पूरी हेल्थ स्टोरी समझने का बेहतर कॉन्टेक्स्ट होता है।'
+        text: 'When health information is structured, consultations do not start with "what happened today?". Doctors gain instant context for faster, safer care.',
+        textHindi: 'जब इन्फॉर्मेशन ऑर्गनाइज़्ड होती है… तो बातचीत सिर्फ "आज क्या हुआ?" से शुरू नहीं होती। डॉक्टर के पास आपकी पूरी हेल्थ स्टोरी समझने का बेहतर कॉन्टेक्स्ट होता है।',
+        textMarathi: 'जेव्हा माहिती व्यवस्थित असते… तेव्हा संभाषण फक्त "आज काय झालं?" ने सुरू होत नाही. डॉक्टरांकडे योग्य निर्णय घेण्यासाठी पूर्ण संदर्भ असतो.'
       }
     ]
   },
@@ -343,42 +506,71 @@ const MASTER_SCENES: SceneConfig[] = [
     endSec: 170,
     sceneNumber: 'SCENE 6',
     title: 'EMOTIONAL PAYOFF: Peace of Mind for Families',
+    titleMarathi: 'कुटुंबाला मानसिक शांतता: फाईल्सची चिंता कायमची संपली',
     subtitle: 'No more lost files — your health story stays with you forever',
+    subtitleMarathi: 'घरातील ज्येष्ठांना स्वाभिमान आणि मुलांना काळजीपासून पूर्ण मुक्ती',
     badge: '2:30 – 2:50 • FAMILY RELIEF',
     bgGradient: 'from-amber-950 via-purple-950 to-slate-950',
     visualAtmosphere: 'Warm golden hour home lighting, relaxed happy father & daughter',
     visualElements: [
-      { icon: '🏡', label: 'Peace of Mind', desc: 'Ghar par relaxed baithkar muskurahat' },
-      { icon: '❤️', label: 'Dignified Care', desc: 'Files dhundhne ki chinta khatam' },
-      { icon: '📱', label: 'Health in Pocket', desc: 'Aapki health story aapke saath' }
+      {
+        icon: '🏡',
+        label: 'Peace of Mind',
+        labelMarathi: 'मानसिक समाधान',
+        desc: 'Ghar par relaxed baithkar muskurahat',
+        descMarathi: 'घरी बसून चेहऱ्यावर निश्चिंत हास्य'
+      },
+      {
+        icon: '❤️',
+        label: 'Dignified Care',
+        labelMarathi: 'स्वाभिमानी आरोग्य',
+        desc: 'Files dhundhne ki chinta khatam',
+        descMarathi: 'फाईल्स शोधण्याचे टेन्शन कायमचे संपले'
+      },
+      {
+        icon: '📱',
+        label: 'Health in Pocket',
+        labelMarathi: 'आरोग्य खिशात',
+        desc: 'Aapki health story aapke saath',
+        descMarathi: 'तुमची आरोग्य कहाणी कायम तुमच्या सोबत'
+      }
     ],
     activeCardProps: {
       title: 'Lifelong Health Dignity',
+      titleMarathi: 'आरोग्याचा स्वाभिमान आणि निश्चिंतता',
       subtitle: 'Ab woh purani report dhundhne ki zarurat nahi padegi. Ab aapki health story aapke saath rahegi.',
+      subtitleMarathi: 'आता जुनी फाईल शोधण्याची गरज पडणार नाही. आता तुमची आरोग्याची कहाणी तुमच्या सोबत राहील.',
       tag: 'Emotional Payoff',
+      tagMarathi: 'मानसिक समाधान',
       iconEmoji: '❤️'
     },
     dialogues: [
       {
         speaker: 'father',
         speakerName: 'Father',
+        speakerNameMarathi: 'बाबा',
         speakerEmoji: '👴',
-        text: 'Toh ab woh purani file aur purani report dhundhne ki zarurat nahi padegi beta?',
-        textHindi: 'तो अब वो पुरानी फाइल और पुरानी रिपोर्ट ढूँढने की ज़रूरत नहीं पड़ेगी बेटा?'
+        text: 'So now we will never have to panic or dig through stacks of old paper files again, beta?',
+        textHindi: 'तो अब वो पुरानी फाइल और पुरानी रिपोर्ट ढूँढने की ज़रूरत नहीं पड़ेगी बेटा?',
+        textMarathi: 'म्हणजे आता त्या जुन्या फाईल्स शोधायची आणि काळजी करायची गरज पडणार नाही ना?'
       },
       {
         speaker: 'daughter',
         speakerName: 'Daughter',
+        speakerNameMarathi: 'मुलगी',
         speakerEmoji: '👩',
-        text: 'Nahi Papa! Ab aapki poori health story… hamesha aapke phone mein, aapke saath rahegi!',
-        textHindi: 'नहीं पापा! अब आपकी पूरी हेल्थ स्टोरी… हमेशा आपके फोन में, आपके साथ रहेगी!'
+        text: 'Never again, Papa! Now your complete health story… will always stay safe in your phone, with you forever!',
+        textHindi: 'नहीं पापा! अब आपकी पूरी हेल्थ स्टोरी… हमेशा आपके फोन में, आपके साथ रहेगी!',
+        textMarathi: 'नाही बाबा! आता तुमची आरोग्याची संपूर्ण कहाणी… कायम तुमच्या मोबाईलमध्ये, तुमच्या सोबत राहील!'
       },
       {
         speaker: 'narrator',
         speakerName: 'Voiceover',
+        speakerNameMarathi: 'सूत्रधार',
         speakerEmoji: '🎙️',
-        text: 'No more frantic searches for lost prescriptions. Just calm, empowered, independent living.',
-        textHindi: 'फाइलों के खोने का डर हमेशा के लिए खत्म। सिर्फ सुकून, आजादी और आत्मनिर्भर जीवन।'
+        text: 'No more frantic searches for lost prescriptions. Just calm, empowered, independent living for Indian families.',
+        textHindi: 'फाइलों के खोने का डर हमेशा के लिए खत्म। सिर्फ सुकून, आजादी और आत्मनिर्भर जीवन।',
+        textMarathi: 'कागदपत्रे गहाळ होण्याचे टेन्शन कायमचे संपले. फक्त स्वाभिमान, स्वातंत्र्य आणि निश्चिंत जीवन.'
       }
     ]
   },
@@ -388,35 +580,62 @@ const MASTER_SCENES: SceneConfig[] = [
     endSec: 180,
     sceneNumber: 'SCENE 7',
     title: 'FINAL BRAND MOMENT: Your Health. Your Story. Your AI.',
+    titleMarathi: 'आभा एआयचा संकल्प: तुमचे आरोग्य. तुमची कहाणी. तुमचे एआय.',
     subtitle: 'Because your health story deserves to be remembered • SIH26003',
+    subtitleMarathi: 'स्मार्ट इंडिया हॅकाथॉन SIH26003 • संपूर्ण भारतासाठी समर्पित',
     badge: '2:50 – 3:00 • GRAND FINALE',
     bgGradient: 'from-purple-950 via-indigo-950 to-slate-950',
     visualAtmosphere: 'Cinematic glowing gold AABHA AI crest & official link banner',
     visualElements: [
-      { icon: '🏆', label: 'SIH26003 Gold', desc: 'Pan-India AI Health Innovation' },
-      { icon: '🌐', label: 'Live Prototype', desc: 'aabha-ai.vercel.app/patient' },
-      { icon: '🇮🇳', label: 'For All Generations', desc: 'Kids, Adults, Seniors & Doctors' }
+      {
+        icon: '🏆',
+        label: 'SIH26003 Gold',
+        labelMarathi: 'SIH26003 सुवर्णपदक',
+        desc: 'Pan-India AI Health Innovation',
+        descMarathi: 'अखिल भारतीय एआय आरोग्य नवोन्मेष'
+      },
+      {
+        icon: '🌐',
+        label: 'Live Prototype',
+        labelMarathi: 'थेट संकेतस्थळ',
+        desc: 'aabha-ai.vercel.app/patient',
+        descMarathi: 'aabha-ai.vercel.app/patient'
+      },
+      {
+        icon: '🇮🇳',
+        label: 'For All Generations',
+        labelMarathi: 'सर्व पिढ्यांसाठी',
+        desc: 'Kids, Adults, Seniors & Doctors',
+        descMarathi: 'मुले, तरुण, ज्येष्ठ आणि डॉक्टर्स'
+      }
     ],
     activeCardProps: {
       title: 'AABHA AI — Your Health. Your Story. Your AI.',
+      titleMarathi: 'आभा एआय — तुमचे आरोग्य. तुमची कहाणी. तुमचे एआय.',
       subtitle: 'Health sirf ek report nahi hai, health ek journey hai. Usse organize karna — ye hai AABHA AI.',
+      subtitleMarathi: 'आरोग्य हा फक्त एक रिपोर्ट नाही, तो एक जीवनप्रवास आहे. त्याला जपून ठेवणे — हीच आहे आभा एआय.',
       tag: 'Final Brand Vision',
+      tagMarathi: 'अंतिम संकल्प',
       iconEmoji: '🏆'
     },
     dialogues: [
       {
         speaker: 'narrator',
         speakerName: 'Voiceover',
+        speakerNameMarathi: 'सूत्रधार',
         speakerEmoji: '🎙️',
-        text: 'Health is not just a single report. Health is a lifelong journey. To understand it… to organize it… and to empower it… This is AABHA AI.',
-        textHindi: 'हेल्थ सिर्फ एक रिपोर्ट नहीं है। हेल्थ एक सफर है। उस सफर को समझना… उसे ऑर्गनाइज़ करना… और उस पर भरोसा पाना… ये है आभा एआई।'
+        text: 'Health is not just a report. Health is a lifelong journey. To understand it… to organize it… and to empower it… This is AABHA AI.',
+        textHindi: 'हेल्थ सिर्फ एक रिपोर्ट नहीं है। हेल्थ एक सफर है। उस सफर को समझना… उसे ऑर्गनाइज़ करना… और उस पर भरोसा पाना… ये है आभा एआई।',
+        textMarathi: 'आरोग्य हा फक्त एक रिपोर्ट नाही, तो एक जीवनप्रवास आहे. हा प्रवास समजून घेणे… व्यवस्थित ठेवणे… आणि स्वाभिमानी बनवणे… हीच आहे आभा एआय.'
       },
       {
         speaker: 'aabha',
         speakerName: 'AABHA AI',
+        speakerNameMarathi: 'आभा एआय',
         speakerEmoji: '🤖',
         text: 'AABHA AI — Because your health story deserves to be remembered. Experience now at aabha-ai.vercel.app!',
-        textHindi: 'आभा एआई — क्योंकि आपकी सेहत की कहानी हमेशा याद रखी जानी चाहिए। अभी अनुभव कीजिए!'
+        textHindi: 'आभा एआई — क्योंकि आपकी सेहत की कहानी हमेशा याद रखी जानी चाहिए। अभी अनुभव कीजिए!',
+        textMarathi: 'आभा एआय — कारण तुमच्या आरोग्याची कहाणी जपली जाणे आवश्यक आहे. आताच भेट द्या aabha-ai.vercel.app वर!'
       }
     ]
   }
@@ -435,7 +654,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
   const [isPlaying, setIsPlaying] = useState(true);
   const [isVoiceoverOn, setIsVoiceoverOn] = useState(true);
   const [isMusicOn, setIsMusicOn] = useState(true);
-  const [voiceLang, setVoiceLang] = useState<'EN' | 'HI'>('HI'); // Default Hinglish / Hindi
+  const [voiceLang, setVoiceLang] = useState<SupportedLang>('HI'); // Default Hinglish, with Indian English & Marathi
   const [currentDialogueIdx, setCurrentDialogueIdx] = useState(0);
   const [activeSpeaker, setActiveSpeaker] = useState<SpeakerId>('narrator');
 
@@ -445,7 +664,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
   const isSpeakingRef = useRef<boolean>(false);
   const isPlayingRef = useRef<boolean>(true);
   const isVoiceoverOnRef = useRef<boolean>(true);
-  const voiceLangRef = useRef<'EN' | 'HI'>('HI');
+  const voiceLangRef = useRef<SupportedLang>('HI');
   const stageDialogueIdxRef = useRef<number>(0);
   const currentStageIdRef = useRef<number>(1);
 
@@ -456,7 +675,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
     voiceLangRef.current = voiceLang;
   }, [isPlaying, isVoiceoverOn, voiceLang]);
 
-  // Chrome speech synthesis heartbeat to prevent browser speech timeout bug
+  // Chrome speech synthesis heartbeat
   useEffect(() => {
     heartbeatRef.current = setInterval(() => {
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -478,7 +697,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
     }
   };
 
-  // Play next continuous dialogue with character voice tuning
+  // Play next continuous dialogue with character voice tuning across 3 languages
   const playCharacterDialogue = (stage: SceneConfig, dialogueIndex: number) => {
     if (
       typeof window === 'undefined' ||
@@ -493,7 +712,13 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
     const safeIdx = dialogueIndex % dialogues.length;
     const currentLine = dialogues[safeIdx];
     const speakerProfile = SPEAKER_PROFILES[currentLine.speaker] || SPEAKER_PROFILES.narrator;
-    const textToSpeak = voiceLangRef.current === 'HI' ? currentLine.textHindi : currentLine.text;
+
+    let textToSpeak = currentLine.text;
+    if (voiceLangRef.current === 'HI') {
+      textToSpeak = currentLine.textHindi;
+    } else if (voiceLangRef.current === 'MR') {
+      textToSpeak = currentLine.textMarathi;
+    }
 
     try {
       window.speechSynthesis.cancel();
@@ -501,22 +726,32 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
 
       utterance.pitch = speakerProfile.pitch;
       utterance.rate = speakerProfile.rate;
-      utterance.lang = voiceLangRef.current === 'HI' ? 'hi-IN' : 'en-US';
+
+      if (voiceLangRef.current === 'MR') {
+        utterance.lang = 'mr-IN';
+      } else if (voiceLangRef.current === 'HI') {
+        utterance.lang = 'hi-IN';
+      } else {
+        utterance.lang = 'en-IN';
+      }
 
       // Pick matching voice if available
       const voices = window.speechSynthesis.getVoices();
-      if (currentLine.speaker === 'daughter') {
+      if (voiceLangRef.current === 'MR') {
+        const mrVoice = voices.find(v => v.lang.includes('mr') || v.lang.includes('hi'));
+        if (mrVoice) utterance.voice = mrVoice;
+      } else if (currentLine.speaker === 'daughter') {
         const femaleVoice = voices.find(v =>
           voiceLangRef.current === 'HI'
             ? v.lang.includes('hi')
-            : (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Samantha') || v.name.includes('Jenny'))
+            : (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Samantha') || v.name.includes('Jenny') || v.name.includes('Google UK English Female'))
         );
         if (femaleVoice) utterance.voice = femaleVoice;
       } else if (currentLine.speaker === 'father') {
         const maleVoice = voices.find(v =>
           voiceLangRef.current === 'HI'
             ? v.lang.includes('hi')
-            : (v.name.includes('Male') || v.name.includes('David') || v.name.includes('George'))
+            : (v.name.includes('Male') || v.name.includes('David') || v.name.includes('George') || v.name.includes('Google UK English Male'))
         );
         if (maleVoice) utterance.voice = maleVoice;
       }
@@ -674,11 +909,10 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
     }
   };
 
-  const handleToggleLang = () => {
+  const handleChangeLang = (lang: SupportedLang) => {
     stopSpeech();
-    const nextLang = voiceLang === 'EN' ? 'HI' : 'EN';
-    setVoiceLang(nextLang);
-    voiceLangRef.current = nextLang;
+    setVoiceLang(lang);
+    voiceLangRef.current = lang;
     playCharacterDialogue(currentScene, 0);
   };
 
@@ -699,7 +933,19 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
   const currentDialogues = currentScene.dialogues;
   const activeLine = currentDialogues[currentDialogueIdx % currentDialogues.length] || currentDialogues[0];
   const activeSpeakerProfile = SPEAKER_PROFILES[activeLine.speaker] || SPEAKER_PROFILES.narrator;
-  const activeSubtitle = voiceLang === 'HI' ? activeLine.textHindi : activeLine.text;
+
+  let activeSubtitle = activeLine.text;
+  let activeSpeakerName = activeLine.speakerName;
+  if (voiceLang === 'HI') {
+    activeSubtitle = activeLine.textHindi;
+  } else if (voiceLang === 'MR') {
+    activeSubtitle = activeLine.textMarathi;
+    if (activeLine.speakerNameMarathi) {
+      activeSpeakerName = activeLine.speakerNameMarathi;
+    }
+  }
+
+  const isMarathi = voiceLang === 'MR';
 
   return createPortal(
     <div
@@ -722,16 +968,18 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                   AABHA AI • OFFICIAL CINEMATIC FILM
                 </span>
                 <span className="hidden sm:inline px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-400/20 text-emerald-300 border border-emerald-400/40">
-                  Full 3-Minute Story
+                  3-Min Screenplay
                 </span>
               </div>
               <div className="text-[10px] text-slate-300 font-medium hidden sm:block">
-                “Ab Health Records Sirf Files Mein Nahi, Aapke Saath Hain”
+                {isMarathi
+                  ? '“आरोग्य नोंदी आता फक्त फाईल्समध्ये नाही, तुमच्या सोबत आहेत”'
+                  : '“Ab Health Records Sirf Files Mein Nahi, Aapke Saath Hain”'}
               </div>
             </div>
           </div>
 
-          {/* Controls: Voiceover + Music + Lang + Timer + Play/Pause + Restart + Close */}
+          {/* Controls: Voiceover + Music + 3 Languages + Timer + Play/Pause + Restart + Close */}
           <div className="flex items-center gap-1 sm:gap-1.5">
             {/* Ambient Background Music Toggle */}
             <button
@@ -763,15 +1011,39 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
               <span className="hidden lg:inline text-[11px]">{isVoiceoverOn ? 'Voices ON' : 'Muted'}</span>
             </button>
 
-            {/* Language Switcher (Hinglish/HI vs EN) */}
-            <button
-              type="button"
-              onClick={handleToggleLang}
-              className="px-2 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-black text-white transition cursor-pointer border border-white/15"
-              title="Switch Language"
-            >
-              {voiceLang === 'HI' ? '🇮🇳 Hinglish' : '🇺🇸 English'}
-            </button>
+            {/* 🌐 3-WAY LANGUAGE SELECTOR (Hinglish • Indian English • मराठी) */}
+            <div className="flex items-center bg-white/10 p-0.5 rounded-xl border border-white/15">
+              <button
+                type="button"
+                onClick={() => handleChangeLang('HI')}
+                className={`px-2 py-1 rounded-lg text-[10px] sm:text-xs font-black transition cursor-pointer ${
+                  voiceLang === 'HI' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-300 hover:text-white'
+                }`}
+                title="Hinglish / Hindi"
+              >
+                🇮🇳 हिं
+              </button>
+              <button
+                type="button"
+                onClick={() => handleChangeLang('EN')}
+                className={`px-2 py-1 rounded-lg text-[10px] sm:text-xs font-black transition cursor-pointer ${
+                  voiceLang === 'EN' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-300 hover:text-white'
+                }`}
+                title="Indian English"
+              >
+                🇮🇳 EN
+              </button>
+              <button
+                type="button"
+                onClick={() => handleChangeLang('MR')}
+                className={`px-2 py-1 rounded-lg text-[10px] sm:text-xs font-black transition cursor-pointer ${
+                  voiceLang === 'MR' ? 'bg-amber-600 text-white shadow-xs' : 'text-slate-300 hover:text-white'
+                }`}
+                title="मराठी (Marathi)"
+              >
+                🚩 म
+              </button>
+            </div>
 
             {/* Countdown Timer */}
             <div className="px-2 sm:px-2.5 py-1 rounded-full bg-white/10 border border-white/15 font-mono text-xs sm:text-sm font-black text-emerald-400">
@@ -839,7 +1111,9 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                   }`}
                 >
                   <span>{s.sceneNumber}</span>
-                  <span className="hidden md:inline">• {s.title.split(':')[0]}</span>
+                  <span className="hidden md:inline">
+                    • {isMarathi ? s.titleMarathi.split(':')[0] : s.title.split(':')[0]}
+                  </span>
                 </button>
               );
             })}
@@ -852,7 +1126,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
             {/* Active Character Speaking Tag */}
             <span className={`px-2.5 py-1 rounded-full text-xs font-black uppercase flex items-center gap-1.5 shrink-0 border shadow-xs ${activeSpeakerProfile.bgColor} ${activeSpeakerProfile.color}`}>
               <Radio className="w-3.5 h-3.5 animate-pulse text-current" />
-              <span>{activeLine.speakerEmoji} {activeLine.speakerName}:</span>
+              <span>{activeLine.speakerEmoji} {activeSpeakerName}:</span>
             </span>
 
             <p className="text-xs sm:text-sm font-bold text-[var(--text-primary)] italic leading-relaxed animate-fade-in line-clamp-1">
@@ -876,10 +1150,10 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                   {currentScene.sceneNumber} • {currentScene.badge}
                 </span>
                 <h3 className="text-lg sm:text-xl font-black text-white mt-1">
-                  {currentScene.title}
+                  {isMarathi ? currentScene.titleMarathi : currentScene.title}
                 </h3>
                 <p className="text-xs sm:text-sm text-purple-200 font-medium">
-                  {currentScene.subtitle}
+                  {isMarathi ? currentScene.subtitleMarathi : currentScene.subtitle}
                 </p>
               </div>
 
@@ -895,10 +1169,12 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                 <div key={idx} className="p-3.5 rounded-2xl bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/15 transition space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-xl">{elem.icon}</span>
-                    <h4 className="text-xs font-black text-white">{elem.label}</h4>
+                    <h4 className="text-xs font-black text-white">
+                      {isMarathi ? elem.labelMarathi : elem.label}
+                    </h4>
                   </div>
                   <p className="text-[11px] text-slate-300 font-medium leading-relaxed">
-                    {elem.desc}
+                    {isMarathi ? elem.descMarathi : elem.desc}
                   </p>
                 </div>
               ))}
@@ -911,7 +1187,9 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                   {activeLine.speakerEmoji}
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-black text-purple-300">Live Dialogue Line</span>
+                  <span className="text-[10px] uppercase font-black text-purple-300">
+                    {isMarathi ? 'थेट संवाद' : 'Live Dialogue Line'}
+                  </span>
                   <p className="text-xs font-bold text-white italic">
                     "{activeSubtitle}"
                   </p>
@@ -920,7 +1198,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
 
               <div className="hidden sm:block text-right shrink-0">
                 <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
-                  {currentScene.activeCardProps.tag}
+                  {isMarathi ? currentScene.activeCardProps.tagMarathi : currentScene.activeCardProps.tag}
                 </span>
               </div>
             </div>
@@ -932,7 +1210,9 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-purple-600" />
                 <h4 className="text-xs sm:text-sm font-black text-[var(--text-primary)]">
-                  Live AABHA AI Screenplay Flow (Scene {currentScene.id}):
+                  {isMarathi
+                    ? `थेट आभा एआई स्क्रीनप्ले (दृश्य ${currentScene.id}):`
+                    : `Live AABHA AI Screenplay Flow (Scene ${currentScene.id}):`}
                 </h4>
               </div>
               <span className="text-[11px] font-mono font-bold text-purple-600 dark:text-purple-400">
@@ -946,28 +1226,34 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                 <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-1">
                   <div className="font-black text-amber-600 dark:text-amber-300 flex items-center gap-1.5">
                     <FolderOpen className="w-4 h-4" />
-                    <span>Physical Paper Pile</span>
+                    <span>{isMarathi ? 'कागदी फाईल्सचा ढीग' : 'Physical Paper Pile'}</span>
                   </div>
                   <p className="text-[11px] text-[var(--text-secondary)]">
-                    Old prescriptions, handwritten doctor notes & hospital discharge cards lost in folders.
+                    {isMarathi
+                      ? 'जुनी प्रिस्क्रिप्शन्स, हाताने लिहिलेल्या डॉक्टरांच्या नोंदी आणि डिस्चार्ज कार्ड्स फाईल्समध्ये गहाळ.'
+                      : 'Old prescriptions, handwritten doctor notes & hospital discharge cards lost in folders.'}
                   </p>
                 </div>
                 <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 space-y-1">
                   <div className="font-black text-rose-600 dark:text-rose-300 flex items-center gap-1.5">
                     <AlertTriangle className="w-4 h-4" />
-                    <span>Missing History Risk</span>
+                    <span>{isMarathi ? 'इतिहास गहाळ होण्याचा धोका' : 'Missing History Risk'}</span>
                   </div>
                   <p className="text-[11px] text-[var(--text-secondary)]">
-                    Doctors cannot cross-verify drug interactions or past allergies in time.
+                    {isMarathi
+                      ? 'डॉक्टरांना मागील औषधांची माहिती न मिळाल्यामुळे उपचारांत अडचणी.'
+                      : 'Doctors cannot cross-verify drug interactions or past allergies in time.'}
                   </p>
                 </div>
                 <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/30 space-y-1">
                   <div className="font-black text-purple-600 dark:text-purple-300 flex items-center gap-1.5">
                     <Sparkles className="w-4 h-4" />
-                    <span>The Solution</span>
+                    <span>{isMarathi ? 'आभा एआईचा उपाय' : 'The Solution'}</span>
                   </div>
                   <p className="text-[11px] text-[var(--text-secondary)]">
-                    Transforming scattered physical documents into one clean, intelligent digital timeline.
+                    {isMarathi
+                      ? 'विखुरलेल्या कागदी नोंदींना एका सुरक्षित डिजिटल टाइमलाइनमध्ये रूपांतरित करणे.'
+                      : 'Transforming scattered physical documents into one clean, intelligent digital timeline.'}
                   </p>
                 </div>
               </div>
@@ -982,16 +1268,20 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                   </div>
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-black text-rose-600 uppercase">Emergency Room Consultation</span>
+                      <span className="font-black text-rose-600 uppercase">
+                        {isMarathi ? 'इमर्जन्सी रूम तपासणी' : 'Emergency Room Consultation'}
+                      </span>
                       <span className="text-[10px] text-[var(--text-muted)] font-mono">11:45 PM Night Crisis</span>
                     </div>
                     <p className="text-[11px] text-[var(--text-secondary)]">
-                      Doctor asks: <em>"Previous reports hain? Koi medication chal rahi hai?"</em> Complete history missing.
+                      {isMarathi
+                        ? 'डॉक्टर विचारतात: "मागील काही रिपोर्ट्स आहेत का? आधीची औषधे कोणती सुरू आहेत?"'
+                        : 'Doctor asks: "Previous reports hain? Koi medication chal rahi hai?" Complete history missing.'}
                     </p>
                   </div>
                 </div>
                 <span className="px-3 py-1 rounded-full bg-rose-500 text-white font-black text-[10px] uppercase shrink-0">
-                  Critical Info Needed
+                  {isMarathi ? 'माहितीचा अभाव' : 'Critical Info Needed'}
                 </span>
               </div>
             )}
@@ -1002,17 +1292,23 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                 <div className="flex items-center gap-3">
                   <Abha3DOrb size="sm" state="SPEAKING" interactive={false} />
                   <div>
-                    <span className="text-[10px] font-black uppercase text-amber-300">Intelligent Health Companion</span>
+                    <span className="text-[10px] font-black uppercase text-amber-300">
+                      {isMarathi ? 'स्मार्ट डिजिटल आरोग्य साथी' : 'Intelligent Health Companion'}
+                    </span>
                     <h4 className="text-sm font-black text-white">
-                      Meet AABHA AI — Your Health. Your Story. Your AI.
+                      {isMarathi
+                        ? 'भेटा आभा एआईला — तुमचे आरोग्य. तुमची कहाणी. तुमचे एआय.'
+                        : 'Meet AABHA AI — Your Health. Your Story. Your AI.'}
                     </h4>
                     <p className="text-[11px] text-purple-200">
-                      All health information organized, accessible, and intelligent in your smartphone.
+                      {isMarathi
+                        ? 'आरोग्याची सर्व माहिती मोबाईलमध्ये सुरक्षित आणि एका क्लिकवर उपलब्ध.'
+                        : 'All health information organized, accessible, and intelligent in your smartphone.'}
                     </p>
                   </div>
                 </div>
                 <span className="px-3 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black text-[10px] uppercase shrink-0">
-                  Live & Active
+                  {isMarathi ? 'सक्रिय प्रणाली' : 'Live & Active'}
                 </span>
               </div>
             )}
@@ -1022,22 +1318,36 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
               <div className="space-y-2.5 text-xs">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
-                    <div className="font-bold text-purple-600 dark:text-purple-400">1. Timeline View</div>
+                    <div className="font-bold text-purple-600 dark:text-purple-400">
+                      {isMarathi ? '१. टाइमलाइन व्ह्यू' : '1. Timeline View'}
+                    </div>
                     <div className="text-[11px] text-[var(--text-secondary)]">Old Report ➔ Clean Digital Event</div>
                   </div>
                   <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
-                    <div className="font-bold text-teal-600 dark:text-teal-400">2. AI Explains Terms</div>
-                    <div className="text-[11px] text-[var(--text-secondary)]">Jargon ➔ Simple Hindi / English</div>
+                    <div className="font-bold text-teal-600 dark:text-teal-400">
+                      {isMarathi ? '२. सोपे स्पष्टीकरण' : '2. AI Explains Terms'}
+                    </div>
+                    <div className="text-[11px] text-[var(--text-secondary)]">
+                      {isMarathi ? 'कठीण संज्ञा ➔ सोपी मराठी / हिंदी' : 'Jargon ➔ Simple Hindi / English'}
+                    </div>
                   </div>
                   <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
-                    <div className="font-bold text-cyan-600 dark:text-cyan-400">3. Ask Your Health AI</div>
+                    <div className="font-bold text-cyan-600 dark:text-cyan-400">
+                      {isMarathi ? '३. प्रश्न विचारा' : '3. Ask Your Health AI'}
+                    </div>
                     <div className="text-[11px] text-[var(--text-secondary)]">"Ye medicine kisliye hai?" ➔ Answers</div>
                   </div>
                 </div>
 
                 <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-400/20 text-[10px] text-[var(--text-muted)] flex items-center justify-between">
-                  <span>ℹ️ AI information ke liye hai. Medical decisions ke liye healthcare professional se consult karein.</span>
-                  <span className="font-mono font-bold text-purple-600 dark:text-purple-400">Non-Diagnostic Disclaimer ✓</span>
+                  <span>
+                    {isMarathi
+                      ? 'ℹ️ एआय केवळ माहितीसाठी आहे. वैद्यकीय उपचारांसाठी डॉक्टरांचा सल्ला घ्या.'
+                      : 'ℹ️ AI information ke liye hai. Medical decisions ke liye healthcare professional se consult karein.'}
+                  </span>
+                  <span className="font-mono font-bold text-purple-600 dark:text-purple-400">
+                    {isMarathi ? 'वैद्यकीय डिस्क्लेमर ✓' : 'Non-Diagnostic Disclaimer ✓'}
+                  </span>
                 </div>
               </div>
             )}
@@ -1046,24 +1356,40 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
             {currentScene.id === 5 && (
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 text-center text-xs">
                 <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
-                  <div className="text-[10px] text-[var(--text-muted)] font-bold">Memory Index</div>
+                  <div className="text-[10px] text-[var(--text-muted)] font-bold">
+                    {isMarathi ? 'स्मरणशक्ती निर्देशांक' : 'Memory Index'}
+                  </div>
                   <div className="text-base font-black text-emerald-500">82%</div>
-                  <div className="text-[9px] text-emerald-600 font-bold">Stable History</div>
+                  <div className="text-[9px] text-emerald-600 font-bold">
+                    {isMarathi ? 'स्थिर इतिहास' : 'Stable History'}
+                  </div>
                 </div>
                 <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
-                  <div className="text-[10px] text-[var(--text-muted)] font-bold">Medication Adherence</div>
+                  <div className="text-[10px] text-[var(--text-muted)] font-bold">
+                    {isMarathi ? 'औषध नियमितता' : 'Medication Adherence'}
+                  </div>
                   <div className="text-base font-black text-cyan-500">100%</div>
-                  <div className="text-[9px] text-cyan-600 font-bold">3 of 3 Confirmed</div>
+                  <div className="text-[9px] text-cyan-600 font-bold">
+                    {isMarathi ? '३ पैकी ३ पूर्ण' : '3 of 3 Confirmed'}
+                  </div>
                 </div>
                 <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
-                  <div className="text-[10px] text-[var(--text-muted)] font-bold">Reaction Latency</div>
+                  <div className="text-[10px] text-[var(--text-muted)] font-bold">
+                    {isMarathi ? 'प्रतिक्रिया गती' : 'Reaction Latency'}
+                  </div>
                   <div className="text-base font-black text-purple-500">1.8s</div>
-                  <div className="text-[9px] text-purple-600 font-bold">Normal Reflexes</div>
+                  <div className="text-[9px] text-purple-600 font-bold">
+                    {isMarathi ? 'उत्तम रिफ्लेक्स' : 'Normal Reflexes'}
+                  </div>
                 </div>
                 <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
-                  <div className="text-[10px] text-[var(--text-muted)] font-bold">Doctor Decision Time</div>
+                  <div className="text-[10px] text-[var(--text-muted)] font-bold">
+                    {isMarathi ? 'डॉक्टरांचा वेळ' : 'Doctor Decision Time'}
+                  </div>
                   <div className="text-base font-black text-amber-500">&lt; 30 sec</div>
-                  <div className="text-[9px] text-amber-600 font-bold">Instant Context</div>
+                  <div className="text-[9px] text-amber-600 font-bold">
+                    {isMarathi ? 'त्वरित संदर्भ' : 'Instant Context'}
+                  </div>
                 </div>
               </div>
             )}
@@ -1075,15 +1401,19 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                   <Heart className="w-5 h-5 text-rose-500 fill-rose-500" />
                   <div>
                     <h5 className="font-black text-[var(--text-primary)]">
-                      "Ab aapki health story… hamesha aapke saath rahegi."
+                      {isMarathi
+                        ? '“आता तुमची आरोग्याची संपूर्ण कहाणी… कायम तुमच्या सोबत राहील.”'
+                        : '“Ab aapki health story… hamesha aapke saath rahegi.”'}
                     </h5>
                     <p className="text-[11px] text-[var(--text-secondary)]">
-                      Family peace of mind with zero lost reports or forgotten dosages.
+                      {isMarathi
+                        ? 'कोणतीही फाईल गहाळ होण्याचे टेन्शन नाही. कुटुंबाला पूर्ण मानसिक समाधान.'
+                        : 'Family peace of mind with zero lost reports or forgotten dosages.'}
                     </p>
                   </div>
                 </div>
                 <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
-                  Peace of Mind 100% ✓
+                  {isMarathi ? '१००% मानसिक शांतता ✓' : 'Peace of Mind 100% ✓'}
                 </span>
               </div>
             )}
@@ -1096,7 +1426,9 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                     Smart India Hackathon • SIH26003
                   </span>
                   <h4 className="text-sm sm:text-base font-black">
-                    AABHA AI — Your Health. Your Story. Your AI.
+                    {isMarathi
+                      ? 'आभा एआई — तुमचे आरोग्य. तुमची कहाणी. तुमचे एआय.'
+                      : 'AABHA AI — Your Health. Your Story. Your AI.'}
                   </h4>
                   <p className="text-[11px] text-purple-200 font-mono">
                     Website: aabha-ai.vercel.app/patient
@@ -1108,7 +1440,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                   onClick={onClose}
                   className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black text-xs hover:scale-105 active:scale-95 transition shadow-lg shrink-0 flex items-center gap-1.5"
                 >
-                  <span>Experience AABHA AI</span>
+                  <span>{isMarathi ? 'आभा एआय अनुभवा' : 'Experience AABHA AI'}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </a>
               </div>
@@ -1120,8 +1452,14 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
         <div className="px-3.5 sm:px-8 py-3 bg-[var(--bg-surface-secondary)] border-t border-[var(--border)] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)]">
             <Shield className="w-4 h-4 text-emerald-500" />
-            <span className="hidden sm:inline">Official Screenplay • 7 Cinematic Scenes • SIH26003</span>
-            <span className="sm:hidden">AABHA AI Film</span>
+            <span className="hidden sm:inline">
+              {isMarathi
+                ? 'अधिकृत ३-मिनिट चित्रपट • ३ भाषांमध्ये उपलब्ध (मराठी, हिंग्लिश, इंग्रजी) • SIH26003'
+                : 'Official 3-Min Screenplay • Available in Indian English, Hinglish & Marathi • SIH26003'}
+            </span>
+            <span className="sm:hidden">
+              {isMarathi ? 'आभा एआय चित्रपट' : 'AABHA AI Film'}
+            </span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -1130,14 +1468,14 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
               onClick={handleRestart}
               className="btn-glass px-3.5 py-1.5 text-xs font-bold cursor-pointer"
             >
-              ↻ Restart Film
+              {isMarathi ? '↻ पुन्हा सुरू करा' : '↻ Restart Film'}
             </button>
             <button
               type="button"
               onClick={handleClose}
               className="btn-glow px-5 py-1.5 text-xs font-black cursor-pointer shadow-md"
             >
-              Exit Film
+              {isMarathi ? 'चित्रपट बंद करा' : 'Exit Film'}
             </button>
           </div>
         </div>

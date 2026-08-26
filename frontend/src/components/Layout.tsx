@@ -250,10 +250,10 @@ export const Layout = () => {
           type="button"
           onClick={() => setIsOneMinDemoOpen(true)}
           className="px-4 py-2 rounded-full bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white font-black text-xs shadow-xl hover:scale-105 active:scale-95 transition cursor-pointer border border-white/20 flex items-center gap-1.5"
-          title="3-Minute Real-Life Video Showcase with Voiceover & Background Music"
+          title="4-Minute Animated Story Showcase with Two-Way ISL, Voiceover & Background Music"
         >
           <Play className="w-3.5 h-3.5 fill-current" />
-          <span>3-Min Demo</span>
+          <span>4-Min Story</span>
         </button>
 
         <button

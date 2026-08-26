@@ -49,31 +49,39 @@ const DEMO_STEPS: DemoStep[] = [
   },
   {
     step: 7,
-    title: 'Step 7 & 8: Caregiver Dashboard & 4-Pillar Analytics',
-    desc: 'Switch to Caregiver Portal (Dr. Anita Verma) to view 4-pillar scores (Memory: 82, Attention: 76, Reaction: 79, Consistency: 84).',
+    title: 'Step 7: SignBridge – Two-Way Indian Sign Language Telehealth',
+    desc: 'Real WebRTC consultation: Doctor natural speech translates into animated 3D ISL Avatar for deaf/non-literate patients; camera gesture AI translates hand signs to voice & text with emergency triage.',
+    actionLabel: 'Launch SignBridge Room',
+    route: '/patient/signbridge',
+    icon: '🤟'
+  },
+  {
+    step: 8,
+    title: 'Step 8 & 9: Caregiver Dashboard & 4-Pillar Analytics',
+    desc: 'Switch to Caregiver Portal (Dr. Anita Verma) to view 4-pillar scores (Memory: 82, Attention: 76, Reaction: 79, Consistency: 84) and joint nurse management.',
     actionLabel: 'Open Caregiver Portal',
     route: '/caregiver',
     icon: '📊'
   },
   {
-    step: 9,
-    title: 'Step 9: Smart Caregiver Alerts',
+    step: 10,
+    title: 'Step 10: Smart Caregiver Alerts',
     desc: 'Non-diagnostic threshold alerts for pending medicines, baseline variations, and missed routines.',
     actionLabel: 'Check Caregiver Alerts',
     route: '/caregiver',
     icon: '🚨'
   },
   {
-    step: 10,
-    title: 'Step 10: Offline-First & Automatic Sync',
+    step: 11,
+    title: 'Step 11: Offline-First & Automatic Sync',
     desc: 'Live 🟢 Synced / 🔴 Offline indicator. Local storage queue records games and checkoffs offline, auto-syncing when reconnected.',
     actionLabel: 'Check Daily Routine',
     route: '/patient',
     icon: '📡'
   },
   {
-    step: 11,
-    title: 'Step 11: Weekly AI Summary Report Generation',
+    step: 12,
+    title: 'Step 12: Weekly AI Summary Report Generation',
     desc: 'Generate caregiver summary with activity trends, response speeds, and explicit non-diagnostic medical disclaimer.',
     actionLabel: 'Generate Weekly Report',
     route: '/caregiver',
@@ -118,20 +126,20 @@ export const HackathonDemoModal: React.FC<{ isOpen: boolean; onClose: () => void
     <>
       <ModalPortal isOpen={isOpen} onClose={onClose} title={headerTitle} maxWidth="max-w-2xl">
         <div className="space-y-4 font-sans text-[var(--text-primary)]">
-          {/* 3-Minute Automated Real-Life Demo Banner */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg border border-purple-500/30">
-            <div className="space-y-0.5 text-center sm:text-left">
-              <div className="flex items-center gap-1.5 justify-center sm:justify-start">
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                <span className="text-xs font-black uppercase tracking-wider text-amber-300">
-                  Judges 3-Minute Real-Life Showcase
+          {/* 4-Minute Automated Story Showcase Banner */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-purple-950 via-indigo-950 to-slate-900 border-2 border-purple-500/50 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase">
+                  🎬 4-Min Live Story
                 </span>
+                <span className="text-[11px] font-bold text-amber-300">Continuous AI Voiceover</span>
               </div>
               <h3 className="text-sm sm:text-base font-black">
-                3-Minute Real-Life Journey with BGM & Voiceover
+                4-Minute Real-Life Animated Story Showcase with Two-Way ISL & Voiceover
               </h3>
               <p className="text-[11px] text-purple-200">
-                Self-playing 8-stage story featuring Arun Das, Dr. Anita & family with AI speech.
+                Self-playing 10-chapter story featuring Arun Das, Dr. Anita, Ramesh ji & Two-Way Sign Language.
               </p>
             </div>
 
@@ -141,7 +149,7 @@ export const HackathonDemoModal: React.FC<{ isOpen: boolean; onClose: () => void
               className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black text-xs hover:scale-105 active:scale-95 transition cursor-pointer shadow-md flex items-center gap-1.5 shrink-0"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              <span>▶ Start 3-Min Demo</span>
+              <span>▶ Start 4-Min Story</span>
             </button>
           </div>
 

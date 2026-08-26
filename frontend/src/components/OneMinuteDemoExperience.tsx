@@ -34,7 +34,9 @@ import {
   MessageCircle,
   Zap,
   Check,
-  Star
+  Star,
+  HandMetal,
+  Video
 } from 'lucide-react';
 import { Abha3DOrb } from './Abha3DOrb';
 import { ambientMusic, MUSIC_TRACKS, MusicTrackInfo } from '../services/ambientMusicService';
@@ -80,7 +82,7 @@ const STAGES: StageConfig[] = [
   {
     id: 1,
     startSec: 0,
-    endSec: 22,
+    endSec: 24,
     title: 'Chapter 1: Morning in New Delhi with Dadaji',
     subtitle: '72-year-old retired teacher Arun Das and his daughter Dr. Anita',
     badge: 'SCENE 01 • THE AGING CHALLENGE',
@@ -111,14 +113,14 @@ const STAGES: StageConfig[] = [
       outcomePill: 'Dignified Self-Care Needed'
     },
     narrationSentences: [
-      'Welcome to the animated story of Aabha AI, an intelligent daily companion for elderly care.',
+      'Welcome to the 4-minute animated story of Aabha AI, an intelligent daily companion for elderly and inclusive healthcare.',
       'In a quiet morning living room in Delhi, meet seventy-two-year-old grandfather Arun Das, fondly called Dadaji.',
       'Like millions of Indian elders, Dadaji wants to stay independent, but mild memory lapses make remembering medicines and water intake stressful.',
       'His daughter, Doctor Anita, worries about his daily care while working long shifts at the hospital clinic.',
       'Aabha AI enters their home to transform everyday routines into joyful, guided interactions.'
     ],
     narrationSentencesHindi: [
-      'आभा एआई की एनिमेटेड कहानी में आपका स्वागत है, जो बुजुर्गों के जीवन में खुशियों का रंग भरती है।',
+      'आभा एआई की 4-मिनट की एनिमेटेड कहानी में आपका स्वागत है, जो बुजुर्गों और समावेशी स्वास्थ्य सेवा में नया विश्वास जगाती है।',
       'नई दिल्ली के एक शांत घर में मिलते हैं 72 वर्षीय दादाजी, श्री अरुण दास जी से।',
       'दादाजी स्वावलंबी रहना चाहते हैं, लेकिन कभी-कभी सुबह की दवाई और पानी का समय याद रखना मुश्किल हो जाता है।',
       'उनकी डॉक्टर बेटी अनिता अस्पताल में काम करते हुए भी पिता की सेहत को लेकर चिंतित रहती हैं।',
@@ -127,8 +129,8 @@ const STAGES: StageConfig[] = [
   },
   {
     id: 2,
-    startSec: 22,
-    endSec: 45,
+    startSec: 24,
+    endSec: 48,
     title: 'Chapter 2: Dadaji Taps the Big Glowing Tablet',
     subtitle: '1-Tap medicine checkoff and water logging on high-contrast screen',
     badge: 'SCENE 02 • ACCESSIBLE MORNING',
@@ -166,8 +168,8 @@ const STAGES: StageConfig[] = [
   },
   {
     id: 3,
-    startSec: 45,
-    endSec: 75,
+    startSec: 48,
+    endSec: 72,
     title: 'Chapter 3: Chatting with Aabha on the Balcony',
     subtitle: 'Zero-hallucination conversational voice care in natural Hindi and English',
     badge: 'SCENE 03 • VOICE COMPANION',
@@ -213,8 +215,8 @@ const STAGES: StageConfig[] = [
   },
   {
     id: 4,
-    startSec: 75,
-    endSec: 110,
+    startSec: 72,
+    endSec: 96,
     title: 'Chapter 4: Brain Games with Granddaughter Priya',
     subtitle: 'Memory Match & Routine Ordering turning brain exercise into family fun',
     badge: 'SCENE 04 • COGNITIVE PLAYROOM',
@@ -260,8 +262,8 @@ const STAGES: StageConfig[] = [
   },
   {
     id: 5,
-    startSec: 110,
-    endSec: 135,
+    startSec: 96,
+    endSec: 120,
     title: 'Chapter 5: The AI Brain Levels Up!',
     subtitle: 'Adaptive AI Engine dynamically scales difficulty to Level 3',
     badge: 'SCENE 05 • ADAPTIVE AI LAB',
@@ -307,13 +309,109 @@ const STAGES: StageConfig[] = [
   },
   {
     id: 6,
-    startSec: 135,
-    endSec: 155,
-    title: 'Chapter 6: Dr. Anita Checks from Hospital Clinic',
-    subtitle: 'Caregiver Portal with 4-Pillar cognitive radar and peace of mind',
-    badge: 'SCENE 06 • CAREGIVER CLINIC',
+    startSec: 120,
+    endSec: 148,
+    title: 'Chapter 6: SignBridge – Two-Way Indian Sign Language',
+    subtitle: 'Doctor speaks naturally, and 3D Animated Avatar signs for deaf/non-literate patients',
+    badge: 'SCENE 06 • INCLUSIVE TELEHEALTH',
+    icon: '🤟',
+    storyChapter: 'Scene 6: Breaking Barriers with ISL Avatars',
+    cartoonScene: {
+      bgGradient: 'from-purple-100 via-indigo-50 to-teal-50 dark:from-slate-900 dark:via-purple-950 dark:to-slate-900',
+      settingLabel: '🤟 SignBridge Live Telehealth Room • 04:00 PM',
+      characterA: {
+        name: 'Ramesh ji (Deaf Elder, 68)',
+        role: 'Non-Hearing Patient',
+        emoji: '🧓',
+        actionText: 'Watching animated ISL Avatar executing hand gestures on tablet',
+        dialogue: 'Dr. Anita bol rahi hain aur tablet par ISL Avatar haath ke ishaaron se samjha raha hai! 🤟✨',
+        dialogueType: 'thought'
+      },
+      characterB: {
+        name: 'Dr. Anita Verma',
+        role: 'Neurologist',
+        emoji: '👩‍⚕️',
+        actionText: 'Speaking naturally into microphone: "Where are you feeling pain?"',
+        dialogue: 'Where are you feeling pain? (Aapko kahan dard hai?) ➔ [SHOW] [WHERE] [PAIN]',
+        dialogueType: 'speech'
+      },
+      companionAction: 'Speech-to-Text ➔ ISL Grammar Engine ➔ Real-time 3D Animated Avatar playback',
+      keyPropEmoji: '🤟',
+      keyPropLabel: '3D ISL Sign Avatar',
+      outcomePill: 'Real-Time Speech ➔ ISL Avatar Sequence'
+    },
+    narrationSentences: [
+      'Aabha AI introduces SignBridge, a groundbreaking two-way Indian Sign Language telehealth system.',
+      'Meet sixty-eight-year-old neighbor Ramesh ji, who cannot hear, speak, read, or write.',
+      'When Doctor Anita speaks naturally in English or Hindi, our semantic grammar engine translates her sentence into an animated ISL Avatar.',
+      'The avatar visually executes precise hand gestures like Show, Where, and Pain in real time.',
+      'Deaf and non-literate patients receive the doctor\'s medical guidance visually without needing to read text or hear audio.'
+    ],
+    narrationSentencesHindi: [
+      'आभा एआई प्रस्तुत करती है साइनब्रिज—दो-तरफा भारतीय सांकेतिक भाषा टेलीहेल्थ तकनीक।',
+      'मिलिए 68 वर्षीय रमेश जी से, जो सुन, बोल, पढ़ या लिख नहीं सकते।',
+      'जब डॉक्टर अनिता स्वाभाविक रूप से हिंदी या अंग्रेजी में बोलती हैं, तो एआई तुरंत वाक्य को 3D एनिमेटेड साइन अवतार में बदल देता है।',
+      'अवतार हाथ के स्पष्ट इशारों से दिखाता है: "कहाँ दर्द है?"',
+      'इस तरह बिना पढ़े या सुने भी मरीज़ डॉक्टर की पूरी बात आसानी से समझ जाते हैं।'
+    ]
+  },
+  {
+    id: 7,
+    startSec: 148,
+    endSec: 176,
+    title: 'Chapter 7: Patient Signs Back & Instant Emergency SOS',
+    subtitle: 'Real camera gesture AI detects signs and speaks to doctor with instant emergency triage',
+    badge: 'SCENE 07 • OPTICAL ISL & SOS',
+    icon: '🚨',
+    storyChapter: 'Scene 7: Real Optical Recognition & Lifesaving SOS',
+    cartoonScene: {
+      bgGradient: 'from-rose-50 via-orange-50 to-amber-50 dark:from-slate-900 dark:via-rose-950 dark:to-slate-900',
+      settingLabel: '🚨 Emergency Triage & Real-Time Sign Sync',
+      characterA: {
+        name: 'Ramesh ji',
+        role: 'Patient Signing',
+        emoji: '🧓',
+        actionText: 'Showing chest pain hand gesture to camera',
+        dialogue: 'Maine chhati par haath rakha aur doctor ke screen par turant Chest Pain aur audio alert chala gaya! 🫀',
+        dialogueType: 'thought'
+      },
+      characterB: {
+        name: 'Dr. Anita Verma',
+        role: 'Neurologist',
+        emoji: '👩‍⚕️',
+        actionText: 'Receives instant speech synthesis and emergency banner',
+        dialogue: '🚨 Emergency Alert: Patient signaled Chest Pain (95% Match) — Immediate Care Prescribed!',
+        dialogueType: 'speech'
+      },
+      companionAction: 'Optical Motion AI tracks hand landmarks ➔ Audio Voice Synthesis: "The patient says: Chest pain"',
+      keyPropEmoji: '🫀',
+      keyPropLabel: 'Camera Hand Gesture Track',
+      outcomePill: 'Camera ISL AI ➔ Voice/Text + Lifesaving SOS'
+    },
+    narrationSentences: [
+      'In return, Ramesh ji demonstrates hand signs in front of his device camera.',
+      'Our optical hand-tracking AI recognizes Indian Sign Language gestures with over ninety-five percent accuracy.',
+      'Doctor Anita\'s screen instantly displays the recognized text and speaks it aloud through automated voice synthesis.',
+      'When critical symptoms like chest pain or breathing difficulty are detected, an immediate high-visibility Emergency SOS alert flashes for lifesaving triage.',
+      'This closes the two-way loop, allowing completely natural doctor-patient communication.'
+    ],
+    narrationSentencesHindi: [
+      'रमेश जी अपने कैमरे के सामने हाथ से इशारा करते हैं।',
+      'हमारा ऑप्टिकल मोशन एआई 95% सटीकता से सांकेतिक भाषा के इशारों को पहचानता है।',
+      'डॉक्टर अनिता की स्क्रीन पर तुरंत लिखा आता है और आवाज़ बोल उठती है: "मरीज़ को छाती में दर्द है।"',
+      'छाती में दर्द या सांस की तकलीफ जैसे गंभीर संकेतों पर तुरंत लाल इमरजेंसी एसओएस अलर्ट बज उठता है।',
+      'इस प्रकार डॉक्टर और विशेष आवश्यकताओं वाले मरीज़ के बीच दोनों तरफ से सीधी बातचीत संभव होती है।'
+    ]
+  },
+  {
+    id: 8,
+    startSec: 176,
+    endSec: 200,
+    title: 'Chapter 8: Dr. Anita Checks from Hospital & Joint Caregiver Desk',
+    subtitle: 'Joint Caregiver & Nurse portal with 4-Pillar radar and in-call prescription logging',
+    badge: 'SCENE 08 • CAREGIVER CLINIC',
     icon: '🏥',
-    storyChapter: 'Scene 6: Remote Peace of Mind at Work',
+    storyChapter: 'Scene 8: Remote Peace of Mind at Work',
     cartoonScene: {
       bgGradient: 'from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-blue-950 dark:to-slate-900',
       settingLabel: '🏥 Hospital Clinic Desk • 04:30 PM',
@@ -321,36 +419,37 @@ const STAGES: StageConfig[] = [
         name: 'Dr. Anita Verma',
         role: 'Doctor & Daughter',
         emoji: '👩‍⚕️',
-        actionText: 'Checking Aabha Caregiver Portal on her smartphone',
-        dialogue: 'Papa ki Memory 82%, saari dawai time par li! Dil ko kitna sukoon milta hai! 💚',
+        actionText: 'Checking Aabha Caregiver Portal and joint nurse account',
+        dialogue: 'Papa ki Memory 82%, aur SignBridge se prescription bhi seedha alarm me sync ho gaya! 💚',
         dialogueType: 'thought'
       },
       companionAction: 'Live 4-Pillar Radar: Memory 82%, Attention 76%, Speed 1.8s, Consistency 84%',
       keyPropEmoji: '🩺',
       keyPropLabel: 'Stethoscope & Clinic Phone',
-      outcomePill: 'Caregiver Status: 100% Peace of Mind'
+      outcomePill: 'Caregiver & Nurse Joint Peace of Mind'
     },
     narrationSentences: [
-      'Meanwhile, across the city at the hospital clinic, Doctor Anita takes a quick break.',
-      'She opens the Caregiver Portal on her phone and sees the live four-pillar cognitive health overview.',
-      'Memory Score is at eighty-two percent, Attention at seventy-six percent, and all three daily medications are confirmed.',
-      'Smart non-diagnostic alerts reassure her that her father is safe, active, and thriving at home.'
+      'Back at the hospital clinic, Doctor Anita checks the Caregiver and Nurse joint portal.',
+      'She monitors the live four-pillar cognitive radar—Memory at eighty-two percent, Attention at seventy-six percent, and reaction time at one point eight seconds.',
+      'During video consultations, new prescriptions are logged and instantly synced to the patient\'s tablet alarms.',
+      'Smart non-diagnostic alerts reassure families and nursing staff that elders are thriving.'
     ],
     narrationSentencesHindi: [
-      'इसी बीच, अस्पताल में मरीजों को देखने के बाद डॉक्टर अनिता अपने फोन पर आभा पोर्टल खोलती हैं।',
-      'उन्हें पिता के 4 मुख्य स्तंभों का लाइव ग्राफ दिखता है: मेमोरी 82%, अटेंशन 76%, और सभी दवाइयाँ समय पर पूरी।',
-      'स्मार्ट अलर्ट्स उन्हें आश्वस्त करते हैं कि घर पर पिता पूरी तरह सुरक्षित और खुश हैं।'
+      'अस्पताल में मरीजों को देखने के बाद डॉक्टर अनिता केयरगिवर और नर्स पोर्टल खोलती हैं।',
+      'उन्हें 4 मुख्य स्तंभों का लाइव ग्राफ दिखता है: मेमोरी 82%, अटेंशन 76%, और दवाइयाँ पूरी तरह अपडेटेड।',
+      'परामर्श के दौरान लिखी गई नई दवाइयाँ सीधे मरीज़ के टैबलेट अलार्म से जुड़ जाती हैं।',
+      'स्मार्ट अलर्ट्स परिवार और नर्सों को निश्चिंत करते हैं कि घर पर सब कुछ सुरक्षित है।'
     ]
   },
   {
-    id: 7,
-    startSec: 155,
-    endSec: 170,
-    title: 'Chapter 7: Evening Park Walk with Zero Internet',
-    subtitle: 'Offline-first vault chimes on time and auto-syncs upon returning home',
-    badge: 'SCENE 07 • OFFLINE PARK WALK',
+    id: 9,
+    startSec: 200,
+    endSec: 220,
+    title: 'Chapter 9: Evening Park Walk with Zero Internet',
+    subtitle: 'Offline-first SQLite vault chimes on time and auto-syncs upon returning home',
+    badge: 'SCENE 09 • OFFLINE PARK WALK',
     icon: '🌳',
-    storyChapter: 'Scene 7: Offline-First Reliability',
+    storyChapter: 'Scene 9: Offline-First Reliability',
     cartoonScene: {
       bgGradient: 'from-emerald-50 via-green-50 to-teal-50 dark:from-slate-900 dark:via-emerald-950 dark:to-slate-900',
       settingLabel: '🌳 Green Community Park • 05:30 PM (0 Bars)',
@@ -381,23 +480,23 @@ const STAGES: StageConfig[] = [
     ]
   },
   {
-    id: 8,
-    startSec: 170,
-    endSec: 180,
-    title: 'Chapter 8: The Happy Family Celebration & SIH Trophy',
-    subtitle: 'Supporting memory, empowering independence, and connecting Indian families',
-    badge: 'SCENE 08 • THE GRAND FINALE',
+    id: 10,
+    startSec: 220,
+    endSec: 240,
+    title: 'Chapter 10: Grand Family Celebration & SIH 2026 Champion Finale',
+    subtitle: 'Supporting memory, empowering sign accessibility, and uniting Indian healthcare',
+    badge: 'SCENE 10 • THE GRAND FINALE',
     icon: '🏆',
-    storyChapter: 'Scene 8: Dignity, Joy & Pan-India Vision',
+    storyChapter: 'Scene 10: Dignity, Inclusion & Pan-India Vision',
     cartoonScene: {
       bgGradient: 'from-purple-100 via-pink-50 to-amber-100 dark:from-purple-950 dark:via-indigo-950 dark:to-slate-900',
       settingLabel: '🍽️ Family Dinner Table • 08:30 PM',
       characterA: {
-        name: 'Dadaji, Anita & Priya',
-        role: 'The Reunited Indian Family',
+        name: 'Dadaji, Anita, Priya & Ramesh ji',
+        role: 'The Reunited Indian Community',
         emoji: '👨‍👩‍👧',
-        actionText: 'Smiling together around the dinner table with gold medal',
-        dialogue: 'Aabha ne humare ghar me khushiyaan aur sukoon la diya! ❤️',
+        actionText: 'Smiling together around the dinner table with gold medal and sign language celebration',
+        dialogue: 'Aabha ne har bujurg aur deaf patient ke jeevan me swaabhimaan aur suraksha la di! 🏆❤️',
         dialogueType: 'speech'
       },
       companionAction: 'Aabha AI Orb glows with gold champion wreath & SIH26003 trophy 🏆',
@@ -406,15 +505,15 @@ const STAGES: StageConfig[] = [
       outcomePill: 'Ready for Pan-India Deployment 🇮🇳'
     },
     narrationSentences: [
-      'At the dinner table, three generations sit together with smiles, laughter, and peace of mind.',
-      'Aabha AI empowers our elders to live with dignity and independence while keeping caregivers connected.',
-      'With six cognitive games, five regional languages, offline capability, and transparent AI analytics, Aabha AI is ready for nationwide deployment.',
+      'At the dinner table, three generations celebrate alongside the broader inclusive community.',
+      'Aabha AI empowers our elders and deaf patients to live with dignity and independence while keeping caregivers connected.',
+      'With two-way Indian sign language, offline resilience, and transparent AI analytics, Aabha AI is ready for nationwide deployment.',
       'Thank you for experiencing Aabha AI for Smart India Hackathon problem statement SIH twenty-six thousand three!'
     ],
     narrationSentencesHindi: [
-      'रात के खाने की मेज पर तीनों पीढ़ियाँ एक साथ मुस्कुराती और खुशियाँ मनाती हैं।',
-      'आभा एआई बुजुर्गों को गरिमा देती है और परिवारों को अटूट विश्वास और सुरक्षा।',
-      '6 कॉग्निटिव गेम्स, 5 भारतीय भाषाओं और 100% ऑफलाइन तकनीक के साथ हम पूरे देश की सेवा के लिए तैयार हैं।',
+      'रात के खाने की मेज पर परिवार और समुदाय एक साथ मिलकर खुशियाँ मनाते हैं।',
+      'आभा एआई बुजुर्गों और सांकेतिक भाषा का उपयोग करने वाले सभी मरीज़ों को गरिमा, स्वतंत्रता और सुरक्षा देती है।',
+      'दो-तरफा साइन लैंग्वेज, ऑफलाइन मजबूती और पारदर्शी एआई के साथ हम पूरे देश की सेवा के लिए तैयार हैं।',
       'स्मार्ट इंडिया हैकाथॉन SIH26003 के इस विशेष प्रदर्शन को देखने के लिए आपका हार्दिक धन्यवाद!'
     ]
   }
@@ -437,7 +536,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
   const [currentSentenceIdx, setCurrentSentenceIdx] = useState(0);
   const [activeTrack, setActiveTrack] = useState<MusicTrackInfo>(ambientMusic.getActiveTrack());
 
-  const totalSeconds = 180; // 3 Minutes
+  const totalSeconds = 240; // 4 Minutes (Full 240s Animated Story)
   const timerRef = useRef<any>(null);
   const heartbeatRef = useRef<any>(null);
   const isSpeakingRef = useRef<boolean>(false);
@@ -574,7 +673,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
     };
   }, [isOpen]);
 
-  // 180-Second Timer with Automatic Playback
+  // 240-Second Timer with Automatic Playback
   useEffect(() => {
     if (isOpen && isPlaying) {
       timerRef.current = setInterval(() => {
@@ -728,21 +827,21 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className="text-xs sm:text-sm font-black uppercase tracking-wider bg-gradient-to-r from-amber-300 via-purple-300 to-teal-300 bg-clip-text text-transparent">
-                  AABHA AI • ANIMATED STORY SHOWCASE
+                  AABHA AI • 4-MIN ANIMATED STORY SHOWCASE
                 </span>
                 <span className="hidden sm:inline px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-amber-400/20 text-amber-300 border border-amber-400/40">
-                  Cartoon Storyboard Flow
+                  Full 10-Chapter Storyboard
                 </span>
               </div>
               <div className="text-[10px] text-slate-400 font-medium hidden sm:block">
-                Illustrated Family Story with Continuous Voiceover & Ambient BGM
+                Illustrated Family Story with Two-Way ISL, Continuous Voiceover & Ambient BGM
               </div>
             </div>
           </div>
 
           {/* Controls: Voiceover + Music + Lang + Timer + Play/Pause + Restart + Close */}
           <div className="flex items-center gap-1 sm:gap-1.5">
-            {/* Ambient Background Music Toggle & 2nd Track Selector */}
+            {/* Ambient Background Music Toggle & Track Selector */}
             <div className="flex items-center bg-white/10 rounded-xl border border-white/15 p-0.5">
               <button
                 type="button"
@@ -796,7 +895,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
 
             {/* Countdown Timer */}
             <div className="px-2 sm:px-2.5 py-1 rounded-full bg-white/10 border border-white/15 font-mono text-xs sm:text-sm font-black text-emerald-400">
-              {formatTime(seconds)} / 03:00
+              {formatTime(seconds)} / 04:00
             </div>
 
             {/* Play/Pause Button */}
@@ -896,7 +995,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
 
             {/* ─── ANIMATED CARTOON CHARACTERS & COMIC SPEECH BUBBLES ───────── */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center relative z-10 pt-2">
-              {/* Character A (Dadaji / Patient) Card */}
+              {/* Character A Card */}
               <div className="p-4 rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-amber-400/40 shadow-lg space-y-2.5 transform hover:scale-[1.02] transition-transform">
                 <div className="flex items-center gap-3">
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center text-3xl shadow-md border-2 border-white animate-bounce shrink-0">
@@ -931,7 +1030,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                 </div>
               </div>
 
-              {/* Character B or AI Companion Stage Card */}
+              {/* Character B Card */}
               {currentStage.cartoonScene.characterB ? (
                 <div className="p-4 rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-purple-400/40 shadow-lg space-y-2.5 transform hover:scale-[1.02] transition-transform">
                   <div className="flex items-center gap-3">
@@ -1089,6 +1188,36 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
             )}
 
             {currentStage.id === 6 && (
+              <div className="p-3 rounded-xl bg-gradient-to-r from-purple-950/40 via-indigo-950/40 to-teal-950/40 border border-purple-400/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🤟</span>
+                  <div>
+                    <div className="font-black text-purple-300">SignBridge Telehealth: Doctor Voice ➔ 3D ISL Avatar</div>
+                    <div className="text-[11px] text-slate-300">Sentence converted to: [SHOW] + [WHERE] + [PAIN]</div>
+                  </div>
+                </div>
+                <span className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 font-black shrink-0">
+                  Visual Non-Literate Care ✓
+                </span>
+              </div>
+            )}
+
+            {currentStage.id === 7 && (
+              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🫀</span>
+                  <div>
+                    <div className="font-black text-rose-400">Optical Hand Gesture AI: 95% Confidence</div>
+                    <div className="text-[11px] text-slate-300">Auto-TTS Audio Synthesis + 🚨 EMERGENCY SOS Trigger</div>
+                  </div>
+                </div>
+                <span className="px-3 py-1 rounded-full bg-rose-500 text-white font-black shrink-0 animate-pulse">
+                  🚨 EMERGENCY ALERT
+                </span>
+              </div>
+            )}
+
+            {currentStage.id === 8 && (
               <div className="grid grid-cols-4 gap-2 text-center text-xs">
                 <div className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
                   <div className="text-[10px] text-[var(--text-muted)] font-bold">Memory</div>
@@ -1103,13 +1232,13 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
                   <div className="font-black text-purple-500">1.8s</div>
                 </div>
                 <div className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)]">
-                  <div className="text-[10px] text-[var(--text-muted)] font-bold">Streak</div>
-                  <div className="font-black text-amber-500">5 Days 🔥</div>
+                  <div className="text-[10px] text-[var(--text-muted)] font-bold">Prescription</div>
+                  <div className="font-black text-amber-500">Synced ✓</div>
                 </div>
               </div>
             )}
 
-            {currentStage.id === 7 && (
+            {currentStage.id === 9 && (
               <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <WifiOff className="w-4 h-4 text-rose-500" />
@@ -1119,9 +1248,9 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
               </div>
             )}
 
-            {currentStage.id === 8 && (
+            {currentStage.id === 10 && (
               <div className="p-3 rounded-xl bg-gradient-to-r from-purple-600 to-teal-500 text-white font-bold text-xs flex items-center justify-between">
-                <span>🏆 SIH26003: Supporting Memory, Empowering Independence</span>
+                <span>🏆 SIH26003: Supporting Memory, Empowering Sign Accessibility</span>
                 <span>Ready for Pan-India Deployment 🇮🇳</span>
               </div>
             )}
@@ -1132,8 +1261,8 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
         <div className="px-3.5 sm:px-8 py-3 bg-[var(--bg-surface-secondary)] border-t border-[var(--border)] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)]">
             <Shield className="w-4 h-4 text-emerald-500" />
-            <span className="hidden sm:inline">Animated cartoon story • Continuous AI speech active • SIH26003</span>
-            <span className="sm:hidden">Cartoon Story Flow</span>
+            <span className="hidden sm:inline">4-Min animated cartoon story • Two-Way ISL • Continuous AI voice • SIH26003</span>
+            <span className="sm:hidden">4-Min Story Flow</span>
           </div>
 
           <div className="flex items-center gap-2">

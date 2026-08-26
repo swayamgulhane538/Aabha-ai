@@ -35,7 +35,8 @@ const app = express();
 // Security & Cross-Origin (Supports localhost & Online Production Domains)
 app.use(helmet({
   contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: false
 }));
 
 app.use(cors({

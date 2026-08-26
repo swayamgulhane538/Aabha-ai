@@ -30,7 +30,7 @@ class SpeechService {
   }
 
   public isSupported(): boolean {
-    return true; // Supported via Web Speech or Neural Audio Streaming Fallback
+    return true;
   }
 
   public normalizeLanguageCode(lang: string, text?: string): string {
@@ -68,7 +68,7 @@ class SpeechService {
     return MAP[raw] || (lang.includes('-') ? lang : 'en-IN');
   }
 
-  private cleanTextForSpeech(text: string): string {
+  public cleanTextForSpeech(text: string): string {
     return text
       .replace(/[*#_`~>]/g, '') // Strip markdown formatting
       .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '') // Strip emojis
@@ -135,72 +135,73 @@ class SpeechService {
     const targetLang = this.normalizeLanguageCode(language, cleanText);
     const langPrefix = targetLang.split('-')[0];
 
-    if (this.voices.length === 0 && this.synthesis) {
-      this.loadVoices();
-    }
+    // Priority 1: Try Neural Audio Stream Proxy
+    const truncated = cleanText.slice(0, 350);
+    const audioUrl = `/api/ai/tts?text=${encodeURIComponent(truncated)}&lang=${encodeURIComponent(langPrefix)}`;
+    const audio = new Audio();
+    audio.src = audioUrl;
+    audio.volume = 1.0;
+    this.currentAudio = audio;
 
-    // Check if browser has a genuine native voice for this language
-    const matchVoice = this.voices.find(
-      v => v.lang.toLowerCase() === targetLang.toLowerCase() ||
-           v.lang.toLowerCase().startsWith(langPrefix)
-    );
-
-    // 1. If native voice exists in browser (e.g. Chrome with Google हिन्दी), use Web Speech API
-    if (this.synthesis && matchVoice && matchVoice.lang.toLowerCase().startsWith(langPrefix)) {
-      try {
-        const utterance = new SpeechSynthesisUtterance(cleanText);
-        utterance.lang = targetLang;
-        utterance.voice = matchVoice;
-        utterance.rate = 0.95;
-        utterance.pitch = 1.0;
-
-        utterance.onend = () => {
-          if (onEnd) onEnd();
-        };
-
-        utterance.onerror = () => {
-          // Fallback to Neural Audio if speech fails
-          this.playNeuralAudio(cleanText, langPrefix, onEnd);
-        };
-
-        this.synthesis.speak(utterance);
-        return;
-      } catch {
-        // Fallback to Neural Audio
+    let hasEnded = false;
+    const safeEnd = () => {
+      if (!hasEnded) {
+        hasEnded = true;
+        this.currentAudio = null;
+        if (onEnd) onEnd();
       }
-    }
+    };
 
-    // 2. Guaranteed Neural Audio Streaming Fallback (Works on ALL browsers & Windows without language packs!)
-    this.playNeuralAudio(cleanText, langPrefix, onEnd);
+    audio.onended = safeEnd;
+
+    audio.onerror = () => {
+      // Fallback to Web Speech Synthesis if audio fails
+      this.fallbackBrowserSpeech(cleanText, targetLang, langPrefix, safeEnd);
+    };
+
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        // Fallback to Web Speech Synthesis if play was rejected
+        this.fallbackBrowserSpeech(cleanText, targetLang, langPrefix, safeEnd);
+      });
+    }
   }
 
-  private playNeuralAudio(text: string, lang: string, onEnd?: () => void) {
+  private fallbackBrowserSpeech(cleanText: string, targetLang: string, langPrefix: string, onEnd: () => void) {
+    if (!this.synthesis) {
+      onEnd();
+      return;
+    }
+
     try {
-      const truncated = text.slice(0, 350); // Keep chunks optimal for TTS
-      const audioUrl = `/api/ai/tts?text=${encodeURIComponent(truncated)}&lang=${encodeURIComponent(lang)}`;
-      const audio = new Audio(audioUrl);
-      this.currentAudio = audio;
+      this.synthesis.cancel();
+      this.synthesis.resume();
 
-      audio.onended = () => {
-        this.currentAudio = null;
-        if (onEnd) onEnd();
-      };
-
-      audio.onerror = () => {
-        this.currentAudio = null;
-        if (onEnd) onEnd();
-      };
-
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          this.currentAudio = null;
-          if (onEnd) onEnd();
-        });
+      if (this.voices.length === 0) {
+        this.loadVoices();
       }
+
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = targetLang;
+      utterance.rate = 0.92;
+      utterance.pitch = 1.0;
+
+      const matchVoice = this.voices.find(
+        v => v.lang.toLowerCase() === targetLang.toLowerCase() ||
+             v.lang.toLowerCase().startsWith(langPrefix)
+      );
+
+      if (matchVoice) {
+        utterance.voice = matchVoice;
+      }
+
+      utterance.onend = onEnd;
+      utterance.onerror = onEnd;
+
+      this.synthesis.speak(utterance);
     } catch {
-      this.currentAudio = null;
-      if (onEnd) onEnd();
+      onEnd();
     }
   }
 

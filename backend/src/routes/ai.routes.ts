@@ -44,6 +44,8 @@ router.get('/tts', async (req, res) => {
     }
 
     res.setHeader('Content-Type', 'audio/mpeg');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     res.setHeader('Cache-Control', 'public, max-age=86400');
     const buffer = Buffer.from(await response.arrayBuffer());
     return res.send(buffer);

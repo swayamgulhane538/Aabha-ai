@@ -502,10 +502,26 @@ export const AabhaChat: React.FC = () => {
               >
                 {msg.text}
               </div>
-              {msg.sender === 'ai' && msg.engine && (
-                <span className="text-[10px] text-teal-400/70 font-semibold px-2">
-                  ✨ {msg.engine}
-                </span>
+              {msg.sender === 'ai' && (
+                <div className="flex items-center gap-2 px-2 pt-0.5 flex-wrap">
+                  {msg.engine && (
+                    <span className="text-[10px] text-teal-400/70 font-semibold">
+                      ✨ {msg.engine}
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOrbState('SPEAKING');
+                      speechService.speak(msg.text, i18n.language, () => setOrbState('IDLE'));
+                    }}
+                    className="px-2 py-0.5 rounded-lg bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 text-[10px] font-bold flex items-center gap-1 border border-teal-400/30 cursor-pointer active:scale-95 transition"
+                    title="Play Audio Voice in Selected Language"
+                  >
+                    <Volume2 className="w-3 h-3 text-teal-400" />
+                    <span>{i18n.language === 'mr' ? '🔊 ऐका' : i18n.language === 'hi' ? '🔊 सुनें' : '🔊 Listen'}</span>
+                  </button>
+                </div>
               )}
             </div>
           </div>

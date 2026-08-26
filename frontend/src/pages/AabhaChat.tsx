@@ -489,19 +489,34 @@ export const AabhaChat: React.FC = () => {
               </div>
             )}
 
-            <div className="flex items-center gap-2 pt-2">
+            <div className="flex flex-col sm:flex-row items-center gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => setShowKeyModal(false)}
-                className="btn-glass flex-1 py-2.5 rounded-2xl text-xs font-bold cursor-pointer"
+                className="btn-glass w-full sm:w-auto px-4 py-2.5 rounded-2xl text-xs font-bold cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="button"
+                onClick={() => {
+                  if (apiKeyInput.trim()) {
+                    geminiService.setApiKey(apiKeyInput.trim());
+                    setHasGeminiKey(true);
+                    setKeyStatusMsg({ type: 'success', text: '✅ Key Saved & Activated!' });
+                    setTimeout(() => setShowKeyModal(false), 800);
+                  }
+                }}
+                disabled={!apiKeyInput.trim()}
+                className="btn-glass flex-1 w-full py-2.5 rounded-2xl text-xs font-bold text-teal-300 border-teal-400/40 hover:bg-teal-500/20 cursor-pointer disabled:opacity-40"
+              >
+                ⚡ Save & Activate
+              </button>
+              <button
+                type="button"
                 onClick={handleSaveAndTestKey}
-                disabled={isTestingKey}
-                className="btn-glow flex-1 py-2.5 rounded-2xl text-xs font-black text-white flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                disabled={isTestingKey || !apiKeyInput.trim()}
+                className="btn-glow flex-1 w-full py-2.5 rounded-2xl text-xs font-black text-white flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 {isTestingKey ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
                 <span>Test & Connect</span>

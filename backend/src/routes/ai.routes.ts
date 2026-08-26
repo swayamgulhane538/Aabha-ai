@@ -191,4 +191,44 @@ router.get('/daily-summary/:patientId', (req, res) => {
   return res.json(summary);
 });
 
+// ─── 4. TEST GOOGLE GEMINI CONNECTION ─────────────────────────────────────────
+router.post('/test-gemini', async (req, res) => {
+  const { apiKey } = req.body;
+  const key = (apiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim();
+
+  if (!key || key.length < 5) {
+    return res.status(400).json({
+      success: false,
+      message: 'Please provide a valid Google Gemini API Key'
+    });
+  }
+
+  const { GoogleGenerativeAI } = await import('@google/generative-ai');
+  const candidateModels = ['gemini-1.5-flash', 'gemini-1.5-flash-latest', 'gemini-2.0-flash', 'gemini-pro', 'gemini-1.5-pro'];
+  const genAI = new GoogleGenerativeAI(key);
+
+  let lastError = '';
+
+  for (const modelName of candidateModels) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent('Say: AABHA AI Connected');
+      const text = result.response.text();
+      return res.json({
+        success: true,
+        model: modelName,
+        message: `Connected to Google Gemini (${modelName}) successfully!`,
+        reply: text.trim()
+      });
+    } catch (e: any) {
+      lastError = e?.message || 'Model error';
+    }
+  }
+
+  return res.status(400).json({
+    success: false,
+    message: `Gemini Connection Error: ${lastError || 'Could not connect with this key. Please check your key at aistudio.google.com'}`
+  });
+});
+
 export default router;

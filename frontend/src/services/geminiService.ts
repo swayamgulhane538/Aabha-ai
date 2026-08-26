@@ -117,7 +117,27 @@ export class GeminiService {
       return { success: false, message: 'Please enter a valid Google Gemini API Key' };
     }
 
-    // 1. First fetch dynamic live models list for this exact key
+    // 1. Try Backend Node.js Proxy (bypasses browser CORS & 404 restrictions)
+    try {
+      const { api } = await import('./api');
+      const backendRes: any = await api.post('/ai/test-gemini', { apiKey: testKey });
+      if (backendRes && backendRes.success) {
+        this.setApiKey(testKey);
+        this.activeModel = backendRes.model || 'gemini-1.5-flash';
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(LOCAL_STORAGE_MODEL_KEY, this.activeModel);
+        }
+        return {
+          success: true,
+          message: backendRes.message || `Connected to Google Gemini (${this.activeModel}) successfully!`,
+          modelName: this.activeModel
+        };
+      }
+    } catch (backendErr) {
+      // Backend test error or offline, fallback to direct browser client
+    }
+
+    // 2. Client-side fallback: fetch dynamic live models list for this exact key
     const liveModels = await this.fetchAvailableModels(testKey);
     const modelsToTry = liveModels.length > 0
       ? liveModels

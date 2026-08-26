@@ -299,28 +299,28 @@ export const PatientDashboard: React.FC = () => {
       <section className="space-y-3">
         <div className="flex items-center justify-between px-1">
           <h2 className="text-base sm:text-lg font-black text-[var(--text-primary)] tracking-tight">
-            Quick Actions
+            {t('Quick Actions')}
           </h2>
           <span className="text-xs font-bold text-[var(--text-secondary)]">
-            Simple 1-Tap Controls
+            {t('Simple 1-Tap Controls')}
           </span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
-          {/* Action 1: Cognitive Activity */}
+          {/* Action 1: Play Memory Games */}
           <Link
-            to="/patient/games/memory-match"
-            className="p-5 rounded-[24px] bg-[var(--bg-surface)] border border-[var(--border)] hover:border-purple-400/50 shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group select-none"
+            to="/patient/games"
+            className="p-5 rounded-[24px] bg-[var(--bg-surface)] border border-[var(--border)] hover:border-emerald-400/50 shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group select-none"
           >
-            <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center text-2xl mb-3 shadow-inner group-hover:scale-110 transition-transform">
-              🧠
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl mb-3 shadow-inner group-hover:scale-110 transition-transform">
+              🎮
             </div>
             <div>
-              <h3 className="text-xs sm:text-sm font-black text-[var(--text-primary)] group-hover:text-purple-600 transition-colors">
+              <h3 className="text-xs sm:text-sm font-black text-[var(--text-primary)] group-hover:text-emerald-600 transition-colors">
                 {t('Brain Games')}
               </h3>
               <p className="text-[11px] text-[var(--text-secondary)] font-medium mt-1 leading-snug">
-                Train your memory & mind
+                {t('Train your memory & mind')}
               </p>
             </div>
           </Link>
@@ -338,7 +338,7 @@ export const PatientDashboard: React.FC = () => {
                 {t('Daily Routine & Alarms')}
               </h3>
               <p className="text-[11px] text-[var(--text-secondary)] font-medium mt-1 leading-snug">
-                View & complete tasks
+                {t('View & complete tasks')}
               </p>
             </div>
           </a>
@@ -356,7 +356,7 @@ export const PatientDashboard: React.FC = () => {
                 {t('Reminders')}
               </h3>
               <p className="text-[11px] text-[var(--text-secondary)] font-medium mt-1 leading-snug">
-                View reminders
+                {t("View today's reminders")}
               </p>
             </div>
           </Link>
@@ -374,7 +374,7 @@ export const PatientDashboard: React.FC = () => {
                 {t('Memory Passport')}
               </h3>
               <p className="text-[11px] text-[var(--text-secondary)] font-medium mt-1 leading-snug">
-                Personal information
+                {t('Personal information')}
               </p>
             </div>
           </Link>
@@ -392,7 +392,7 @@ export const PatientDashboard: React.FC = () => {
                 {t('My Progress')}
               </h3>
               <p className="text-[11px] text-[var(--text-secondary)] font-medium mt-1 leading-snug">
-                Track your improvement
+                {t('Track your improvement')}
               </p>
             </div>
           </Link>
@@ -405,9 +405,9 @@ export const PatientDashboard: React.FC = () => {
         <div className="p-6 sm:p-8 rounded-[28px] bg-[var(--bg-surface)] border border-[var(--border)] shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
             <h3 className="text-base sm:text-lg font-black text-[var(--text-primary)]">
-              Recent Activity
+              {t('Recent Activity')}
             </h3>
-            <span className="text-xs font-bold text-[var(--text-secondary)]">Today</span>
+            <span className="text-xs font-bold text-[var(--text-secondary)]">{t('Time of Day') || 'Today'}</span>
           </div>
 
           <div className="space-y-3">
@@ -417,15 +417,15 @@ export const PatientDashboard: React.FC = () => {
                 <span className="text-2xl">🧠</span>
                 <div>
                   <div className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">
-                    Memory Match Game
+                    {t('Memory Match')}
                   </div>
                   <div className="text-[11px] text-[var(--text-secondary)] font-medium">
-                    Score: 85% • Medium
+                    {t('Score')}: 85% • {t('Medium')}
                   </div>
                 </div>
               </div>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-400/30">
-                Completed
+                {t('Completed')}
               </span>
             </div>
 
@@ -435,15 +435,15 @@ export const PatientDashboard: React.FC = () => {
                 <span className="text-2xl">💊</span>
                 <div>
                   <div className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">
-                    Medicine — Morning (Donepezil 5mg)
+                    {t("Today's Medication")} (Donepezil 5mg)
                   </div>
                   <div className="text-[11px] text-[var(--text-secondary)] font-medium">
-                    Taken with breakfast
+                    {t('Taken')}
                   </div>
                 </div>
               </div>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-teal-400/30">
-                Taken
+                {t('Taken')}
               </span>
             </div>
 
@@ -453,15 +453,15 @@ export const PatientDashboard: React.FC = () => {
                 <span className="text-2xl">💧</span>
                 <div>
                   <div className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">
-                    Hydration Goal
+                    {t('Hydration')}
                   </div>
                   <div className="text-[11px] text-[var(--text-secondary)] font-medium">
-                    4 of 6 glasses completed
+                    4 / 6 {t('Completed')}
                   </div>
                 </div>
               </div>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-400/30">
-                Completed
+                {t('Completed')}
               </span>
             </div>
           </div>
@@ -472,32 +472,32 @@ export const PatientDashboard: React.FC = () => {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-300 text-xs font-black uppercase tracking-wider">
-                AI Insight
+                {t('AI Insight')}
               </span>
               <Abha3DOrb size="sm" state="IDLE" interactive={false} />
             </div>
 
             <div className="space-y-1">
               <h3 className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
-                Great progress today! 🎉
+                {t('Great progress today! 🎉')}
               </h3>
               <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium leading-relaxed">
-                Your memory performance improved by 12% compared with yesterday. Reaction speed and accuracy across cognitive games remain strong.
+                {t('Your memory performance improved by 12% compared with yesterday. Reaction speed and accuracy across cognitive games remain strong.')}
               </p>
             </div>
 
             {/* Score Indicators */}
             <div className="grid grid-cols-3 gap-2 pt-1">
               <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] text-center">
-                <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Memory</div>
+                <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">{t('Memory')}</div>
                 <div className="text-base font-black text-emerald-500">{indicators.memoryScore}%</div>
               </div>
               <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] text-center">
-                <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Attention</div>
+                <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">{t('Attention')}</div>
                 <div className="text-base font-black text-cyan-500">{indicators.attentionScore}%</div>
               </div>
               <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] text-center">
-                <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Speed</div>
+                <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">{t('Speed')}</div>
                 <div className="text-base font-black text-purple-500">1.8s</div>
               </div>
             </div>
@@ -505,13 +505,13 @@ export const PatientDashboard: React.FC = () => {
 
           <div className="pt-2 border-t border-[var(--border)] flex items-center justify-between">
             <span className="text-[10px] text-[var(--text-muted)] font-medium">
-              Non-diagnostic activity indicator
+              {t('Non-diagnostic activity indicator')}
             </span>
             <Link
               to="/patient/reports"
               className="text-xs font-black text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1"
             >
-              <span>View Detailed Report</span>
+              <span>{t('View Detailed Report')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -523,14 +523,14 @@ export const PatientDashboard: React.FC = () => {
         <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
           <div>
             <h2 className="text-base sm:text-xl font-black text-[var(--text-primary)] flex items-center gap-2">
-              <span>📅 Today's Prescribed Routine</span>
+              <span>📅 {t('My Daily Routine')}</span>
             </h2>
             <p className="text-xs text-[var(--text-secondary)] font-medium mt-0.5">
-              Tap checkboxes to mark completed activities throughout your day
+              {t('Tap checkboxes to mark completed activities throughout your day')}
             </p>
           </div>
           <span className="text-xs font-black text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-400/30">
-            {completedRoutineCount} of {routine.length} Done
+            {completedRoutineCount} / {routine.length} {t('Done')}
           </span>
         </div>
 
@@ -558,10 +558,10 @@ export const PatientDashboard: React.FC = () => {
                 </button>
                 <div>
                   <span className={`text-xs sm:text-sm font-bold ${item.completed ? 'line-through text-[var(--text-secondary)]' : 'text-[var(--text-primary)]'}`}>
-                    {item.title}
+                    {t(item.title) || item.title}
                   </span>
                   <div className="text-[11px] text-[var(--text-secondary)] font-mono font-medium">
-                    ⏰ {item.time} • {item.category}
+                    ⏰ {item.time} • {t(item.category) || item.category}
                   </div>
                 </div>
               </div>
@@ -571,7 +571,7 @@ export const PatientDashboard: React.FC = () => {
                   ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-400/30'
                   : 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-400/30'
               }`}>
-                {item.completed ? 'Completed' : 'Pending'}
+                {item.completed ? t('Completed') : t('Pending')}
               </span>
             </div>
           ))}
@@ -585,12 +585,12 @@ export const PatientDashboard: React.FC = () => {
             🚨
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-rose-500">
-            {sosSent ? 'Emergency SOS Sent!' : 'Confirm Emergency SOS?'}
+            {sosSent ? t('Emergency SOS Sent!') : t('Confirm Emergency SOS?')}
           </h2>
           <p className="text-xs sm:text-sm font-medium text-[var(--text-secondary)] leading-relaxed">
             {sosSent
-              ? 'Your caregiver (Dr. Anita Verma) and emergency contacts have been notified with your live GPS location.'
-              : 'This will notify your caregiver that you require immediate assistance.'}
+              ? t('Your caregiver (Dr. Anita Verma) and emergency contacts have been notified with your live GPS location.')
+              : t('This will notify your caregiver that you require immediate assistance.')}
           </p>
 
           {sosSent ? (

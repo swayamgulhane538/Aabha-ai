@@ -209,11 +209,11 @@ export const GamePlayer: React.FC = () => {
           <span className="text-2xl">{gameInfo?.emoji || '🎮'}</span>
           <div>
             <h2 className="text-base sm:text-lg font-black text-[var(--text-primary)]">
-              {gameInfo?.title || 'Cognitive Activity'}
+              {t(gameInfo?.title || 'Cognitive Activity')}
             </h2>
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-400/30">
-                AI Difficulty: Level {difficulty}
+                {t('Level')} {difficulty}
               </span>
               <span className="text-[10px] text-[var(--text-secondary)] font-bold">
                 (Adaptive Scale 1–5)
@@ -225,7 +225,7 @@ export const GamePlayer: React.FC = () => {
           onClick={() => navigate('/patient/games')}
           className="btn-glass px-4 py-1.5 rounded-xl text-xs sm:text-sm font-black hover:text-emerald-400 transition"
         >
-          ← Exit to Hub
+          ← {t('Exit to Hub') || t('Quit')}
         </button>
       </div>
 
@@ -237,10 +237,10 @@ export const GamePlayer: React.FC = () => {
 
           <div className="space-y-1">
             <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)]">
-              Activity Completed!
+              {t('Great Job!')}
             </h2>
             <p className="text-xs sm:text-sm font-medium text-[var(--text-secondary)]">
-              Your memory performance metrics have been securely recorded.
+              {t('Your memory performance metrics have been securely recorded.') || 'Your memory performance metrics have been securely recorded.'}
             </p>
           </div>
 
@@ -248,17 +248,17 @@ export const GamePlayer: React.FC = () => {
           <div className="grid grid-cols-3 gap-3 pt-1">
             <div className="p-3.5 bg-[var(--bg-surface-secondary)] rounded-2xl border border-[var(--border)]">
               <div className="text-2xl font-black text-[var(--text-primary)]">{result.score}</div>
-              <div className="text-[10px] font-black uppercase text-[var(--text-secondary)]">Score Points</div>
+              <div className="text-[10px] font-black uppercase text-[var(--text-secondary)]">{t('Score')}</div>
             </div>
 
             <div className="p-3.5 bg-[var(--bg-surface-secondary)] rounded-2xl border border-[var(--border)]">
               <div className="text-2xl font-black text-emerald-400">{result.accuracy}%</div>
-              <div className="text-[10px] font-black uppercase text-[var(--text-secondary)]">Accuracy</div>
+              <div className="text-[10px] font-black uppercase text-[var(--text-secondary)]">{t('Accuracy')}</div>
             </div>
 
             <div className="p-3.5 bg-[var(--bg-surface-secondary)] rounded-2xl border border-[var(--border)]">
               <div className="text-2xl font-black text-cyan-400">{result.timeTaken}s</div>
-              <div className="text-[10px] font-black uppercase text-[var(--text-secondary)]">Time Taken</div>
+              <div className="text-[10px] font-black uppercase text-[var(--text-secondary)]">{t('Time')}</div>
             </div>
           </div>
 
@@ -278,7 +278,7 @@ export const GamePlayer: React.FC = () => {
                 <div className="font-black text-sm text-[var(--text-primary)] flex items-center gap-1.5">
                   <span>AI Adaptation Engine</span>
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/30">
-                    Level {adaptation.previousDifficulty} → Level {adaptation.newDifficulty}
+                    {t('Level')} {adaptation.previousDifficulty} → {t('Level')} {adaptation.newDifficulty}
                   </span>
                 </div>
                 <p className="font-medium text-[var(--text-secondary)] leading-relaxed">
@@ -291,7 +291,7 @@ export const GamePlayer: React.FC = () => {
           {/* Non-Diagnostic Disclaimer */}
           <div className="p-2.5 bg-[var(--bg-surface-secondary)] rounded-xl border border-[var(--border)] text-[10px] font-medium text-[var(--text-muted)] flex items-center justify-center gap-1.5">
             <Shield className="w-3 h-3 text-emerald-500" />
-            <span>Non-diagnostic activity indicator. Not a clinical medical diagnosis.</span>
+            <span>{t('Non-diagnostic activity indicator')}</span>
           </div>
 
           {/* Action Buttons */}
@@ -301,14 +301,14 @@ export const GamePlayer: React.FC = () => {
               className="btn-glass flex-1 py-3 text-xs sm:text-sm font-black flex items-center justify-center gap-2 cursor-pointer"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>Next Round (Level {adaptation?.newDifficulty || difficulty})</span>
+              <span>{t('Play Again')} ({t('Level')} {adaptation?.newDifficulty || difficulty})</span>
             </button>
 
             <button
               onClick={() => navigate('/patient/games')}
               className="btn-glow flex-1 py-3 text-xs sm:text-sm font-black flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Back to Games Hub</span>
+              <span>{t('All Games')}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

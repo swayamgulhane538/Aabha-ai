@@ -189,15 +189,15 @@ export default function LoginPage() {
         <div className="lg:col-span-5 space-y-6 text-center lg:text-left hidden lg:block">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/10 backdrop-blur-md text-xs font-black text-emerald-300">
             <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-spin-slow" />
-            <span>Voice-First Clinical Health Companion</span>
+            <span>{t('Voice-First Clinical Health Companion')}</span>
           </div>
 
           <div className="space-y-3">
             <h1 className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] leading-tight">
-              A caring voice for every memory.
+              {t('A caring voice for every memory.')}
             </h1>
             <p className="text-sm text-[var(--text-secondary)] font-medium leading-relaxed">
-              Sign in to access your personalized memory passport, daily routine, medication alarms, and 18+ cognitive therapy games.
+              {t('Sign in to access your personalized memory passport, daily routine, medication alarms, and 18+ cognitive therapy games.')}
             </p>
           </div>
 
@@ -208,8 +208,8 @@ export default function LoginPage() {
           >
             <Abha3DOrb size="md" state="IDLE" interactive={false} />
             <div className="space-y-1 text-left">
-              <div className="text-xs font-bold text-emerald-400">AABHA AI Companion Active</div>
-              <div className="text-xs text-[var(--text-secondary)]">"Namaste Anita Devi! Let's check your morning memory exercises."</div>
+              <div className="text-xs font-bold text-emerald-400">{t('AABHA AI Companion Active')}</div>
+              <div className="text-xs text-[var(--text-secondary)]">"{t("Ready for today's activities?")}"</div>
             </div>
           </div>
         </div>
@@ -223,10 +223,10 @@ export default function LoginPage() {
             {/* Header */}
             <div className="text-center space-y-1.5">
               <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)]">
-                Sign In to AABHA AI
+                {t('Sign In to AABHA AI')}
               </h2>
               <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium">
-                Access your healthcare records, memory games & daily alarms
+                {t('Access your healthcare records, memory games & daily alarms')}
               </p>
             </div>
 
@@ -243,9 +243,9 @@ export default function LoginPage() {
               <div className="text-center sm:text-left">
                 <div className="flex items-center gap-2 justify-center sm:justify-start">
                   <span className="px-2.5 py-0.5 bg-amber-400/20 border border-amber-400/40 text-amber-300 text-[10px] font-black uppercase rounded-md">
-                    ⭐ Quick Demo Access
+                    ⭐ {t('⭐ Quick Demo Access')}
                   </span>
-                  <span className="font-black text-sm text-[var(--text-primary)]">Demo Patient Portal</span>
+                  <span className="font-black text-sm text-[var(--text-primary)]">{t('Demo Patient Portal')}</span>
                 </div>
                 <div className="text-xs font-mono font-bold text-[var(--text-secondary)] mt-0.5">
                   ID: PAT-DEMO-000001 • Instant Access
@@ -259,7 +259,7 @@ export default function LoginPage() {
                 className="btn-glow w-full sm:w-auto px-5 py-2.5 text-xs font-black flex items-center justify-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                <span>Continue with Demo Account →</span>
+                <span>{t('Continue with Demo Account →')}</span>
               </button>
             </div>
 
@@ -275,7 +275,7 @@ export default function LoginPage() {
                   activeTab === 'password' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
-                Password Login
+                {t('Password Login')}
               </button>
 
               <button
@@ -288,7 +288,7 @@ export default function LoginPage() {
                   activeTab === 'otp' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
-                Email OTP
+                {t('Email OTP')}
               </button>
 
               <button
@@ -301,7 +301,7 @@ export default function LoginPage() {
                   activeTab === 'lookup' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
-                Find Patient ID
+                {t('Find Patient ID')}
               </button>
             </div>
 
@@ -310,7 +310,7 @@ export default function LoginPage() {
               <form onSubmit={handlePasswordSubmit} className="space-y-4">
                 <div>
                   <label className="block text-xs font-black text-[var(--text-secondary)] uppercase mb-1.5">
-                    Email Address or Patient ID *
+                    {t('Email Address or Patient ID *')}
                   </label>
                   <input
                     type="text"
@@ -325,20 +325,20 @@ export default function LoginPage() {
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="block text-xs font-black text-[var(--text-secondary)] uppercase">
-                      Password *
+                      {t('Password *')}
                     </label>
                     <Link
                       to="/forgot-password"
                       className="text-[11px] font-bold text-emerald-400 hover:underline"
                     >
-                      Forgot password?
+                      {t('Forgot Password?')}
                     </Link>
                   </div>
                   <div className="relative">
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
-                      placeholder="Enter your password"
+                      placeholder={t('Enter your password') || 'Enter your password'}
                       value={password}
                       onChange={e => setPassword(e.target.value)}
                       className="w-full px-4 py-3 pr-11 rounded-2xl border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--input-text)] text-xs sm:text-sm font-bold focus:border-emerald-400 focus:outline-none transition"
@@ -362,7 +362,7 @@ export default function LoginPage() {
                     className="rounded border-[var(--border)] bg-[var(--input-bg)] text-emerald-500 focus:ring-emerald-400"
                   />
                   <label htmlFor="rememberMe" className="text-xs text-[var(--text-secondary)] font-medium cursor-pointer">
-                    Remember me on this device
+                    {t('Remember me on this device')}
                   </label>
                 </div>
 
@@ -378,7 +378,7 @@ export default function LoginPage() {
                     </>
                   ) : (
                     <>
-                      <span>Sign In to Portal</span>
+                      <span>{t('Sign In to Portal →')}</span>
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}

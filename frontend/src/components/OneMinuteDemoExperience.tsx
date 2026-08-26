@@ -558,7 +558,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
       stageSentenceIdxRef.current = 0;
 
       if (isMusicOn) {
-        ambientMusic.start(0.24, activeTrack.id);
+        ambientMusic.start(0.35);
       }
 
       playContinuousSentence(STAGES[0], 0);
@@ -665,7 +665,7 @@ export const OneMinuteDemoExperience: React.FC<OneMinuteDemoExperienceProps> = (
       ambientMusic.stop();
       setIsMusicOn(false);
     } else {
-      ambientMusic.start(0.08, activeTrack.id);
+      ambientMusic.start(0.35);
       setIsMusicOn(true);
     }
   };

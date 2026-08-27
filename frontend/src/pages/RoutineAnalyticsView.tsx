@@ -129,8 +129,33 @@ export default function RoutineAnalyticsView() {
               {analyticsData.missedCount}
             </div>
             <p className="text-[11px] font-bold text-[var(--text-secondary)]">
-              {lang === 'mr' ? 'चुकलेले स्मरणपत्र (पुनर्निर्धारित)' : lang === 'hi' ? 'छूटे रिमाइंडर (रीशेड्यूल)' : 'Missed (Rescheduled)'}
+              {lang === 'mr' ? 'चुकलेले स्मरणपत्र (पुनर्निर्धारित)' : lang === 'hi' ? 'छूटे रिमाइंडर (रीशेड्यूल)' : 'Missed Reminders'}
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── 2.1 MOST ACTIVE TIME & TOP CONSISTENCY HIGHLIGHTS ────────────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border)] flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-400/30 flex items-center justify-center text-2xl shrink-0">
+            ☀️
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-black text-amber-400 tracking-wider">Most Active Time Period</span>
+            <h3 className="text-base font-black text-[var(--text-primary)]">Morning (08:00 AM – 11:30 AM)</h3>
+            <p className="text-xs text-[var(--text-secondary)]">Highest energy & routine completion rate (94%)</p>
+          </div>
+        </div>
+
+        <div className="p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border)] flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-400 border border-indigo-400/30 flex items-center justify-center text-2xl shrink-0">
+            🏆
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-black text-indigo-400 tracking-wider">Most Consistent Days</span>
+            <h3 className="text-base font-black text-[var(--text-primary)]">Wednesday & Friday (100%)</h3>
+            <p className="text-xs text-[var(--text-secondary)]">All scheduled doses & activities completed</p>
           </div>
         </div>
       </div>

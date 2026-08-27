@@ -206,15 +206,17 @@ const httpServer = http.createServer(app);
 // Initialize real-time WebRTC Socket.IO signaling
 signalingService.init(httpServer, env.FRONTEND_URL);
 
-const server = httpServer.listen(env.PORT, () => {
-  console.log(`Server running on port ${env.PORT} in ${env.NODE_ENV} mode with Socket.IO signaling`);
-});
-
-process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
-  server.close(() => {
-    console.log('HTTP server closed');
+if (process.env.VERCEL !== '1' && process.env.NODE_ENV !== 'test') {
+  const server = httpServer.listen(env.PORT, () => {
+    console.log(`Server running on port ${env.PORT} in ${env.NODE_ENV} mode with Socket.IO signaling`);
   });
-});
+
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM signal received: closing HTTP server');
+    server.close(() => {
+      console.log('HTTP server closed');
+    });
+  });
+}
 
 export default app;

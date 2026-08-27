@@ -205,8 +205,32 @@ export interface VitalsRecord {
   loggedAt: string;
 }
 
+export interface ReminderRecord {
+  id: string;
+  userId: string;
+  type: string;
+  title: string;
+  description?: string;
+  scheduledAt: string;
+  recurrence?: string;
+  status: 'ACTIVE' | 'COMPLETED';
+  metadata?: {
+    isVoiceAlarm?: boolean;
+    voiceMessage?: string;
+    voiceLanguage?: string;
+    voiceVolume?: number;
+    vibration?: boolean;
+    ringtone?: string;
+    enabled?: boolean;
+    customDays?: number[];
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DatabaseSchema {
   users: UserRecord[];
+  reminders: ReminderRecord[];
   reports: ReportRecord[];
   assessments: AssessmentRecord[];
   caregiverRelationships: CaregiverRelationshipRecord[];
@@ -924,6 +948,71 @@ function getInitialDatabaseData(): DatabaseSchema {
         loggedAt: '2026-08-24T08:30:00.000Z'
       }
     ],
+    reminders: [
+      {
+        id: 'rem-demo-1',
+        userId: 'uuid-demo-patient',
+        type: 'MEDICINE',
+        title: 'Morning BP Medicine (Donepezil 5mg)',
+        description: 'Take 1 tablet Donepezil with warm water after breakfast',
+        scheduledAt: new Date(Date.now() + 3600000).toISOString(),
+        recurrence: 'DAILY',
+        status: 'ACTIVE',
+        metadata: {
+          isVoiceAlarm: true,
+          voiceMessage: 'Medicine lene ka time ho gaya hai. Kripya Donepezil 5mg paani ke saath le lijiye.',
+          voiceLanguage: 'hi',
+          voiceVolume: 1.0,
+          vibration: true,
+          ringtone: 'temple_bell',
+          enabled: true
+        },
+        createdAt: '2026-01-01T08:00:00.000Z',
+        updatedAt: '2026-08-24T10:00:00.000Z'
+      },
+      {
+        id: 'rem-demo-2',
+        userId: 'uuid-demo-patient',
+        type: 'WATER',
+        title: 'Hydration Break (Drink Warm Water)',
+        description: 'Drink 1 full glass of warm water to stay refreshed',
+        scheduledAt: new Date(Date.now() + 7200000).toISOString(),
+        recurrence: 'DAILY',
+        status: 'ACTIVE',
+        metadata: {
+          isVoiceAlarm: true,
+          voiceMessage: 'Paani peene ka samay ho gaya hai. Kripya ek glass garam paani pi lijiye.',
+          voiceLanguage: 'hi',
+          voiceVolume: 1.0,
+          vibration: true,
+          ringtone: 'gentle_flute',
+          enabled: true
+        },
+        createdAt: '2026-01-01T08:00:00.000Z',
+        updatedAt: '2026-08-24T10:00:00.000Z'
+      },
+      {
+        id: 'rem-demo-3',
+        userId: 'uuid-demo-patient',
+        type: 'ACTIVITY',
+        title: 'Memory Match Brain Game',
+        description: 'Daily cognitive memory exercise',
+        scheduledAt: new Date(Date.now() + 10800000).toISOString(),
+        recurrence: 'DAILY',
+        status: 'ACTIVE',
+        metadata: {
+          isVoiceAlarm: true,
+          voiceMessage: 'Memory Match game khelne ka samay ho gaya hai.',
+          voiceLanguage: 'hi',
+          voiceVolume: 1.0,
+          vibration: true,
+          ringtone: 'zen_chime',
+          enabled: true
+        },
+        createdAt: '2026-01-01T08:00:00.000Z',
+        updatedAt: '2026-08-24T10:00:00.000Z'
+      }
+    ],
     passwordResetTokens: [],
     auditLogs: [
       {
@@ -982,10 +1071,18 @@ class PersistentDatabase {
             }
           });
 
+          const reminders = [...(parsed.reminders || defaults.reminders)];
+          defaults.reminders.forEach(dr => {
+            if (dr.userId === 'uuid-demo-patient' && !reminders.some(r => r.id === dr.id)) {
+              reminders.unshift(dr);
+            }
+          });
+
           return {
             ...defaults,
             ...parsed,
             users,
+            reminders,
             reports,
             medications,
             appointments,
@@ -1248,6 +1345,52 @@ class PersistentDatabase {
     return moodLog;
   }
 
+  // ─── REMINDERS (PERSISTENT DISK STORAGE) ─────────────────────────
+  getReminders(userId?: string): ReminderRecord[] {
+    this.ensureFreshData();
+    if (!this.data.reminders) this.data.reminders = [];
+    if (!userId) return this.data.reminders;
+    return this.data.reminders.filter(r => r.userId === userId);
+  }
+
+  getReminderById(id: string): ReminderRecord | undefined {
+    this.ensureFreshData();
+    if (!this.data.reminders) this.data.reminders = [];
+    return this.data.reminders.find(r => r.id === id);
+  }
+
+  createReminder(reminder: ReminderRecord): ReminderRecord {
+    this.ensureFreshData();
+    if (!this.data.reminders) this.data.reminders = [];
+    this.data.reminders.unshift(reminder);
+    this.saveToDisk();
+    return reminder;
+  }
+
+  updateReminder(id: string, updates: Partial<ReminderRecord>): ReminderRecord | undefined {
+    this.ensureFreshData();
+    if (!this.data.reminders) this.data.reminders = [];
+    const idx = this.data.reminders.findIndex(r => r.id === id);
+    if (idx === -1) return undefined;
+    this.data.reminders[idx] = {
+      ...this.data.reminders[idx],
+      ...updates,
+      updatedAt: new Date().toISOString()
+    };
+    this.saveToDisk();
+    return this.data.reminders[idx];
+  }
+
+  deleteReminder(id: string): boolean {
+    this.ensureFreshData();
+    if (!this.data.reminders) this.data.reminders = [];
+    const idx = this.data.reminders.findIndex(r => r.id === id);
+    if (idx === -1) return false;
+    this.data.reminders.splice(idx, 1);
+    this.saveToDisk();
+    return true;
+  }
+
   // ─── GAME RESULTS & ADAPTIVE DIFFICULTY ────────────────────────
   getGameResults(patientUserId?: string): GameResultRecord[] {
     this.ensureFreshData();
@@ -1257,6 +1400,7 @@ class PersistentDatabase {
 
   saveGameResult(result: GameResultRecord): GameResultRecord {
     this.ensureFreshData();
+    if (!this.data.gameResults) this.data.gameResults = [];
     this.data.gameResults.unshift(result);
     this.saveToDisk();
     return result;

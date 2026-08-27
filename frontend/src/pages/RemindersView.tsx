@@ -119,6 +119,15 @@ export default function RemindersView() {
 
   useEffect(() => {
     fetchReminders();
+
+    const handleUpdated = () => {
+      fetchReminders();
+    };
+
+    window.addEventListener('aabha-reminders-updated', handleUpdated);
+    return () => {
+      window.removeEventListener('aabha-reminders-updated', handleUpdated);
+    };
   }, [user]);
 
   const fetchReminders = async () => {

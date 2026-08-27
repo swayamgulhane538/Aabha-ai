@@ -3,28 +3,111 @@ import { useAuthStore } from '../stores/authStore';
 const rawApiUrl = (import.meta as any).env?.VITE_API_URL || '';
 const BASE_URL = rawApiUrl ? (rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`) : '/api';
 
-// Local storage key for offline/demo registered users
-const LOCAL_USERS_KEY = 'aabha_local_users';
+// ─── LOCAL STORAGE KEYS FOR PERSISTENT CLIENT STORAGE ─────────────────────────
+const KEYS = {
+  USERS: 'aabha_local_users',
+  REMINDERS: 'aabha_local_reminders',
+  GAMES: 'aabha_local_game_results',
+  VITALS: 'aabha_local_vitals',
+  CAREGIVERS: 'aabha_local_caregiver_links',
+  MEDICATIONS: 'aabha_local_medications',
+  APPOINTMENTS: 'aabha_local_appointments'
+};
 
-function getLocalUsers(): any[] {
+function getStorage<T>(key: string, defaultVal: T): T {
   try {
-    const raw = localStorage.getItem(LOCAL_USERS_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : defaultVal;
   } catch {
-    return [];
+    return defaultVal;
   }
 }
 
-function saveLocalUser(user: any) {
+function setStorage<T>(key: string, value: T) {
   try {
-    const users = getLocalUsers().filter(u => u.email !== user.email && u.patientId !== user.patientId);
-    users.unshift(user);
-    localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
+    localStorage.setItem(key, JSON.stringify(value));
   } catch {}
 }
 
+// Seed initial reminders for demo / default patient if empty
+function initDefaultReminders(): any[] {
+  const existing = getStorage<any[]>(KEYS.REMINDERS, []);
+  if (existing.length > 0) return existing;
+
+  const defaults = [
+    {
+      id: 'rem-demo-1',
+      userId: 'uuid-demo-patient',
+      type: 'MEDICINE',
+      title: 'Morning BP Medicine (Donepezil 5mg)',
+      description: 'Take 1 tablet Donepezil with warm water after breakfast',
+      scheduledAt: new Date(Date.now() + 3600000).toISOString(),
+      recurrence: 'DAILY',
+      status: 'ACTIVE',
+      metadata: {
+        isVoiceAlarm: true,
+        voiceMessage: 'Medicine lene ka time ho gaya hai. Kripya Donepezil 5mg paani ke saath le lijiye.',
+        voiceLanguage: 'hi',
+        voiceVolume: 1.0,
+        vibration: true,
+        ringtone: 'temple_bell',
+        enabled: true
+      },
+      createdAt: '2026-01-01T08:00:00.000Z',
+      updatedAt: '2026-08-24T10:00:00.000Z'
+    },
+    {
+      id: 'rem-demo-2',
+      userId: 'uuid-demo-patient',
+      type: 'WATER',
+      title: 'Hydration Break (Drink Warm Water)',
+      description: 'Drink 1 full glass of warm water to stay refreshed',
+      scheduledAt: new Date(Date.now() + 7200000).toISOString(),
+      recurrence: 'DAILY',
+      status: 'ACTIVE',
+      metadata: {
+        isVoiceAlarm: true,
+        voiceMessage: 'Paani peene ka samay ho gaya hai. Kripya ek glass garam paani pi lijiye.',
+        voiceLanguage: 'hi',
+        voiceVolume: 1.0,
+        vibration: true,
+        ringtone: 'gentle_flute',
+        enabled: true
+      },
+      createdAt: '2026-01-01T08:00:00.000Z',
+      updatedAt: '2026-08-24T10:00:00.000Z'
+    },
+    {
+      id: 'rem-demo-3',
+      userId: 'uuid-demo-patient',
+      type: 'ACTIVITY',
+      title: 'Memory Match Brain Game',
+      description: 'Daily cognitive memory exercise',
+      scheduledAt: new Date(Date.now() + 10800000).toISOString(),
+      recurrence: 'DAILY',
+      status: 'ACTIVE',
+      metadata: {
+        isVoiceAlarm: true,
+        voiceMessage: 'Memory Match game khelne ka samay ho gaya hai.',
+        voiceLanguage: 'hi',
+        voiceVolume: 1.0,
+        vibration: true,
+        ringtone: 'zen_chime',
+        enabled: true
+      },
+      createdAt: '2026-01-01T08:00:00.000Z',
+      updatedAt: '2026-08-24T10:00:00.000Z'
+    }
+  ];
+  setStorage(KEYS.REMINDERS, defaults);
+  return defaults;
+}
+
+// Initialize on first load
+initDefaultReminders();
+
 async function fetchWithAuth(url: string, options: RequestInit = {}) {
-  const { token, logout } = useAuthStore.getState();
+  const { token, user, logout } = useAuthStore.getState();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
@@ -33,7 +116,9 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  let response: Response;
+  let response: Response | null = null;
+  let backendError: any = null;
+
   try {
     response = await fetch(`${BASE_URL}${url}`, {
       ...options,
@@ -43,56 +128,98 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
       },
     });
   } catch (networkError) {
-    // If backend is unreachable (e.g. online static preview or offline), provide seamless resilient fallback
-    console.warn(`API network request failed for ${url}, switching to resilient local engine...`);
-    const fallbackData = handleOfflineFallback(url, options);
-    if (fallbackData !== null) {
-      return fallbackData;
-    }
-    throw new Error('Network request failed. Please check connection or use Demo login.');
+    backendError = networkError;
   }
 
-  if (response.status === 401) {
-    // Check if offline fallback should rescue
-    const fallbackData = handleOfflineFallback(url, options);
-    if (fallbackData !== null) {
-      return fallbackData;
+  // If backend returned 200/201 OK, save a mirror copy to localStorage and return
+  if (response && response.ok) {
+    const contentType = response.headers.get('Content-Type');
+    if (response.status === 204 || !contentType?.includes('application/json')) {
+      return {};
     }
-    logout();
-    throw new Error('Invalid email or password. Please verify your credentials.');
+    const data = await response.json();
+    mirrorSaveToClientStorage(url, options, data, user);
+    return data;
   }
 
-  if (!response.ok) {
-    let errorMessage = 'Something went wrong. Please try again.';
+  // If backend returned 401 Unauthorized
+  if (response && response.status === 401) {
+    // If not a login/register request, logout
+    if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
+      logout();
+      throw new Error('Session expired. Please log in again.');
+    }
+  }
+
+  // Fallback to resilient client database on network errors or offline mode
+  console.warn(`API network request to ${url} failed or offline, switching to persistent local storage...`);
+  const fallbackData = handleOfflineFallback(url, options);
+  if (fallbackData !== null) {
+    return fallbackData;
+  }
+
+  let errorMessage = 'Network error. Please try again.';
+  if (response) {
     try {
       const errorData = await response.json();
       errorMessage = errorData.message || errorData.error || errorMessage;
     } catch {}
-    
-    // If login/register fails with server error, rescue with local fallback
-    if (url.includes('/auth/login') || url.includes('/auth/register')) {
-      const fallbackData = handleOfflineFallback(url, options);
-      if (fallbackData !== null) {
-        return fallbackData;
-      }
-    }
-    throw new Error(errorMessage);
   }
-
-  // Handle empty responses (204 No Content, etc.)
-  const contentType = response.headers.get('Content-Type');
-  if (response.status === 204 || !contentType?.includes('application/json')) {
-    return {};
-  }
-
-  return response.json();
+  throw new Error(errorMessage);
 }
 
-/** Fallback for when deployed online statically or when backend is temporarily offline */
-function handleOfflineFallback(url: string, options: RequestInit): any {
-  const body = options.body ? JSON.parse(options.body as string) : {};
+/** Mirror saves successful backend responses into localStorage for instant offline access */
+function mirrorSaveToClientStorage(url: string, options: RequestInit, data: any, user: any) {
+  try {
+    const method = (options.method || 'GET').toUpperCase();
 
-  // 1. Auth Register Fallback
+    // 1. Reminders Mirroring
+    if (url.includes('/reminders')) {
+      const list = getStorage<any[]>(KEYS.REMINDERS, []);
+      if (method === 'GET' && Array.isArray(data) && data.length > 0) {
+        setStorage(KEYS.REMINDERS, data);
+      } else if (method === 'POST' && data && data.id) {
+        const filtered = list.filter(r => r.id !== data.id);
+        filtered.unshift(data);
+        setStorage(KEYS.REMINDERS, filtered);
+      } else if (method === 'PUT' && data && data.id) {
+        const idx = list.findIndex(r => r.id === data.id);
+        if (idx !== -1) {
+          list[idx] = { ...list[idx], ...data };
+          setStorage(KEYS.REMINDERS, list);
+        }
+      } else if (method === 'DELETE') {
+        const id = url.split('/').pop();
+        if (id) {
+          setStorage(KEYS.REMINDERS, list.filter(r => r.id !== id));
+        }
+      }
+    }
+
+    // 2. Games Result Mirroring
+    if (url.includes('/games/result') && method === 'POST' && data?.result) {
+      const results = getStorage<any[]>(KEYS.GAMES, []);
+      results.unshift(data.result);
+      setStorage(KEYS.GAMES, results);
+    }
+
+    // 3. Caregiver Link Mirroring
+    if (url.includes('/caregivers/link') && method === 'POST' && data?.link) {
+      const links = getStorage<any[]>(KEYS.CAREGIVERS, []);
+      links.unshift(data.link);
+      setStorage(KEYS.CAREGIVERS, links);
+    }
+  } catch {}
+}
+
+/** Resilient Persistent Local Storage Fallback Engine */
+function handleOfflineFallback(url: string, options: RequestInit): any {
+  const method = (options.method || 'GET').toUpperCase();
+  const body = options.body ? JSON.parse(options.body as string) : {};
+  const currentAuthUser = useAuthStore.getState().user;
+  const currentUserId = currentAuthUser?.id || 'uuid-demo-patient';
+
+  // ─── 1. AUTH REGISTER ──────────────────────────────────────────────────────
   if (url.includes('/auth/register')) {
     const email = String(body.email || 'patient@aabha.ai').toLowerCase().trim();
     const name = body.name || (email.split('@')[0]) || 'User';
@@ -113,7 +240,10 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
       password: body.password || 'demo123',
       createdAt: new Date().toISOString()
     };
-    saveLocalUser(userObj);
+
+    const users = getStorage<any[]>(KEYS.USERS, []);
+    users.unshift(userObj);
+    setStorage(KEYS.USERS, users);
 
     return {
       accessToken: 'token-local-' + Date.now(),
@@ -122,11 +252,11 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
     };
   }
 
-  // 2. Auth Login Fallback
+  // ─── 2. AUTH LOGIN ─────────────────────────────────────────────────────────
   if (url.includes('/auth/login') || url.includes('/auth/login-otp')) {
     const input = String(body.email || body.identifier || '').toLowerCase().trim();
-    const localUsers = getLocalUsers();
-    const matchedUser = localUsers.find(u => u.email.toLowerCase() === input || u.patientId.toLowerCase() === input);
+    const users = getStorage<any[]>(KEYS.USERS, []);
+    const matchedUser = users.find(u => u.email?.toLowerCase() === input || u.patientId?.toLowerCase() === input);
 
     if (matchedUser) {
       return {
@@ -136,7 +266,6 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
       };
     }
 
-    // Default intelligent role detector
     const isCaregiver = input.includes('nurse') || input.includes('caregiver') || input.includes('doctor');
     const isAdmin = input.includes('admin') || input.includes('swayam');
     const role = isAdmin ? 'ADMIN' : isCaregiver ? 'CAREGIVER' : 'PATIENT';
@@ -157,7 +286,8 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
       createdAt: new Date().toISOString()
     };
 
-    saveLocalUser(defaultUser);
+    users.unshift(defaultUser);
+    setStorage(KEYS.USERS, users);
 
     return {
       accessToken: 'token-fallback-' + Date.now(),
@@ -166,15 +296,140 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
     };
   }
 
-  // 3. Send OTP Fallback
-  if (url.includes('/auth/send-otp')) {
+  // ─── 3. REMINDERS PERSISTENCE (GET, POST, PUT, DELETE) ─────────────────────
+  if (url.includes('/reminders')) {
+    const list = getStorage<any[]>(KEYS.REMINDERS, initDefaultReminders());
+
+    if (method === 'POST') {
+      const newRem = {
+        id: 'rem-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+        userId: currentUserId,
+        title: body.title || 'Medicine Reminder',
+        type: body.type || 'MEDICINE',
+        description: body.description || body.title || 'Scheduled Reminder',
+        scheduledAt: body.scheduledAt || new Date(Date.now() + 3600000).toISOString(),
+        recurrence: body.recurrence || 'DAILY',
+        status: body.status || 'ACTIVE',
+        metadata: body.metadata || {
+          isVoiceAlarm: true,
+          voiceMessage: body.title || 'Time for reminder',
+          voiceLanguage: 'hi',
+          voiceVolume: 1.0,
+          vibration: true,
+          ringtone: 'temple_bell',
+          enabled: true
+        },
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      list.unshift(newRem);
+      setStorage(KEYS.REMINDERS, list);
+      return newRem;
+    }
+
+    if (method === 'PUT') {
+      const parts = url.split('/');
+      const id = parts[parts.length - 1];
+      const idx = list.findIndex(r => r.id === id);
+      if (idx !== -1) {
+        list[idx] = {
+          ...list[idx],
+          ...body,
+          metadata: body.metadata ? { ...list[idx].metadata, ...body.metadata } : list[idx].metadata,
+          updatedAt: new Date().toISOString()
+        };
+        setStorage(KEYS.REMINDERS, list);
+        return list[idx];
+      }
+      return { id, ...body };
+    }
+
+    if (method === 'DELETE') {
+      const parts = url.split('/');
+      const id = parts[parts.length - 1];
+      const filtered = list.filter(r => r.id !== id);
+      setStorage(KEYS.REMINDERS, filtered);
+      return { success: true, message: 'Reminder deleted permanently' };
+    }
+
+    // Default GET: Return all saved reminders
+    return list;
+  }
+
+  // ─── 4. COGNITIVE GAME RESULTS & PROGRESS ──────────────────────────────────
+  if (url.includes('/games/result') && method === 'POST') {
+    const results = getStorage<any[]>(KEYS.GAMES, []);
+    const newResult = {
+      id: 'gr-' + Date.now(),
+      patientUserId: currentUserId,
+      patientId: currentAuthUser?.patientId || 'PAT-2026-000001',
+      gameType: body.gameType || 'memory-match',
+      gameName: body.gameName || 'Cognitive Game',
+      score: body.score !== undefined ? Number(body.score) : 80,
+      maxScore: Number(body.maxScore) || 100,
+      accuracy: body.accuracy !== undefined ? Number(body.accuracy) : 85,
+      timeTaken: body.timeTaken !== undefined ? Number(body.timeTaken) : 45,
+      difficulty: body.difficulty || 'Level 2',
+      completedAt: new Date().toISOString()
+    };
+    results.unshift(newResult);
+    setStorage(KEYS.GAMES, results);
+    return { message: 'Game result recorded', result: newResult };
+  }
+
+  if (url.includes('/games/progress')) {
+    const results = getStorage<any[]>(KEYS.GAMES, []);
+    const avgAccuracy = results.length > 0
+      ? Math.round(results.reduce((sum, r) => sum + r.accuracy, 0) / results.length)
+      : 88;
+    const avgReactionTime = results.length > 0
+      ? (results.reduce((sum, r) => sum + r.timeTaken, 0) / results.length).toFixed(1)
+      : '1.8';
+
     return {
-      success: true,
-      message: 'A 6-digit OTP code has been sent to your email (Default OTP: 123456).'
+      history: results,
+      totalGamesPlayed: results.length,
+      averageAccuracy: avgAccuracy,
+      averageReactionTime: avgReactionTime,
+      memoryScore: Math.min(100, Math.round(avgAccuracy * 0.95 + 4)),
+      attentionScore: Math.min(100, Math.round(avgAccuracy * 0.92 + 6)),
+      reactionScore: Math.min(100, Math.round(avgAccuracy * 0.90 + 8)),
+      consistencyScore: Math.min(100, Math.round(avgAccuracy * 0.96 + 3))
     };
   }
 
-  // 4. AI Chat Fallback
+  // ─── 5. CAREGIVERS LINKING & PATIENT LIST ──────────────────────────────────
+  if (url.includes('/caregivers/link') && method === 'POST') {
+    const links = getStorage<any[]>(KEYS.CAREGIVERS, []);
+    const targetPatientId = String(body.patientId || '').toUpperCase().trim();
+    const newLink = {
+      id: 'rel-' + Date.now(),
+      caregiverUserId: currentUserId,
+      patientId: targetPatientId,
+      relationship: body.relationship || 'Assigned Caregiver',
+      createdAt: new Date().toISOString()
+    };
+    links.unshift(newLink);
+    setStorage(KEYS.CAREGIVERS, links);
+    return { message: 'Patient linked successfully', link: newLink };
+  }
+
+  if (url.includes('/caregivers/patients')) {
+    const users = getStorage<any[]>(KEYS.USERS, []);
+    const links = getStorage<any[]>(KEYS.CAREGIVERS, []);
+
+    // Return default patients + any newly registered / linked patient
+    const defaultPatients = [
+      { id: 'uuid-demo-patient', patientId: 'PAT-DEMO-000001', name: 'Demo Patient', age: 68, gender: 'Female', cognitiveScore: 88, adherence: 94, lastActive: 'Active Now', relationship: 'Assigned Primary Caregiver & Clinical Nurse' },
+      { id: 'uuid-anita-01', patientId: 'PAT-2026-000001', name: 'Anita Devi', age: 67, gender: 'Female', cognitiveScore: 84, adherence: 95, lastActive: '1 hour ago', relationship: 'Clinical Supervising Nurse' },
+      { id: 'uuid-rajesh-03', patientId: 'PAT-2026-000003', name: 'Rajesh Kumar', age: 71, gender: 'Male', cognitiveScore: 78, adherence: 89, lastActive: '3 hours ago', relationship: 'Assigned Clinical Nurse' }
+    ];
+
+    const newlyAdded = users.filter(u => u.role === 'PATIENT' && !defaultPatients.some(dp => dp.id === u.id || dp.patientId === u.patientId));
+    return [...defaultPatients, ...newlyAdded];
+  }
+
+  // ─── 6. AI CHAT ────────────────────────────────────────────────────────────
   if (url.includes('/ai/chat')) {
     return {
       reply: "Namaste! I am AABHA AI, your cognitive care companion. How can I assist you with your routine, games, or medicine today?",
@@ -185,43 +440,32 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
     };
   }
 
-  // 5. Reminders Fallback
-  if (url.includes('/reminders')) {
-    if (options.method === 'POST') {
-      const newRem = {
-        id: 'rem-' + Date.now(),
-        ...body,
-        scheduledAt: body.scheduledAt || new Date().toISOString(),
-        status: 'ACTIVE',
-        metadata: body.metadata || { isVoiceAlarm: true, voiceMessage: body.title, voiceLanguage: 'hi', enabled: true }
-      };
-      return newRem;
-    }
-    return [
-      { id: 'r1', title: 'Morning BP Medicine (Donepezil 5mg)', type: 'MEDICINE', scheduledAt: new Date(Date.now() + 3600000).toISOString(), status: 'ACTIVE', metadata: { isVoiceAlarm: true, voiceMessage: 'Medicine lene ka time ho gaya hai.', voiceLanguage: 'hi' } },
-      { id: 'r2', title: 'Drink Warm Water (Hydration)', type: 'WATER', scheduledAt: new Date(Date.now() + 7200000).toISOString(), status: 'ACTIVE', metadata: { isVoiceAlarm: true, voiceMessage: 'Garam paani pi lijiye.', voiceLanguage: 'hi' } },
-      { id: 'r3', title: 'Memory Match Brain Game', type: 'ACTIVITY', scheduledAt: new Date(Date.now() + 10800000).toISOString(), status: 'ACTIVE', metadata: { isVoiceAlarm: true, voiceMessage: 'Memory game khelne ka samay ho gaya hai.', voiceLanguage: 'hi' } }
-    ];
-  }
-
-  // 6. Medications Fallback
+  // ─── 7. MEDICATIONS ────────────────────────────────────────────────────────
   if (url.includes('/medications')) {
-    return [
+    const list = getStorage<any[]>(KEYS.MEDICATIONS, [
       { id: 'm1', name: 'Donepezil', dosage: '5mg', scheduledTime: '08:30 AM', status: 'TAKEN', instructions: 'Take with breakfast' },
       { id: 'm2', name: 'Memantine HCl', dosage: '10mg', scheduledTime: '01:00 PM', status: 'UPCOMING', instructions: 'Take with lunch' },
       { id: 'm3', name: 'Amlodipine', dosage: '5mg', scheduledTime: '08:00 PM', status: 'UPCOMING', instructions: 'Take after dinner' }
-    ];
+    ]);
+    return list;
   }
 
-  // 7. Appointments Fallback
+  // ─── 8. APPOINTMENTS ───────────────────────────────────────────────────────
   if (url.includes('/appointments')) {
     return [
       { id: 'a1', doctorName: 'Dr. Anita Verma', date: 'Tomorrow', time: '11:00 AM', purpose: 'Routine Cognitive Health Checkup', status: 'UPCOMING' }
     ];
   }
 
-  // 8. Vitals Fallback
+  // ─── 9. VITALS ─────────────────────────────────────────────────────────────
   if (url.includes('/vitals')) {
+    if (method === 'POST') {
+      const vitalsList = getStorage<any[]>(KEYS.VITALS, []);
+      const newVitals = { id: 'vit-' + Date.now(), ...body, loggedAt: new Date().toISOString() };
+      vitalsList.unshift(newVitals);
+      setStorage(KEYS.VITALS, vitalsList);
+      return newVitals;
+    }
     return {
       heartRate: 72,
       bloodPressure: '120/80',

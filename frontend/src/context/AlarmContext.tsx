@@ -156,6 +156,22 @@ export const AlarmProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // Speak initial reminder
     speakReminder(alarmData);
 
+    // Trigger Browser Notification if supported & permitted
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'granted') {
+        try {
+          new Notification(`⏰ AABHA Alarm: ${alarmData.title}`, {
+            body: alarmData.voiceMessage || alarmData.title,
+            icon: '/favicon.ico'
+          });
+        } catch {}
+      } else if (Notification.permission !== 'denied') {
+        try {
+          Notification.requestPermission();
+        } catch {}
+      }
+    }
+
     // Re-announce the voice message every 12 seconds until dismissed
     repeatSpeechTimerRef.current = setInterval(() => {
       if (activeAlarmRef.current) {

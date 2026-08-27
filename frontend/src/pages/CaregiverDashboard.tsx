@@ -56,27 +56,65 @@ export const CaregiverDashboard: React.FC = () => {
 
   const [selectedPatientId, setSelectedPatientId] = useState('uuid-demo-patient');
 
+  // Link Patient Modal State
+  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+  const [inputPatientId, setInputPatientId] = useState('');
+  const [inputRelationship, setInputRelationship] = useState('Assigned Caregiver');
+  const [linkError, setLinkError] = useState('');
+  const [linkSuccess, setLinkSuccess] = useState('');
+  const [linking, setLinking] = useState(false);
+
   // Load live linked patients from backend
-  useEffect(() => {
-    const fetchLinkedPatients = async () => {
-      try {
-        const res: any = await api.get('/caregivers/patients');
-        if (res && Array.isArray(res) && res.length > 0) {
-          setPatients(res);
-          // Prefer demo patient if present
-          const demoP = res.find((p: any) => p.patientId === 'PAT-DEMO-000001' || p.id === 'uuid-demo-patient');
-          if (demoP) {
-            setSelectedPatientId(demoP.id);
-          } else {
-            setSelectedPatientId(res[0].id);
-          }
+  const fetchLinkedPatients = async () => {
+    try {
+      const res: any = await api.get('/caregivers/patients');
+      if (res && Array.isArray(res) && res.length > 0) {
+        setPatients(res);
+        const demoP = res.find((p: any) => p.patientId === 'PAT-DEMO-000001' || p.id === 'uuid-demo-patient');
+        if (demoP) {
+          setSelectedPatientId(demoP.id);
+        } else {
+          setSelectedPatientId(res[0].id);
         }
-      } catch (err) {
-        // Fallback to initial linked patients
       }
-    };
+    } catch (err) {
+      // Fallback to initial linked patients
+    }
+  };
+
+  useEffect(() => {
     fetchLinkedPatients();
   }, [user]);
+
+  const handleLinkPatient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLinkError('');
+    setLinkSuccess('');
+    if (!inputPatientId.trim()) {
+      setLinkError('Please enter a valid Patient ID (e.g. PAT-2026-000001 or PAT-DEMO-000001).');
+      return;
+    }
+
+    setLinking(true);
+    try {
+      const res: any = await api.post('/caregivers/link', {
+        patientId: inputPatientId.trim(),
+        relationship: inputRelationship
+      });
+
+      setLinkSuccess(res.message || 'Patient successfully linked to your caretaker dashboard!');
+      setInputPatientId('');
+      await fetchLinkedPatients();
+      setTimeout(() => {
+        setIsLinkModalOpen(false);
+        setLinkSuccess('');
+      }, 1200);
+    } catch (err: any) {
+      setLinkError(err?.message || 'Could not find a registered patient with this ID.');
+    } finally {
+      setLinking(false);
+    }
+  };
 
   const [alerts, setAlerts] = useState<SmartAlert[]>([
     {
@@ -216,6 +254,14 @@ export const CaregiverDashboard: React.FC = () => {
               👤 {p.name} ({p.patientId})
             </button>
           ))}
+
+          <button
+            onClick={() => setIsLinkModalOpen(true)}
+            className="px-3.5 py-1.5 rounded-xl text-xs font-black bg-purple-500/20 text-purple-300 border border-purple-400/40 hover:bg-purple-500/30 transition cursor-pointer shrink-0 flex items-center gap-1.5"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Link New Patient</span>
+          </button>
         </div>
 
         {/* Time Filters */}
@@ -502,6 +548,96 @@ export const CaregiverDashboard: React.FC = () => {
             </button>
           </div>
         </div>
+      </ModalPortal>
+
+      {/* ─── 7. LINK PATIENT BY UNIQUE ID MODAL ──────────────────────────────── */}
+      <ModalPortal
+        isOpen={isLinkModalOpen}
+        onClose={() => {
+          setIsLinkModalOpen(false);
+          setLinkError('');
+          setLinkSuccess('');
+        }}
+        maxWidth="max-w-md"
+        title={
+          <div>
+            <span className="text-[10px] font-black uppercase text-purple-400 bg-purple-500/10 px-2.5 py-0.5 rounded-full border border-purple-400/30">
+              Caretaker Access
+            </span>
+            <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] mt-1">
+              Link Patient Account
+            </h2>
+          </div>
+        }
+      >
+        <form onSubmit={handleLinkPatient} className="space-y-4 text-xs sm:text-sm font-medium text-[var(--text-primary)] font-sans">
+          <p className="text-xs text-[var(--text-secondary)]">
+            Enter the unique Patient ID (e.g. <span className="font-mono text-purple-400 font-bold">PAT-2026-000001</span> or <span className="font-mono text-emerald-400 font-bold">PAT-DEMO-000001</span>) to connect their health records to your monitoring dashboard.
+          </p>
+
+          {linkError && (
+            <div className="p-3 bg-rose-500/15 border border-rose-500/30 rounded-xl text-rose-400 text-xs font-bold flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              <span>{linkError}</span>
+            </div>
+          )}
+
+          {linkSuccess && (
+            <div className="p-3 bg-emerald-500/15 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs font-bold flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 shrink-0" />
+              <span>{linkSuccess}</span>
+            </div>
+          )}
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-[var(--text-secondary)]">Patient ID *</label>
+            <input
+              type="text"
+              required
+              value={inputPatientId}
+              onChange={(e) => setInputPatientId(e.target.value)}
+              placeholder="e.g. PAT-2026-000001"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] text-[var(--text-primary)] font-mono text-xs focus:border-purple-500 outline-none uppercase"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-[var(--text-secondary)]">Your Relationship *</label>
+            <select
+              value={inputRelationship}
+              onChange={(e) => setInputRelationship(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-surface-secondary)] border border-[var(--border)] text-[var(--text-primary)] text-xs focus:border-purple-500 outline-none"
+            >
+              <option value="Primary Caregiver">Primary Caregiver</option>
+              <option value="Family Member (Daughter/Son/Spouse)">Family Member (Daughter/Son/Spouse)</option>
+              <option value="Clinical Nurse">Clinical Nurse</option>
+              <option value="Attending Doctor / Physician">Attending Doctor / Physician</option>
+            </select>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="submit"
+              disabled={linking}
+              className="btn-glow flex-1 py-3 text-xs font-black flex items-center justify-center gap-2 cursor-pointer bg-gradient-to-r from-purple-600 to-indigo-600"
+            >
+              <Plus className="w-4 h-4" />
+              <span>{linking ? 'Linking...' : 'Confirm & Link Patient'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsLinkModalOpen(false);
+                setLinkError('');
+                setLinkSuccess('');
+              }}
+              className="btn-glass px-5 py-3 text-xs font-bold cursor-pointer"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
       </ModalPortal>
     </div>
   );

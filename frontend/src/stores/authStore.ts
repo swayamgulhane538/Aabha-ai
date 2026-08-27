@@ -142,13 +142,13 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         }
       },
 
-      // ─── 5. REGISTER NEW PATIENT (PERSISTS IN SQL DATABASE) ────────────
+      // ─── 5. REGISTER NEW USER (PERSISTS IN DATABASE) ──────────────────
       register: async (data: any) => {
         set({ isLoading: true });
         try {
           const res = await api.post('/auth/register', {
             ...data,
-            role: 'PATIENT'
+            role: (data.role || 'PATIENT').toUpperCase()
           });
           const user: User = res.user;
           user.role = (user.role || 'PATIENT').toUpperCase() as Role;
@@ -204,10 +204,10 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         set({ isLoading: true });
         try {
           const res = await api.get('/auth/me');
-          if (res && res.id) {
-            const user: User = res;
-            user.role = (user.role || 'PATIENT').toUpperCase() as Role;
-            set({ user, isAuthenticated: true, isLoading: false });
+          const userObj: User = res.user || res;
+          if (userObj && userObj.id) {
+            userObj.role = (userObj.role || 'PATIENT').toUpperCase() as Role;
+            set({ user: userObj, isAuthenticated: true, isLoading: false });
           }
         } catch (err) {
           // Token expired or invalid

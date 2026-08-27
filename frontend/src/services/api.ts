@@ -117,7 +117,6 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
   }
 
   let response: Response | null = null;
-  let backendError: any = null;
 
   try {
     response = await fetch(`${BASE_URL}${url}`, {
@@ -128,7 +127,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
       },
     });
   } catch (networkError) {
-    backendError = networkError;
+    // Network failed or offline
   }
 
   // If backend returned 200/201 OK, save a mirror copy to localStorage and return
@@ -144,7 +143,6 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
 
   // If backend returned 401 Unauthorized
   if (response && response.status === 401) {
-    // If not a login/register request, logout
     if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
       logout();
       throw new Error('Session expired. Please log in again.');
@@ -152,7 +150,6 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
   }
 
   // Fallback to resilient client database on network errors or offline mode
-  console.warn(`API network request to ${url} failed or offline, switching to persistent local storage...`);
   const fallbackData = handleOfflineFallback(url, options);
   if (fallbackData !== null) {
     return fallbackData;
@@ -177,7 +174,10 @@ function mirrorSaveToClientStorage(url: string, options: RequestInit, data: any,
     if (url.includes('/reminders')) {
       const list = getStorage<any[]>(KEYS.REMINDERS, []);
       if (method === 'GET' && Array.isArray(data) && data.length > 0) {
-        setStorage(KEYS.REMINDERS, data);
+        // Merge user's reminders
+        const currentUserId = user?.id || 'uuid-demo-patient';
+        const otherUsersReminders = list.filter(r => r.userId !== currentUserId);
+        setStorage(KEYS.REMINDERS, [...otherUsersReminders, ...data]);
       } else if (method === 'POST' && data && data.id) {
         const filtered = list.filter(r => r.id !== data.id);
         filtered.unshift(data);
@@ -212,7 +212,7 @@ function mirrorSaveToClientStorage(url: string, options: RequestInit, data: any,
   } catch {}
 }
 
-/** Resilient Persistent Local Storage Fallback Engine */
+/** Resilient Persistent Local Storage Fallback Engine with Strict User Isolation */
 function handleOfflineFallback(url: string, options: RequestInit): any {
   const method = (options.method || 'GET').toUpperCase();
   const body = options.body ? JSON.parse(options.body as string) : {};
@@ -296,7 +296,7 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
     };
   }
 
-  // ─── 3. REMINDERS PERSISTENCE (GET, POST, PUT, DELETE) ─────────────────────
+  // ─── 3. REMINDERS PERSISTENCE (STRICTLY FILTERED BY USER ID) ───────────────
   if (url.includes('/reminders')) {
     const list = getStorage<any[]>(KEYS.REMINDERS, initDefaultReminders());
 
@@ -352,8 +352,17 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
       return { success: true, message: 'Reminder deleted permanently' };
     }
 
-    // Default GET: Return all saved reminders
-    return list;
+    // Default GET: Return reminders for the logged-in patient
+    const userReminders = list.filter(
+      r => r.userId === currentUserId || (currentUserId === 'uuid-demo-patient' && (r.userId === 'uuid-demo-patient' || !r.userId))
+    );
+
+    // If demo patient has 0 reminders, return the default seeded list
+    if (userReminders.length === 0 && currentUserId === 'uuid-demo-patient') {
+      return initDefaultReminders();
+    }
+
+    return userReminders;
   }
 
   // ─── 4. COGNITIVE GAME RESULTS & PROGRESS ──────────────────────────────────
@@ -378,7 +387,11 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
   }
 
   if (url.includes('/games/progress')) {
-    const results = getStorage<any[]>(KEYS.GAMES, []);
+    const allResults = getStorage<any[]>(KEYS.GAMES, []);
+    const results = allResults.filter(
+      r => r.patientUserId === currentUserId || (currentUserId === 'uuid-demo-patient' && (!r.patientUserId || r.patientUserId === 'uuid-demo-patient'))
+    );
+
     const avgAccuracy = results.length > 0
       ? Math.round(results.reduce((sum, r) => sum + r.accuracy, 0) / results.length)
       : 88;
@@ -417,16 +430,33 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
   if (url.includes('/caregivers/patients')) {
     const users = getStorage<any[]>(KEYS.USERS, []);
     const links = getStorage<any[]>(KEYS.CAREGIVERS, []);
+    const userLinks = links.filter(l => l.caregiverUserId === currentUserId);
+    const linkedPatientIds = userLinks.map(l => l.patientId?.toUpperCase());
 
-    // Return default patients + any newly registered / linked patient
     const defaultPatients = [
       { id: 'uuid-demo-patient', patientId: 'PAT-DEMO-000001', name: 'Demo Patient', age: 68, gender: 'Female', cognitiveScore: 88, adherence: 94, lastActive: 'Active Now', relationship: 'Assigned Primary Caregiver & Clinical Nurse' },
       { id: 'uuid-anita-01', patientId: 'PAT-2026-000001', name: 'Anita Devi', age: 67, gender: 'Female', cognitiveScore: 84, adherence: 95, lastActive: '1 hour ago', relationship: 'Clinical Supervising Nurse' },
       { id: 'uuid-rajesh-03', patientId: 'PAT-2026-000003', name: 'Rajesh Kumar', age: 71, gender: 'Male', cognitiveScore: 78, adherence: 89, lastActive: '3 hours ago', relationship: 'Assigned Clinical Nurse' }
     ];
 
-    const newlyAdded = users.filter(u => u.role === 'PATIENT' && !defaultPatients.some(dp => dp.id === u.id || dp.patientId === u.patientId));
-    return [...defaultPatients, ...newlyAdded];
+    if (currentAuthUser?.role === 'ADMIN' || currentUserId === 'uuid-admin-swayam') {
+      const allPatients = users.filter(u => u.role === 'PATIENT');
+      return [...defaultPatients, ...allPatients];
+    }
+
+    if (currentUserId === 'uuid-demo-nurse') {
+      const added = users.filter(u => u.role === 'PATIENT' && linkedPatientIds.includes(u.patientId?.toUpperCase()));
+      return [...defaultPatients, ...added];
+    }
+
+    const myPatients = users.filter(
+      u => u.role === 'PATIENT' && (linkedPatientIds.includes(u.patientId?.toUpperCase()) || linkedPatientIds.includes(u.id))
+    );
+
+    if (myPatients.length === 0) {
+      return [defaultPatients[0]];
+    }
+    return myPatients;
   }
 
   // ─── 6. AI CHAT ────────────────────────────────────────────────────────────
@@ -461,10 +491,15 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
   if (url.includes('/vitals')) {
     if (method === 'POST') {
       const vitalsList = getStorage<any[]>(KEYS.VITALS, []);
-      const newVitals = { id: 'vit-' + Date.now(), ...body, loggedAt: new Date().toISOString() };
+      const newVitals = { id: 'vit-' + Date.now(), patientUserId: currentUserId, ...body, loggedAt: new Date().toISOString() };
       vitalsList.unshift(newVitals);
       setStorage(KEYS.VITALS, vitalsList);
       return newVitals;
+    }
+    const allVitals = getStorage<any[]>(KEYS.VITALS, []);
+    const userVitals = allVitals.filter(v => v.patientUserId === currentUserId);
+    if (userVitals.length > 0) {
+      return userVitals[0];
     }
     return {
       heartRate: 72,

@@ -96,36 +96,36 @@ export const Layout = () => {
                   {t('Dashboard')}
                 </Link>
                 <Link
+                  to="/patient/reminders"
+                  className={`px-3 py-1.5 rounded-full transition-all ${
+                    location.pathname.startsWith('/patient/reminders') ? activeNavCls : inactiveNavCls
+                  }`}
+                >
+                  🗣️ {t('Voice Alarms')}
+                </Link>
+                <Link
+                  to="/patient/analytics"
+                  className={`px-3 py-1.5 rounded-full transition-all ${
+                    location.pathname.startsWith('/patient/analytics') ? activeNavCls : inactiveNavCls
+                  }`}
+                >
+                  📊 {t('Analytics')}
+                </Link>
+                <Link
                   to="/patient/games"
                   className={`px-3 py-1.5 rounded-full transition-all ${
                     location.pathname.startsWith('/patient/games') ? activeNavCls : inactiveNavCls
                   }`}
                 >
-                  {t('Games')}
+                  🎮 {t('Games')}
                 </Link>
-                <a
-                  href="/patient#routine"
-                  className={`px-3 py-1.5 rounded-full transition-all ${
-                    location.hash === '#routine' ? activeNavCls : inactiveNavCls
-                  }`}
-                >
-                  {t('My Schedule')}
-                </a>
                 <Link
                   to="/patient/memory-passport"
                   className={`px-3 py-1.5 rounded-full transition-all ${
                     location.pathname.startsWith('/patient/memory-passport') ? activeNavCls : inactiveNavCls
                   }`}
                 >
-                  {t('Memory Passport')}
-                </Link>
-                <Link
-                  to="/patient/reports"
-                  className={`px-3 py-1.5 rounded-full transition-all ${
-                    location.pathname.startsWith('/patient/reports') ? activeNavCls : inactiveNavCls
-                  }`}
-                >
-                  {t('My Progress')}
+                  📖 {t('Memory Passport')}
                 </Link>
               </>
             ) : (
@@ -274,9 +274,9 @@ export const Layout = () => {
       >
         <Link
           to={isCaregiver ? '/caregiver' : '/patient'}
-          className={`py-1 px-3 rounded-2xl flex flex-col items-center transition-all ${
+          className={`py-1 px-2.5 rounded-2xl flex flex-col items-center transition-all ${
             (location.pathname === '/patient' || location.pathname === '/caregiver') && !location.hash
-              ? 'text-purple-600 dark:text-purple-400 font-black scale-105'
+              ? 'text-emerald-500 dark:text-emerald-400 font-black scale-105'
               : 'text-[var(--text-muted)] font-bold'
           }`}
         >
@@ -285,10 +285,34 @@ export const Layout = () => {
         </Link>
 
         <Link
+          to="/patient/reminders"
+          className={`py-1 px-2.5 rounded-2xl flex flex-col items-center transition-all ${
+            location.pathname.startsWith('/patient/reminders')
+              ? 'text-emerald-500 dark:text-emerald-400 font-black scale-105'
+              : 'text-[var(--text-muted)] font-bold'
+          }`}
+        >
+          <span className="text-xl leading-none mb-1">🗣️</span>
+          <span className="text-[10px] tracking-tight">{t('Alarms')}</span>
+        </Link>
+
+        <Link
+          to="/patient/analytics"
+          className={`py-1 px-2.5 rounded-2xl flex flex-col items-center transition-all ${
+            location.pathname.startsWith('/patient/analytics')
+              ? 'text-emerald-500 dark:text-emerald-400 font-black scale-105'
+              : 'text-[var(--text-muted)] font-bold'
+          }`}
+        >
+          <span className="text-xl leading-none mb-1">📊</span>
+          <span className="text-[10px] tracking-tight">{t('Analytics')}</span>
+        </Link>
+
+        <Link
           to="/patient/games"
-          className={`py-1 px-3 rounded-2xl flex flex-col items-center transition-all ${
+          className={`py-1 px-2.5 rounded-2xl flex flex-col items-center transition-all ${
             location.pathname.startsWith('/patient/games')
-              ? 'text-purple-600 dark:text-purple-400 font-black scale-105'
+              ? 'text-emerald-500 dark:text-emerald-400 font-black scale-105'
               : 'text-[var(--text-muted)] font-bold'
           }`}
         >
@@ -296,40 +320,16 @@ export const Layout = () => {
           <span className="text-[10px] tracking-tight">{t('Games')}</span>
         </Link>
 
-        <a
-          href="/patient#routine"
-          className={`py-1 px-3 rounded-2xl flex flex-col items-center transition-all ${
-            location.hash === '#routine'
-              ? 'text-purple-600 dark:text-purple-400 font-black scale-105'
-              : 'text-[var(--text-muted)] font-bold'
-          }`}
-        >
-          <span className="text-xl leading-none mb-1">📅</span>
-          <span className="text-[10px] tracking-tight">{t('My Schedule')}</span>
-        </a>
-
         <Link
           to="/patient/memory-passport"
-          className={`py-1 px-3 rounded-2xl flex flex-col items-center transition-all ${
+          className={`py-1 px-2.5 rounded-2xl flex flex-col items-center transition-all ${
             location.pathname.startsWith('/patient/memory-passport')
-              ? 'text-purple-600 dark:text-purple-400 font-black scale-105'
+              ? 'text-emerald-500 dark:text-emerald-400 font-black scale-105'
               : 'text-[var(--text-muted)] font-bold'
           }`}
         >
           <span className="text-xl leading-none mb-1">📖</span>
-          <span className="text-[10px] tracking-tight">{t('Memory Passport')}</span>
-        </Link>
-
-        <Link
-          to="/patient/reports"
-          className={`py-1 px-3 rounded-2xl flex flex-col items-center transition-all ${
-            location.pathname.startsWith('/patient/reports')
-              ? 'text-purple-600 dark:text-purple-400 font-black scale-105'
-              : 'text-[var(--text-muted)] font-bold'
-          }`}
-        >
-          <span className="text-xl leading-none mb-1">📊</span>
-          <span className="text-[10px] tracking-tight">{t('My Progress')}</span>
+          <span className="text-[10px] tracking-tight">{t('Passport')}</span>
         </Link>
       </nav>
 

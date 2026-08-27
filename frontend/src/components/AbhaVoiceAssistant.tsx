@@ -4,6 +4,7 @@ import { Mic, MicOff, Volume2, VolumeX, Sparkles, Send, X, AlertTriangle, Play, 
 import { api } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { speechService } from '../services/speechService';
+import { AIRoutineCommander } from '../services/aiRoutineCommander';
 import { Abha3DOrb, OrbState } from './Abha3DOrb';
 
 interface AbhaVoiceAssistantProps {
@@ -80,7 +81,9 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
     setState('IDLE');
   };
 
-  // Send message to AI Backend Router
+  const [pendingVoiceCommand, setPendingVoiceCommand] = useState<any | null>(null);
+
+  // Send message to AI Backend Router or AIRoutineCommander
   const handleSendMessage = async (customMessage?: string) => {
     const query = (customMessage || inputText || transcript).trim();
     if (!query) return;
@@ -93,6 +96,97 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
     setTranscript('');
     setState('THINKING');
 
+    const cleanLang = (language || 'hi').startsWith('mr') ? 'mr' : (language || 'hi').startsWith('hi') ? 'hi' : 'en';
+
+    // 1. Check AI Routine Commander for Voice Commands & Grounded Queries
+    try {
+      const parsed = AIRoutineCommander.parseCommand(query, cleanLang, pendingVoiceCommand || undefined);
+
+      if (parsed.intent === 'CLARIFY') {
+        setPendingVoiceCommand(parsed);
+        const clarMsg = parsed.clarificationQuestion || 'Sure. What time should I remind you?';
+        setReply(clarMsg);
+        setConversationHistory(prev => [...prev, { role: 'assistant', text: clarMsg }]);
+        speakText(clarMsg);
+        return;
+      }
+
+      if (parsed.intent === 'CREATE_REMINDER') {
+        setPendingVoiceCommand(null);
+
+        // Schedule Reminder via API
+        const [hours, mins] = (parsed.time || '10:00').split(':');
+        const schedDate = new Date();
+        if (parsed.date) {
+          const [y, m, d] = parsed.date.split('-');
+          schedDate.setFullYear(parseInt(y, 10), parseInt(m, 10) - 1, parseInt(d, 10));
+        }
+        schedDate.setHours(parseInt(hours, 10), parseInt(mins, 10), 0, 0);
+
+        const payload = {
+          title: parsed.title || 'Medicine',
+          type: parsed.type || 'MEDICINE',
+          description: `Voice reminder created via AI: ${parsed.voiceMessage}`,
+          scheduledAt: schedDate.toISOString(),
+          recurrence: parsed.recurrence || 'DAILY',
+          metadata: {
+            isVoiceAlarm: true,
+            voiceMessage: parsed.voiceMessage,
+            voiceLanguage: parsed.voiceLanguage || cleanLang,
+            voiceVolume: 1.0,
+            vibration: true,
+            ringtone: 'temple_bell',
+            customDays: parsed.customDays,
+            enabled: true
+          }
+        };
+
+        try {
+          await api.post('/reminders', payload);
+        } catch {}
+
+        // Notify other components
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('aabha-reminders-updated'));
+        }
+
+        const time12h = schedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        let confirmText = `Done! I have set a voice reminder for ${parsed.title} at ${time12h}.`;
+        if (cleanLang === 'hi') {
+          confirmText = `ठीक है! मैंने ${time12h} बजे "${parsed.title}" का वॉयस रिमाइंडर सेट कर दिया है।`;
+        } else if (cleanLang === 'mr') {
+          confirmText = `नक्कीच! मी ${time12h} वाजता "${parsed.title}" चे स्मरणपत्र सेट केले आहे.`;
+        }
+
+        setReply(confirmText);
+        setConversationHistory(prev => [...prev, { role: 'assistant', text: confirmText }]);
+        speakText(confirmText);
+        return;
+      }
+
+      if (parsed.intent.startsWith('QUERY_')) {
+        let storedReminders: any[] = [];
+        try {
+          storedReminders = await api.get('/reminders');
+        } catch {}
+
+        const groundedAnswer = AIRoutineCommander.answerRoutineQuery(
+          parsed.intent,
+          Array.isArray(storedReminders) ? storedReminders : [],
+          [],
+          cleanLang
+        );
+
+        setReply(groundedAnswer);
+        setConversationHistory(prev => [...prev, { role: 'assistant', text: groundedAnswer }]);
+        speakText(groundedAnswer);
+        return;
+      }
+    } catch (commanderErr) {
+      console.warn('Routine Commander Error:', commanderErr);
+    }
+
+    // 2. Fallback to Gemini AI conversational endpoint
     try {
       const res: any = await api.post('/ai/chat', {
         message: query,
@@ -128,9 +222,11 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
       }
     } catch (err: any) {
       console.warn('AI Assistant error:', err);
-      const fallbackReply = language === 'mr'
+      const fallbackReply = cleanLang === 'mr'
         ? 'माफ करा, मी सध्या माहिती लोड करू शकत नाही. कृपया पुन्हा प्रयत्न करा.'
-        : 'माफ़ कीजिए, मुझे उत्तर देने में समस्या आ रही है। कृपया पुनः प्रयास करें।';
+        : cleanLang === 'hi'
+        ? 'माफ़ कीजिए, मुझे उत्तर देने में समस्या आ रही है। कृपया पुनः प्रयास करें।'
+        : 'I am here with you. How can I help you today?';
       setReply(fallbackReply);
       setConversationHistory(prev => [...prev, { role: 'assistant', text: fallbackReply }]);
       speakText(fallbackReply);

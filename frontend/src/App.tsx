@@ -32,6 +32,7 @@ import TeleconsultView from './pages/TeleconsultView';
 import MedicineStoreView from './pages/MedicineStoreView';
 import SignBridgePatientView from './pages/SignBridgePatientView';
 import SignBridgeDoctorView from './pages/SignBridgeDoctorView';
+import RoutineAnalyticsView from './pages/RoutineAnalyticsView';
 
 // Caregiver pages
 import CaregiverDashboard from './pages/CaregiverDashboard';
@@ -104,6 +105,7 @@ const App: React.FC = () => {
                 <Route path="/patient/memory-passport" element={<MemoryPassportView />} />
                 <Route path="/patient/memory-passport/edit" element={<MemoryPassportEdit />} />
                 <Route path="/patient/reminders" element={<RemindersView />} />
+                <Route path="/patient/analytics" element={<RoutineAnalyticsView />} />
                 <Route path="/patient/appointments" element={<AppointmentsView />} />
                 <Route path="/patient/reports" element={<MyReportsView />} />
                 <Route path="/patient/history" element={<PatientHistoryView />} />

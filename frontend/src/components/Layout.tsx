@@ -244,12 +244,12 @@ export const Layout = () => {
         <Outlet />
       </main>
 
-      {/* ─── 3. FLOATING HACKATHON DEMO PILL (ACCESSIBLE ON ALL DEVICES) ───── */}
-      <div className="fixed bottom-20 right-3.5 lg:bottom-6 lg:right-6 z-30 flex items-center gap-2 select-none animate-fade-in">
+      {/* ─── 3. FLOATING HACKATHON DEMO PILL (ACCESSIBLE ON ALL DEVICES - LEFT ALIGNED) ─── */}
+      <div className="fixed bottom-[84px] sm:bottom-[92px] md:bottom-8 left-3.5 sm:left-6 md:left-8 z-30 flex items-center gap-2 select-none animate-fade-in">
         <button
           type="button"
           onClick={() => setIsOneMinDemoOpen(true)}
-          className="px-4 py-2 rounded-full bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white font-black text-xs shadow-xl hover:scale-105 active:scale-95 transition cursor-pointer border border-white/20 flex items-center gap-1.5"
+          className="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-full bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white font-black text-xs shadow-xl hover:scale-105 active:scale-95 transition cursor-pointer border border-white/20 flex items-center gap-1.5"
           title="4-Minute Animated Story Showcase with Two-Way ISL, Voiceover & Background Music"
         >
           <Play className="w-3.5 h-3.5 fill-current" />

@@ -433,7 +433,7 @@ export const AabhaChat: React.FC = () => {
           </h1>
           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-teal-500/20 text-teal-300 border border-teal-400/40 flex items-center gap-1 shadow-sm">
             <Sparkles className="w-3 h-3 text-teal-400 animate-pulse" />
-            Google Gemini 1.5
+            Google Gemini 3.7 / 2.5 Flash
           </span>
         </div>
         <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium max-w-md mt-1">

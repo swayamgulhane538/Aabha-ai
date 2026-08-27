@@ -6,12 +6,15 @@ const LOCAL_STORAGE_KEY = 'aabha_gemini_api_key';
 const LOCAL_STORAGE_MODEL_KEY = 'aabha_gemini_active_model';
 
 const DEFAULT_MODELS = [
-  'gemini-1.5-flash',
-  'gemini-1.5-flash-latest',
+  'gemini-3.7-flash',
+  'gemini-3.7-thinking',
+  'gemini-2.5-flash',
   'gemini-2.0-flash',
   'gemini-2.0-flash-exp',
-  'gemini-pro',
-  'gemini-1.5-pro'
+  'gemini-1.5-flash',
+  'gemini-1.5-flash-latest',
+  'gemini-1.5-pro',
+  'gemini-pro'
 ];
 
 export class GeminiService {

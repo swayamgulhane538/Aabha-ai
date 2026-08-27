@@ -99,7 +99,17 @@ export const chat = async (userId: string, message: string, conversationId?: str
   // ─── 1. GOOGLE GEMINI AI (PRIMARY ENGINE WITH MULTI-MODEL FALLBACK) ────────
   const activeGeminiKey = customApiKey?.trim() || geminiApiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '';
   if (activeGeminiKey) {
-    const candidateModels = ['gemini-1.5-flash', 'gemini-1.5-flash-latest', 'gemini-2.0-flash', 'gemini-pro', 'gemini-1.5-pro'];
+    const candidateModels = [
+      'gemini-3.7-flash',
+      'gemini-3.7-thinking',
+      'gemini-2.5-flash',
+      'gemini-2.0-flash',
+      'gemini-2.0-flash-thinking-exp',
+      'gemini-1.5-flash',
+      'gemini-1.5-flash-latest',
+      'gemini-1.5-pro',
+      'gemini-pro'
+    ];
     const dynamicGenAI = new GoogleGenerativeAI(activeGeminiKey);
 
     const mandatoryInstruction = `MANDATORY LANGUAGE CONSTRAINT:

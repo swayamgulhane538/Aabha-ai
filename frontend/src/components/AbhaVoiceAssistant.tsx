@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { Mic, MicOff, Volume2, VolumeX, Sparkles, Send, X, AlertTriangle, Play, RefreshCw, MessageSquare } from 'lucide-react';
 import { api } from '../services/api';
@@ -262,10 +263,10 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
         </div>
       )}
 
-      {/* ─── 2. EXPANDED MOBILE-FRIENDLY VOICE COMPANION MODAL ──────────────── */}
-      {isOpen && (
-        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center sm:p-4 font-sans animate-fade-in">
-          <div className="bg-[var(--bg-surface)] border-t sm:border-2 border-[var(--border)] rounded-t-[32px] sm:rounded-[32px] w-full max-w-lg shadow-2xl flex flex-col h-[85vh] sm:h-auto sm:max-h-[88vh] overflow-hidden">
+      {/* ─── 2. EXPANDED MOBILE-FRIENDLY VOICE COMPANION MODAL (CENTERED & PORTALED) ─ */}
+      {isOpen && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[9999999] bg-black/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 font-sans animate-fade-in select-none">
+          <div className="bg-[var(--bg-surface)] border-2 border-[var(--border)] rounded-[28px] sm:rounded-[32px] w-full max-w-lg shadow-2xl flex flex-col h-[90vh] sm:h-[85vh] max-h-[92vh] overflow-hidden animate-modal-in">
             {/* Header */}
             <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-[var(--border)] flex items-center justify-between shrink-0 bg-[var(--bg-surface-secondary)]/50">
               <div className="flex items-center gap-2.5 min-w-0">
@@ -442,7 +443,8 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

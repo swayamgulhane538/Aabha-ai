@@ -471,7 +471,10 @@ export const PatientDashboard: React.FC = () => {
       </section>
 
       {/* ─── 7. SIGNBRIDGE 2-WAY ISL DOCTOR CONSULTATION ────────────────────── */}
-      <section className="card-3d p-5 sm:p-7 rounded-[28px] bg-[var(--card-bg-inline)] border-2 border-purple-500/30 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+      <section
+        className="card-3d p-5 sm:p-7 rounded-[28px] border-2 border-purple-500/30 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-5"
+        style={{ backgroundColor: 'var(--bg-surface)' }}
+      >
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30 flex items-center justify-center text-3xl shrink-0 shadow-inner">
             🤟
@@ -481,14 +484,20 @@ export const PatientDashboard: React.FC = () => {
               <span className="px-2.5 py-0.5 rounded-md bg-purple-600 text-white text-[10px] font-black uppercase tracking-wider shadow-xs">
                 Two-Way ISL • SIH26003
               </span>
-              <span className="text-xs font-mono text-emerald-700 dark:text-emerald-400 font-bold">
+              <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold">
                 Indian Sign Language
               </span>
             </div>
-            <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white">
+            <h2
+              className="text-lg sm:text-2xl font-black"
+              style={{ color: 'var(--text-primary)' }}
+            >
               SignBridge – Sign Language Doctor Consultation
             </h2>
-            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium max-w-xl leading-relaxed">
+            <p
+              className="text-xs sm:text-sm font-medium max-w-xl leading-relaxed"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               Real-time WebRTC 2-way ISL gesture translation, Text-to-Speech & subtitles with Dr. Anita Verma.
             </p>
           </div>

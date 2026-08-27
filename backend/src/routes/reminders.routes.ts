@@ -5,12 +5,84 @@ import { authenticate } from '../middleware/auth';
 const router = Router();
 router.use(authenticate);
 
-// In-memory fallback reminders
+// In-memory fallback reminders with Smart Voice Alarm support
 let fallbackReminders: any[] = [
-  { id: 'rem-1', userId: 'demo-patient-id', type: 'MEDICINE', title: 'Morning Blood Pressure Medication', scheduledAt: new Date(Date.now() + 3600000).toISOString(), status: 'ACTIVE' },
-  { id: 'rem-2', userId: 'demo-patient-id', type: 'WATER', title: 'Drink a glass of warm water', scheduledAt: new Date(Date.now() + 7200000).toISOString(), status: 'ACTIVE' },
-  { id: 'rem-3', userId: 'demo-patient-id', type: 'ACTIVITY', title: 'Cognitive Memory Exercise with AABHA', scheduledAt: new Date(Date.now() + 10800000).toISOString(), status: 'ACTIVE' },
-  { id: 'rem-4', userId: 'demo-patient-id', type: 'FAMILY_CALL', title: 'Evening call with Priya & Aarav', scheduledAt: new Date(Date.now() + 21600000).toISOString(), status: 'ACTIVE' },
+  {
+    id: 'rem-1',
+    userId: 'demo-patient-id',
+    type: 'MEDICINE',
+    title: 'Morning Blood Pressure Medication',
+    description: 'Take Donepezil 5mg tablet with lukewarm water after breakfast.',
+    scheduledAt: new Date(Date.now() + 3600000).toISOString(),
+    status: 'ACTIVE',
+    recurrence: 'DAILY',
+    metadata: {
+      isVoiceAlarm: true,
+      voiceMessage: 'Medicine lene ka time ho gaya hai. Kripya Donepezil 5mg paani ke saath le lijiye.',
+      voiceLanguage: 'hi',
+      voiceVolume: 0.9,
+      vibration: true,
+      ringtone: 'temple_bell',
+      enabled: true
+    }
+  },
+  {
+    id: 'rem-2',
+    userId: 'demo-patient-id',
+    type: 'WATER',
+    title: 'Drink a Glass of Warm Water',
+    description: 'Hydration check - drink 1 full glass of water.',
+    scheduledAt: new Date(Date.now() + 7200000).toISOString(),
+    status: 'ACTIVE',
+    recurrence: 'DAILY',
+    metadata: {
+      isVoiceAlarm: true,
+      voiceMessage: 'Kaka, ek glass garam paani piun ghya. Sharir tajatwana theva.',
+      voiceLanguage: 'mr',
+      voiceVolume: 0.85,
+      vibration: true,
+      ringtone: 'gentle_flute',
+      enabled: true
+    }
+  },
+  {
+    id: 'rem-3',
+    userId: 'demo-patient-id',
+    type: 'ACTIVITY',
+    title: 'Cognitive Memory Exercise with AABHA',
+    description: 'Brain stimulation with Level 2 card match.',
+    scheduledAt: new Date(Date.now() + 10800000).toISOString(),
+    status: 'ACTIVE',
+    recurrence: 'WEEKDAYS',
+    metadata: {
+      isVoiceAlarm: true,
+      voiceMessage: 'Chaliye thoda dimagi vyayam aur memory game khelte hain.',
+      voiceLanguage: 'hi',
+      voiceVolume: 0.9,
+      vibration: true,
+      ringtone: 'zen_chime',
+      enabled: true
+    }
+  },
+  {
+    id: 'rem-4',
+    userId: 'demo-patient-id',
+    type: 'FAMILY_CALL',
+    title: 'Evening Call with Priya & Family',
+    description: 'Daily family check-in and cheerful conversation.',
+    scheduledAt: new Date(Date.now() + 21600000).toISOString(),
+    status: 'ACTIVE',
+    recurrence: 'DAILY',
+    metadata: {
+      isVoiceAlarm: true,
+      voiceMessage: 'Priya aur Aarav ko call karne ka samay ho gaya hai.',
+      voiceLanguage: 'hi',
+      voiceVolume: 0.95,
+      vibration: true,
+      ringtone: 'nature_birds',
+      enabled: true
+    }
+  },
 ];
 
 router.get('/', async (req, res) => {

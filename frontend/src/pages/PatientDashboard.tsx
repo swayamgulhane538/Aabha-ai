@@ -19,7 +19,7 @@ import {
   Mic, Brain, Calendar, Pill, BookOpen, Droplets, CheckCircle2,
   Clock, Sparkles, ArrowRight, Copy, Check, Edit, Shield, Smile,
   AlertTriangle, RotateCcw, TrendingUp, Activity, Bot, Flame, Award,
-  Zap, BarChart3, Volume2, Plus, Phone, Sliders, ShieldCheck, Heart
+  Zap, BarChart3, Volume2, Plus, Phone, Sliders, ShieldCheck, Heart, Trash2
 } from 'lucide-react';
 
 export const PatientDashboard: React.FC = () => {
@@ -124,6 +124,15 @@ export const PatientDashboard: React.FC = () => {
     const newTime = new Date(Date.now() + minsFromNow * 60 * 1000).toISOString();
     try {
       await api.put(`/reminders/${id}`, { scheduledAt: newTime });
+      fetchReminders();
+    } catch {}
+  };
+
+  const handleDeleteRoutineTask = async (id: string) => {
+    setRoutineTasks(prev => prev.filter(t => t.id !== id));
+    setReminders(prev => prev.filter(r => r.id !== id));
+    try {
+      await api.delete(`/reminders/${id}`);
       fetchReminders();
     } catch {}
   };
@@ -332,7 +341,7 @@ export const PatientDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
             <button
               type="button"
               onClick={() => {
@@ -355,6 +364,15 @@ export const PatientDashboard: React.FC = () => {
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Complete</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleDeleteRoutineTask(nextReminder.id)}
+              className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500/20 text-rose-400 flex items-center justify-center transition cursor-pointer"
+              title="Delete this reminder"
+            >
+              <Trash2 className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -517,6 +535,7 @@ export const PatientDashboard: React.FC = () => {
           tasks={routineTasks}
           onToggleTask={handleToggleRoutineTask}
           onAddTask={() => setIsVoiceToReminderOpen(true)}
+          onDeleteTask={handleDeleteRoutineTask}
         />
       </section>
 

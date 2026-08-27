@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Clock, CheckCircle2, Circle, Volume2, Plus, Sparkles, Sun, Sunset, Moon, Sunrise } from 'lucide-react';
+import { Clock, CheckCircle2, Circle, Volume2, Plus, Sparkles, Sun, Sunset, Moon, Sunrise, Trash2 } from 'lucide-react';
 import { speechService } from '../services/speechService';
 
 export interface RoutineTask {
@@ -18,12 +18,14 @@ interface DailyRoutineTimelineProps {
   tasks: RoutineTask[];
   onToggleTask: (id: string) => void;
   onAddTask?: () => void;
+  onDeleteTask?: (id: string) => void;
 }
 
 export const DailyRoutineTimeline: React.FC<DailyRoutineTimelineProps> = ({
   tasks,
   onToggleTask,
-  onAddTask
+  onAddTask,
+  onDeleteTask
 }) => {
   const { t, i18n } = useTranslation();
   const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
@@ -116,7 +118,7 @@ export const DailyRoutineTimeline: React.FC<DailyRoutineTimelineProps> = ({
                   </div>
                 </div>
 
-                {/* Right: Test Voice & Complete Checkbox */}
+                {/* Right: Test Voice, Complete Checkbox & Delete */}
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     type="button"
@@ -145,6 +147,17 @@ export const DailyRoutineTimeline: React.FC<DailyRoutineTimelineProps> = ({
                     <CheckCircle2 className="w-4 h-4" />
                     <span className="hidden sm:inline">{isDone ? 'Completed' : 'Complete'}</span>
                   </button>
+
+                  {onDeleteTask && (
+                    <button
+                      type="button"
+                      onClick={() => onDeleteTask(task.id)}
+                      className="p-2 rounded-xl text-rose-400 hover:bg-rose-500/15 border border-rose-500/20 transition cursor-pointer"
+                      title="Delete Reminder"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
             );

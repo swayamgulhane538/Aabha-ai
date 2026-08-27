@@ -275,6 +275,9 @@ export default function RemindersView() {
     setReminders(prev => prev.filter(r => r.id !== id));
     try {
       await api.delete(`/reminders/${id}`);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('aabha-reminders-updated'));
+      }
     } catch (err) {
       console.error('Failed to delete reminder:', err);
     }
@@ -284,6 +287,9 @@ export default function RemindersView() {
     setReminders(prev => prev.map(r => r.id === id ? { ...r, status: 'COMPLETED' } : r));
     try {
       await api.put(`/reminders/${id}`, { status: 'COMPLETED' });
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('aabha-reminders-updated'));
+      }
     } catch (err) {
       console.error(err);
     }

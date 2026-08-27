@@ -71,6 +71,87 @@ app.get('/api/health', (req, res) => res.json({
   environment: env.NODE_ENV
 }));
 
+// Phase 3: Comprehensive Database Health & Connectivity Test Endpoint
+app.get('/api/health/db', async (req, res) => {
+  const { db } = await import('./store/persistentDatabase');
+  const prisma = (await import('./config/database')).default;
+
+  const results: any = {
+    timestamp: new Date().toISOString(),
+    persistentDiskDatabase: { status: 'UNKNOWN' },
+    prismaPostgres: { status: 'UNKNOWN' }
+  };
+
+  // 1. Test Persistent Disk Database (Write -> Read -> Update -> Delete)
+  try {
+    const testId = 'health-test-' + Date.now();
+    const testReminder: any = {
+      id: testId,
+      userId: 'uuid-health-test',
+      title: 'Database Health Check Reminder',
+      type: 'MEDICINE',
+      description: 'Automated test record for persistence verification',
+      scheduledAt: new Date().toISOString(),
+      recurrence: 'ONCE',
+      status: 'ACTIVE',
+      metadata: { isVoiceAlarm: false, enabled: true },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    // 1a. Write
+    db.createReminder(testReminder);
+    const writeOk = true;
+
+    // 1b. Read
+    const readItem = db.getReminderById(testId);
+    const readOk = !!readItem && readItem.title === testReminder.title;
+
+    // 1c. Update
+    const updatedItem = db.updateReminder(testId, { status: 'COMPLETED' });
+    const updateOk = !!updatedItem && updatedItem.status === 'COMPLETED';
+
+    // 1d. Delete
+    const deleteOk = db.deleteReminder(testId);
+
+    results.persistentDiskDatabase = {
+      status: (writeOk && readOk && updateOk && deleteOk) ? 'CONNECTED & FULLY OPERATIONAL' : 'FAILED',
+      operations: {
+        write: writeOk ? 'PASS' : 'FAIL',
+        read: readOk ? 'PASS' : 'FAIL',
+        update: updateOk ? 'PASS' : 'FAIL',
+        delete: deleteOk ? 'PASS' : 'FAIL'
+      },
+      totalUsersInDb: db.getUsers().length,
+      totalRemindersInDb: db.getReminders().length,
+      totalGameResultsInDb: db.getGameResults().length
+    };
+  } catch (err: any) {
+    results.persistentDiskDatabase = {
+      status: 'ERROR',
+      error: err?.message || String(err)
+    };
+  }
+
+  // 2. Test Prisma PostgreSQL
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    results.prismaPostgres = {
+      status: 'CONNECTED',
+      message: 'PostgreSQL connection via Prisma is active and healthy.'
+    };
+  } catch (err: any) {
+    results.prismaPostgres = {
+      status: 'DISCONNECTED / STANDBY',
+      message: 'PostgreSQL database unreachable or DATABASE_URL not configured. Operating in Persistent JSON Engine mode.',
+      error: err?.message || String(err)
+    };
+  }
+
+  const isHealthy = results.persistentDiskDatabase.status === 'CONNECTED & FULLY OPERATIONAL';
+  return res.status(isHealthy ? 200 : 500).json(results);
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/patients', patientsRoutes);

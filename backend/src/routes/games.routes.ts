@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import prisma from '../config/database';
 import { authenticate } from '../middleware/auth';
 import { db, GameResultRecord } from '../store/persistentDatabase';
 import {
@@ -128,6 +129,34 @@ router.post('/result', (req, res) => {
   };
 
   db.saveGameResult(rec);
+
+  // Sync with Prisma PostgreSQL if active
+  prisma.patientProfile.findUnique({ where: { userId: user.id } }).then(async profile => {
+    let profileId = profile?.id;
+    if (!profileId) {
+      const newProfile = await prisma.patientProfile.create({ data: { userId: user.id } }).catch(() => null);
+      profileId = newProfile?.id;
+    }
+    if (profileId) {
+      await prisma.gameSession.create({
+        data: {
+          patientId: profileId,
+          gameType: 'MEMORY_MATCH',
+          difficulty: 2,
+          isCompleted: true,
+          completedAt: new Date(),
+          results: {
+            create: {
+              score: rec.score,
+              maxScore: rec.maxScore,
+              accuracy: rec.accuracy / 100,
+              timeTaken: rec.timeTaken
+            }
+          }
+        }
+      }).catch(() => {});
+    }
+  }).catch(() => {});
 
   // Check for significant cognitive score drop -> trigger caregiver alert
   if (rec.accuracy < 50) {

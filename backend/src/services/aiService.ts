@@ -100,13 +100,11 @@ export const chat = async (userId: string, message: string, conversationId?: str
   const activeGeminiKey = customApiKey?.trim() || geminiApiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '';
   if (activeGeminiKey) {
     const candidateModels = [
-      'gemini-3.7-flash',
-      'gemini-3.7-thinking',
-      'gemini-2.5-flash',
-      'gemini-2.0-flash',
-      'gemini-2.0-flash-thinking-exp',
       'gemini-1.5-flash',
+      'gemini-2.0-flash',
       'gemini-1.5-flash-latest',
+      'gemini-2.5-flash',
+      'gemini-3.7-flash',
       'gemini-1.5-pro',
       'gemini-pro'
     ];
@@ -127,8 +125,9 @@ Keep your response warm, respectful, caring, and concise (2-3 sentences).`;
         });
 
         const promptWithLang = `[Reply strictly in ${langMeta.name} (${langMeta.native})]\n${message}`;
-        const result = await model.generateContent(promptWithLang);
-        const geminiReply = result.response.text().trim();
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000));
+        const result: any = await Promise.race([model.generateContent(promptWithLang), timeoutPromise]);
+        const geminiReply = result?.response?.text()?.trim();
 
         if (geminiReply) {
           return {

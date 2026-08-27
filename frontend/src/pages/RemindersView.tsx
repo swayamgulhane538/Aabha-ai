@@ -341,6 +341,9 @@ export default function RemindersView() {
       }
       setShowModal(false);
       fetchReminders();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('aabha-reminders-updated'));
+      }
     } catch (err) {
       console.error('Failed to save reminder:', err);
       if (!editingId) {
@@ -355,6 +358,9 @@ export default function RemindersView() {
           metadata: payload.metadata
         };
         setReminders(prev => [optimistic, ...prev]);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('aabha-reminders-updated'));
+        }
       }
       setShowModal(false);
     }

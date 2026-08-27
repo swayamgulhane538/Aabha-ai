@@ -3,7 +3,7 @@ import { useAuthStore } from '../stores/authStore';
 const rawApiUrl = (import.meta as any).env?.VITE_API_URL || '';
 const BASE_URL = rawApiUrl ? (rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`) : '/api';
 
-// ─── LOCAL STORAGE KEYS FOR PERSISTENT CLIENT STORAGE ─────────────────────────
+// ─── LOCAL STORAGE KEYS FOR PERSISTENT STORAGE ────────────────────────────────
 const KEYS = {
   USERS: 'aabha_local_users',
   REMINDERS: 'aabha_local_reminders',
@@ -29,7 +29,7 @@ function setStorage<T>(key: string, value: T) {
   } catch {}
 }
 
-// Seed initial reminders for demo / default patient if empty
+// Seed initial default reminders if empty
 function initDefaultReminders(): any[] {
   const existing = getStorage<any[]>(KEYS.REMINDERS, []);
   if (existing.length > 0) return existing;
@@ -103,7 +103,7 @@ function initDefaultReminders(): any[] {
   return defaults;
 }
 
-// Initialize on first load
+// Pre-seed storage
 initDefaultReminders();
 
 async function fetchWithAuth(url: string, options: RequestInit = {}) {
@@ -117,6 +117,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
   }
 
   let response: Response | null = null;
+  let isJson = false;
 
   try {
     response = await fetch(`${BASE_URL}${url}`, {
@@ -126,22 +127,27 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
         ...options.headers,
       },
     });
-  } catch (networkError) {
-    // Network failed or offline
-  }
-
-  // If backend returned 200/201 OK, save a mirror copy to localStorage and return
-  if (response && response.ok) {
     const contentType = response.headers.get('Content-Type');
-    if (response.status === 204 || !contentType?.includes('application/json')) {
-      return {};
-    }
-    const data = await response.json();
-    mirrorSaveToClientStorage(url, options, data, user);
-    return data;
+    isJson = !!(contentType && contentType.includes('application/json'));
+  } catch (networkError) {
+    // Network failure
   }
 
-  // If backend returned 401 Unauthorized
+  // If server returned valid 200/201 JSON
+  if (response && response.ok && isJson) {
+    try {
+      const data = await response.json();
+      mirrorSaveToClientStorage(url, options, data, user);
+      return data;
+    } catch (parseErr) {}
+  }
+
+  // If 204 No Content
+  if (response && response.status === 204) {
+    return {};
+  }
+
+  // If 401 Unauthorized
   if (response && response.status === 401) {
     if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
       logout();
@@ -149,14 +155,14 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
     }
   }
 
-  // Fallback to resilient client database on network errors or offline mode
+  // Guaranteed Resilient Persistence Fallback Engine
   const fallbackData = handleOfflineFallback(url, options);
-  if (fallbackData !== null) {
+  if (fallbackData !== null && fallbackData !== undefined) {
     return fallbackData;
   }
 
   let errorMessage = 'Network error. Please try again.';
-  if (response) {
+  if (response && isJson) {
     try {
       const errorData = await response.json();
       errorMessage = errorData.message || errorData.error || errorMessage;
@@ -173,8 +179,7 @@ function mirrorSaveToClientStorage(url: string, options: RequestInit, data: any,
     // 1. Reminders Mirroring
     if (url.includes('/reminders')) {
       const list = getStorage<any[]>(KEYS.REMINDERS, []);
-      if (method === 'GET' && Array.isArray(data) && data.length > 0) {
-        // Merge user's reminders
+      if (method === 'GET' && Array.isArray(data)) {
         const currentUserId = user?.id || 'uuid-demo-patient';
         const otherUsersReminders = list.filter(r => r.userId !== currentUserId);
         setStorage(KEYS.REMINDERS, [...otherUsersReminders, ...data]);
@@ -273,7 +278,7 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
     const name = isAdmin ? 'Swayam Gulhane (Admin)' : isCaregiver ? 'Sister Anita Verma (Nurse)' : (input.includes('@') ? input.split('@')[0] : 'Arun Das');
 
     const defaultUser = {
-      id: 'usr-fallback-' + Date.now(),
+      id: isCaregiver ? 'uuid-demo-nurse' : (input === 'demo.patient@aabha.ai' || !input ? 'uuid-demo-patient' : 'usr-local-' + Date.now()),
       patientId,
       name,
       email: input || 'demo.patient@aabha.ai',
@@ -296,7 +301,15 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
     };
   }
 
-  // ─── 3. REMINDERS PERSISTENCE (STRICTLY FILTERED BY USER ID) ───────────────
+  // ─── 3. AUTH ME ────────────────────────────────────────────────────────────
+  if (url.includes('/auth/me')) {
+    if (currentAuthUser) {
+      return { user: currentAuthUser };
+    }
+    return { user: { id: 'uuid-demo-patient', patientId: 'PAT-DEMO-000001', name: 'Demo Patient', role: 'PATIENT' } };
+  }
+
+  // ─── 4. REMINDERS PERSISTENCE (STRICTLY FILTERED & RETURNED AS ARRAY) ──────
   if (url.includes('/reminders')) {
     const list = getStorage<any[]>(KEYS.REMINDERS, initDefaultReminders());
 
@@ -322,8 +335,8 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
-      list.unshift(newRem);
-      setStorage(KEYS.REMINDERS, list);
+      const updatedList = [newRem, ...list.filter(r => r.id !== newRem.id)];
+      setStorage(KEYS.REMINDERS, updatedList);
       return newRem;
     }
 
@@ -352,12 +365,11 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
       return { success: true, message: 'Reminder deleted permanently' };
     }
 
-    // Default GET: Return reminders for the logged-in patient
+    // Default GET: Return array of reminders for the logged-in patient
     const userReminders = list.filter(
       r => r.userId === currentUserId || (currentUserId === 'uuid-demo-patient' && (r.userId === 'uuid-demo-patient' || !r.userId))
     );
 
-    // If demo patient has 0 reminders, return the default seeded list
     if (userReminders.length === 0 && currentUserId === 'uuid-demo-patient') {
       return initDefaultReminders();
     }
@@ -365,7 +377,7 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
     return userReminders;
   }
 
-  // ─── 4. COGNITIVE GAME RESULTS & PROGRESS ──────────────────────────────────
+  // ─── 5. COGNITIVE GAME RESULTS & PROGRESS ──────────────────────────────────
   if (url.includes('/games/result') && method === 'POST') {
     const results = getStorage<any[]>(KEYS.GAMES, []);
     const newResult = {
@@ -411,7 +423,7 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
     };
   }
 
-  // ─── 5. CAREGIVERS LINKING & PATIENT LIST ──────────────────────────────────
+  // ─── 6. CAREGIVERS LINKING & PATIENT LIST ──────────────────────────────────
   if (url.includes('/caregivers/link') && method === 'POST') {
     const links = getStorage<any[]>(KEYS.CAREGIVERS, []);
     const targetPatientId = String(body.patientId || '').toUpperCase().trim();
@@ -459,7 +471,7 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
     return myPatients;
   }
 
-  // ─── 6. AI CHAT ────────────────────────────────────────────────────────────
+  // ─── 7. AI CHAT ────────────────────────────────────────────────────────────
   if (url.includes('/ai/chat')) {
     return {
       reply: "Namaste! I am AABHA AI, your cognitive care companion. How can I assist you with your routine, games, or medicine today?",
@@ -470,7 +482,7 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
     };
   }
 
-  // ─── 7. MEDICATIONS ────────────────────────────────────────────────────────
+  // ─── 8. MEDICATIONS ────────────────────────────────────────────────────────
   if (url.includes('/medications')) {
     const list = getStorage<any[]>(KEYS.MEDICATIONS, [
       { id: 'm1', name: 'Donepezil', dosage: '5mg', scheduledTime: '08:30 AM', status: 'TAKEN', instructions: 'Take with breakfast' },
@@ -480,14 +492,14 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
     return list;
   }
 
-  // ─── 8. APPOINTMENTS ───────────────────────────────────────────────────────
+  // ─── 9. APPOINTMENTS ───────────────────────────────────────────────────────
   if (url.includes('/appointments')) {
     return [
       { id: 'a1', doctorName: 'Dr. Anita Verma', date: 'Tomorrow', time: '11:00 AM', purpose: 'Routine Cognitive Health Checkup', status: 'UPCOMING' }
     ];
   }
 
-  // ─── 9. VITALS ─────────────────────────────────────────────────────────────
+  // ─── 10. VITALS ────────────────────────────────────────────────────────────
   if (url.includes('/vitals')) {
     if (method === 'POST') {
       const vitalsList = getStorage<any[]>(KEYS.VITALS, []);

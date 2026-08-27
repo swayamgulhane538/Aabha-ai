@@ -96,6 +96,14 @@ export const Layout = () => {
                   {t('Dashboard')}
                 </Link>
                 <Link
+                  to="/aabha"
+                  className={`px-3 py-1.5 rounded-full transition-all ${
+                    location.pathname.startsWith('/aabha') ? activeNavCls : inactiveNavCls
+                  }`}
+                >
+                  ✨ {t('Gemini AI Chat')}
+                </Link>
+                <Link
                   to="/patient/reminders"
                   className={`px-3 py-1.5 rounded-full transition-all ${
                     location.pathname.startsWith('/patient/reminders') ? activeNavCls : inactiveNavCls

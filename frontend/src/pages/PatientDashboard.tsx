@@ -427,20 +427,20 @@ export const PatientDashboard: React.FC = () => {
             </div>
           </a>
 
-          {/* Action 4: 🤖 Ask AABHA */}
+          {/* Action 4: ✨ Gemini AI Chat */}
           <Link
-            to="/patient/ask-aabha"
+            to="/aabha"
             className="p-5 rounded-[24px] bg-[var(--bg-surface)] border border-[var(--border)] hover:border-purple-400/50 shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group select-none"
           >
             <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-2xl mb-3 shadow-inner group-hover:scale-110 transition-transform">
-              🤖
+              ✨
             </div>
             <div>
               <h3 className="text-xs sm:text-sm font-black text-[var(--text-primary)] group-hover:text-purple-400 transition-colors">
-                Ask AABHA
+                Gemini AI Chat
               </h3>
               <p className="text-[11px] text-[var(--text-secondary)] font-medium mt-1">
-                Grounded Q&A AI
+                Ask AABHA (Gemini)
               </p>
             </div>
           </Link>

@@ -471,24 +471,24 @@ export const PatientDashboard: React.FC = () => {
       </section>
 
       {/* ─── 7. SIGNBRIDGE 2-WAY ISL DOCTOR CONSULTATION ────────────────────── */}
-      <section className="card-3d p-5 sm:p-7 rounded-[28px] bg-gradient-to-r from-purple-900/40 via-indigo-900/30 to-teal-900/30 border-2 border-purple-400/40 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+      <section className="card-3d p-5 sm:p-7 rounded-[28px] bg-[var(--card-bg-inline)] border-2 border-purple-500/30 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-purple-500/20 text-purple-300 border border-purple-400/40 flex items-center justify-center text-3xl shrink-0 shadow-inner">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30 flex items-center justify-center text-3xl shrink-0 shadow-inner">
             🤟
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-2.5 py-0.5 rounded-md bg-purple-500/30 text-purple-200 border border-purple-400/40 text-[10px] font-black uppercase tracking-wider">
+              <span className="px-2.5 py-0.5 rounded-md bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30 text-[10px] font-black uppercase tracking-wider">
                 Two-Way ISL • SIH26003
               </span>
-              <span className="text-xs font-mono text-emerald-400 font-bold">
+              <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold">
                 Indian Sign Language
               </span>
             </div>
-            <h2 className="text-lg sm:text-2xl font-black text-white">
+            <h2 className="text-lg sm:text-2xl font-black text-[var(--text-primary)]">
               SignBridge – Sign Language Doctor Consultation
             </h2>
-            <p className="text-xs sm:text-sm text-slate-300 font-medium max-w-xl">
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium max-w-xl">
               Real-time WebRTC 2-way ISL gesture translation, Text-to-Speech & subtitles with Dr. Anita Verma.
             </p>
           </div>
@@ -496,7 +496,7 @@ export const PatientDashboard: React.FC = () => {
 
         <Link
           to="/patient/signbridge"
-          className="btn-glow w-full md:w-auto px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-lg cursor-pointer shrink-0 whitespace-nowrap"
+          className="btn-glow w-full md:w-auto px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-lg cursor-pointer shrink-0 whitespace-nowrap text-white"
         >
           <span>Start ISL Consultation →</span>
         </Link>

@@ -476,19 +476,19 @@ export const PatientDashboard: React.FC = () => {
           <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30 flex items-center justify-center text-3xl shrink-0 shadow-inner">
             🤟
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-2.5 py-0.5 rounded-md bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30 text-[10px] font-black uppercase tracking-wider">
+              <span className="px-2.5 py-0.5 rounded-md bg-purple-600 text-white text-[10px] font-black uppercase tracking-wider shadow-xs">
                 Two-Way ISL • SIH26003
               </span>
-              <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+              <span className="text-xs font-mono text-emerald-700 dark:text-emerald-400 font-bold">
                 Indian Sign Language
               </span>
             </div>
-            <h2 className="text-lg sm:text-2xl font-black text-[var(--text-primary)]">
+            <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white">
               SignBridge – Sign Language Doctor Consultation
             </h2>
-            <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium max-w-xl">
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium max-w-xl leading-relaxed">
               Real-time WebRTC 2-way ISL gesture translation, Text-to-Speech & subtitles with Dr. Anita Verma.
             </p>
           </div>

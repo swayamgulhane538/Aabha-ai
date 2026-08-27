@@ -70,6 +70,34 @@ export const PatientDashboard: React.FC = () => {
       if (Array.isArray(res)) {
         setReminders(res);
 
+        // Convert reminders to dynamic routineTasks
+        const dynamicTasks: RoutineTask[] = res.map((r) => {
+          const d = r.scheduledAt ? new Date(r.scheduledAt) : new Date();
+          const mins = d.getHours() * 60 + d.getMinutes();
+          const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          let cat: any = 'MEDICINE';
+          if (r.type === 'WATER') cat = 'HYDRATION';
+          else if (r.type === 'MEAL') cat = 'MEAL';
+          else if (r.type === 'FAMILY_CALL') cat = 'FAMILY';
+          else if (r.type === 'ACTIVITY') cat = 'ACTIVITY';
+          else if (r.type === 'APPOINTMENT') cat = 'ACTIVITY';
+
+          return {
+            id: r.id,
+            time: timeStr,
+            timeMinutes: mins,
+            title: r.title,
+            category: cat,
+            completed: r.status === 'COMPLETED',
+            voiceMessage: r.metadata?.voiceMessage || r.description || r.title,
+            voiceLanguage: r.metadata?.voiceLanguage || 'hi'
+          };
+        }).sort((a, b) => a.timeMinutes - b.timeMinutes);
+
+        if (dynamicTasks.length > 0) {
+          setRoutineTasks(dynamicTasks);
+        }
+
         // Calculate Missed Reminders
         const now = new Date();
         const missed: MissedReminderItem[] = [];
@@ -105,10 +133,18 @@ export const PatientDashboard: React.FC = () => {
     setTimeout(() => setCopiedId(false), 2000);
   };
 
-  const handleToggleRoutineTask = (id: string) => {
+  const handleToggleRoutineTask = async (id: string) => {
+    const target = routineTasks.find(t => t.id === id);
+    const newCompleted = !target?.completed;
     setRoutineTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
+      prev.map((t) => (t.id === id ? { ...t, completed: newCompleted } : t))
     );
+    setReminders((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, status: newCompleted ? 'COMPLETED' : 'ACTIVE' } : r))
+    );
+    try {
+      await api.put(`/reminders/${id}`, { status: newCompleted ? 'COMPLETED' : 'ACTIVE' });
+    } catch {}
   };
 
   const handleMarkMissedComplete = async (id: string) => {
@@ -188,15 +224,31 @@ export const PatientDashboard: React.FC = () => {
   const firstName = (user?.name || 'Mr. Arun Das').split(' ')[0];
 
   // Next Upcoming Reminder Centerpiece
-  const nextReminder = reminders.find((r) => r.status === 'ACTIVE') || {
-    id: 'next-1',
-    title: 'Medicine (Donepezil)',
-    timeDisplay: '10:00 AM',
-    metadata: {
-      voiceMessage: 'Medicine lene ka time ho gaya hai. Donepezil 5mg le lijiye.',
-      voiceLanguage: 'hi'
-    }
-  };
+  const activeSorted = reminders
+    .filter((r) => r.status === 'ACTIVE')
+    .sort((a, b) => new Date(a.scheduledAt || 0).getTime() - new Date(b.scheduledAt || 0).getTime());
+
+  const nextReminder = activeSorted[0]
+    ? {
+        id: activeSorted[0].id,
+        title: activeSorted[0].title,
+        timeDisplay: activeSorted[0].scheduledAt
+          ? new Date(activeSorted[0].scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          : '10:00 AM',
+        metadata: activeSorted[0].metadata || {
+          voiceMessage: activeSorted[0].description || activeSorted[0].title,
+          voiceLanguage: 'hi'
+        }
+      }
+    : {
+        id: 'next-1',
+        title: 'Medicine (Donepezil)',
+        timeDisplay: '10:00 AM',
+        metadata: {
+          voiceMessage: 'Medicine lene ka time ho gaya hai. Donepezil 5mg le lijiye.',
+          voiceLanguage: 'hi'
+        }
+      };
 
   return (
     <div className="w-full max-w-6xl mx-auto space-y-6 sm:space-y-8 font-sans text-[var(--text-primary)] pb-28">

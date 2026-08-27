@@ -85,14 +85,36 @@ let fallbackReminders: any[] = [
   },
 ];
 
+const VALID_TYPES = ['MEDICINE', 'WATER', 'MEAL', 'APPOINTMENT', 'ACTIVITY', 'FAMILY_CALL', 'ROUTINE', 'CUSTOM'];
+
 router.get('/', async (req, res) => {
   try {
-    const userId = req.user!.id;
-    const reminders = await prisma.reminder.findMany({
-      where: { userId },
-      orderBy: { scheduledAt: 'asc' }
+    const userId = req.user?.id || 'demo-patient-id';
+    let dbReminders: any[] = [];
+    try {
+      dbReminders = await prisma.reminder.findMany({
+        where: { userId },
+        orderBy: { scheduledAt: 'asc' }
+      });
+    } catch {}
+
+    // Merge fallback reminders with DB reminders by ID
+    const mergedMap = new Map<string, any>();
+    fallbackReminders.forEach(r => mergedMap.set(r.id, r));
+    dbReminders.forEach(r => {
+      let meta = (r as any).metadata;
+      if (!meta && r.description && r.description.startsWith('{')) {
+        try {
+          meta = JSON.parse(r.description);
+        } catch {}
+      }
+      mergedMap.set(r.id, { ...r, metadata: meta || { isVoiceAlarm: true, voiceMessage: r.description || r.title, voiceLanguage: 'hi', enabled: true } });
     });
-    return res.json(reminders);
+
+    const list = Array.from(mergedMap.values()).sort(
+      (a, b) => new Date(a.scheduledAt || 0).getTime() - new Date(b.scheduledAt || 0).getTime()
+    );
+    return res.json(list);
   } catch (err) {
     return res.json(fallbackReminders);
   }
@@ -100,7 +122,7 @@ router.get('/', async (req, res) => {
 
 router.get('/due', async (req, res) => {
   try {
-    const userId = req.user!.id;
+    const userId = req.user?.id || 'demo-patient-id';
     const dueReminders = await prisma.reminder.findMany({
       where: {
         userId,
@@ -115,47 +137,103 @@ router.get('/due', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
+  const userId = req.user?.id || req.body.userId || 'demo-patient-id';
+  const { title, type, description, scheduledAt, recurrence, status, metadata } = req.body;
+
+  const cleanType = VALID_TYPES.includes(type) ? type : 'MEDICINE';
+  const cleanStatus = (status === 'COMPLETED' || status === 'ACTIVE') ? status : 'ACTIVE';
+  const cleanSched = scheduledAt ? new Date(scheduledAt) : new Date(Date.now() + 3600000);
+  const newId = 'rem-' + Date.now();
+
+  const newMemoryItem = {
+    id: newId,
+    userId,
+    title: title || 'Medicine',
+    type: cleanType,
+    description: description || (metadata?.voiceMessage) || 'Daily Reminder',
+    scheduledAt: cleanSched.toISOString(),
+    recurrence: recurrence || 'DAILY',
+    status: cleanStatus,
+    metadata: metadata || {
+      isVoiceAlarm: true,
+      voiceMessage: description || title || 'Time for reminder',
+      voiceLanguage: 'hi',
+      voiceVolume: 1.0,
+      vibration: true,
+      ringtone: 'temple_bell',
+      enabled: true
+    },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  fallbackReminders.unshift(newMemoryItem);
+
   try {
-    const reminder = await prisma.reminder.create({
-      data: { ...req.body, userId: req.body.userId || req.user!.id }
+    const dbItem = await prisma.reminder.create({
+      data: {
+        id: newId,
+        userId,
+        title: newMemoryItem.title,
+        type: cleanType as any,
+        description: newMemoryItem.description,
+        scheduledAt: cleanSched,
+        recurrence: newMemoryItem.recurrence,
+        status: cleanStatus as any
+      }
     });
-    return res.status(201).json(reminder);
+    return res.status(201).json({ ...dbItem, metadata: newMemoryItem.metadata });
   } catch (err) {
-    const newRem = {
-      id: 'rem-' + Date.now(),
-      ...req.body,
-      userId: req.body.userId || req.user!.id,
-      status: req.body.status || 'ACTIVE',
-      createdAt: new Date().toISOString()
-    };
-    fallbackReminders.push(newRem);
-    return res.status(201).json(newRem);
+    console.warn('Prisma reminder create fallback to memory:', err);
+    return res.status(201).json(newMemoryItem);
   }
 });
 
 router.put('/:id', async (req, res) => {
+  const id = req.params.id;
+  const { title, type, description, scheduledAt, recurrence, status, metadata } = req.body;
+
+  // Update in fallbackReminders
+  const idx = fallbackReminders.findIndex(r => r.id === id);
+  if (idx !== -1) {
+    fallbackReminders[idx] = {
+      ...fallbackReminders[idx],
+      ...req.body,
+      metadata: metadata ? { ...fallbackReminders[idx].metadata, ...metadata } : fallbackReminders[idx].metadata,
+      updatedAt: new Date().toISOString()
+    };
+  }
+
   try {
+    const updateData: any = {};
+    if (title) updateData.title = title;
+    if (type && VALID_TYPES.includes(type)) updateData.type = type;
+    if (description) updateData.description = description;
+    if (scheduledAt) updateData.scheduledAt = new Date(scheduledAt);
+    if (recurrence) updateData.recurrence = recurrence;
+    if (status) updateData.status = status;
+
     const reminder = await prisma.reminder.update({
-      where: { id: req.params.id },
-      data: req.body
+      where: { id },
+      data: updateData
     });
-    return res.json(reminder);
+    return res.json({ ...reminder, metadata: metadata || (idx !== -1 ? fallbackReminders[idx].metadata : undefined) });
   } catch (err) {
-    const idx = fallbackReminders.findIndex(r => r.id === req.params.id);
     if (idx !== -1) {
-      fallbackReminders[idx] = { ...fallbackReminders[idx], ...req.body };
       return res.json(fallbackReminders[idx]);
     }
-    return res.json({ id: req.params.id, ...req.body });
+    return res.json({ id, ...req.body });
   }
 });
 
 router.delete('/:id', async (req, res) => {
+  const id = req.params.id;
+  fallbackReminders = fallbackReminders.filter(r => r.id !== id);
+
   try {
-    await prisma.reminder.delete({ where: { id: req.params.id } });
+    await prisma.reminder.delete({ where: { id } });
     return res.json({ message: 'Reminder deleted' });
   } catch (err) {
-    fallbackReminders = fallbackReminders.filter(r => r.id !== req.params.id);
     return res.json({ message: 'Reminder deleted' });
   }
 });

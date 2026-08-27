@@ -244,14 +244,14 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
 
   return (
     <>
-      {/* ─── 1. FLOATING 3D GLASS BUTTON (Centerpiece Trigger) ─────────────── */}
-      <div className="fixed bottom-20 md:bottom-8 right-4 md:right-8 z-40 pointer-events-auto select-none">
+      {/* ─── 1. FLOATING 3D GLASS BUTTON (Elevated above mobile bottom nav) ── */}
+      <div className="fixed bottom-[84px] sm:bottom-[92px] md:bottom-8 right-4 md:right-8 z-40 pointer-events-auto select-none">
         <button
           onClick={() => {
             setIsOpen(true);
             setTimeout(() => startListening(), 400);
           }}
-          className="relative group p-2 rounded-full glass-3d hover:scale-105 active:scale-95 transition-transform duration-300 flex items-center gap-3 pr-4 shadow-[0_12px_32px_rgba(0,0,0,0.18)]"
+          className="relative group p-2 rounded-full hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 pr-4 shadow-[0_12px_32px_rgba(0,0,0,0.25)] border border-[var(--border)] bg-[var(--bg-surface)] backdrop-blur-xl"
           title="Talk with ABHA AI Assistant"
         >
           {/* Subtle 3D Glass Orb */}
@@ -260,12 +260,12 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
           {/* Glowing Label Badge */}
           <div className="text-left">
             <div className="flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600 animate-spin-slow" />
-              <span className="font-black text-xs text-black uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-500 animate-spin-slow" />
+              <span className="font-black text-xs text-[var(--text-primary)] uppercase tracking-wider">
                 ABHA AI
               </span>
             </div>
-            <span className="text-[11px] font-black text-gray-700 flex items-center gap-1">
+            <span className="text-[11px] font-black text-[var(--text-secondary)] flex items-center gap-1">
               <span>🎙️</span>
               <span>Tap to Speak</span>
             </span>

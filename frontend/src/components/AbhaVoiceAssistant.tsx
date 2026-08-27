@@ -20,68 +20,61 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
   const [transcript, setTranscript] = useState('');
   const [reply, setReply] = useState('');
   const [inputText, setInputText] = useState('');
-  const [language, setLanguage] = useState<string>('hi');
   const [isMuted, setIsMuted] = useState(false);
-  const [conversationHistory, setConversationHistory] = useState<Array<{ role: 'user' | 'assistant'; text: string }>>([]);
+  const [language, setLanguage] = useState<string>('hi');
+  const [conversationHistory, setConversationHistory] = useState<{ role: 'user' | 'assistant'; text: string }[]>([]);
+  const [pendingVoiceCommand, setPendingVoiceCommand] = useState<any | null>(null);
 
-  const isMutedRef = useRef(isMuted);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom of conversation
   useEffect(() => {
-    isMutedRef.current = isMuted;
-  }, [isMuted]);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [conversationHistory, reply]);
 
-  // Clean up on unmount
-  useEffect(() => {
-    return () => {
-      speechService.stopListening();
-      speechService.stopSpeaking();
-    };
-  }, []);
-
-  // Text-To-Speech Function via Robust Dual-Engine SpeechService
-  const speakText = (text: string) => {
-    if (isMutedRef.current) {
-      setState('IDLE');
-      return;
-    }
-
-    setState('SPEAKING');
-    speechService.speak(text, language, () => {
-      setState('IDLE');
-    });
-  };
-
+  // Start Speech Recognition
   const startListening = () => {
     speechService.stopSpeaking();
-    setTranscript('');
     setState('LISTENING');
+    setTranscript('');
 
     speechService.startListening(
       (text: string) => {
         setTranscript(text);
         if (text.trim()) {
           handleSendMessage(text.trim());
-        } else {
-          setState('IDLE');
         }
       },
-      (err: any) => {
-        console.warn('[ABHA Voice Speech Error]', err);
-        if (err !== 'no-speech') {
-          setState('ERROR');
-        } else {
+      (error: any) => {
+        if (error === 'no-speech') {
           setState('IDLE');
+        } else {
+          setState('ERROR');
         }
       },
       language
     );
   };
 
+  // Stop Speech Recognition
   const stopListening = () => {
     speechService.stopListening();
     setState('IDLE');
   };
 
-  const [pendingVoiceCommand, setPendingVoiceCommand] = useState<any | null>(null);
+  // Speak AI reply out loud
+  const speakText = (text: string) => {
+    if (isMuted) return;
+    setState('SPEAKING');
+
+    speechService.speak(
+      text,
+      language,
+      () => {
+        setState('IDLE');
+      }
+    );
+  };
 
   // Send message to AI Backend Router or AIRoutineCommander
   const handleSendMessage = async (customMessage?: string) => {
@@ -100,7 +93,7 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
 
     // 1. Check AI Routine Commander for Voice Commands & Grounded Queries
     try {
-      const parsed = AIRoutineCommander.parseCommand(query, cleanLang, pendingVoiceCommand || undefined);
+      const parsed = AIRoutineCommander.parseCommand(query, cleanLang as any, pendingVoiceCommand || undefined);
 
       if (parsed.intent === 'CLARIFY') {
         setPendingVoiceCommand(parsed);
@@ -145,7 +138,6 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
           await api.post('/reminders', payload);
         } catch {}
 
-        // Notify other components
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('aabha-reminders-updated'));
         }
@@ -174,7 +166,7 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
           parsed.intent,
           Array.isArray(storedReminders) ? storedReminders : [],
           [],
-          cleanLang
+          cleanLang as any
         );
 
         setReply(groundedAnswer);
@@ -197,10 +189,8 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
       setReply(aiReply);
       setConversationHistory(prev => [...prev, { role: 'assistant', text: aiReply }]);
 
-      // Speak response out loud
       speakText(aiReply);
 
-      // Handle Assistant In-App Action
       if (res.action) {
         if (res.action.type === 'START_GAME' && res.action.gameType) {
           setTimeout(() => {
@@ -238,230 +228,217 @@ export const AbhaVoiceAssistant: React.FC<AbhaVoiceAssistantProps> = ({ onTrigge
     { label: '💊 मेरी दवा कब है?', text: 'Abha, meri next medicine kab hai?' },
     { label: '📅 अगली डॉक्टर मुलाकात?', text: 'Abha, mera next doctor appointment kab hai?' },
     { label: '🧠 मेमोरी गेम खेलें', text: 'Abha, memory game start karo' },
-    { label: '📋 आज का रूटीन', text: 'Abha, aaj mera schedule kya hai?' },
-    { label: '🚨 आपातकालीन SOS', text: 'Abha, emergency SOS alert bhejo' }
+    { label: '📋 आज का रूटीन', text: 'Abha, aaj mera schedule kya hai?' }
   ];
 
   return (
     <>
       {/* ─── 1. FLOATING 3D GLASS BUTTON (Elevated above mobile bottom nav) ── */}
-      <div className="fixed bottom-[84px] sm:bottom-[92px] md:bottom-8 right-4 md:right-8 z-40 pointer-events-auto select-none">
-        <button
-          onClick={() => {
-            setIsOpen(true);
-            setTimeout(() => startListening(), 400);
-          }}
-          className="relative group p-2 rounded-full hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 pr-4 shadow-[0_12px_32px_rgba(0,0,0,0.25)] border border-[var(--border)] bg-[var(--bg-surface)] backdrop-blur-xl"
-          title="Talk with ABHA AI Assistant"
-        >
-          {/* Subtle 3D Glass Orb */}
-          <Abha3DOrb state="IDLE" size="md" interactive={false} />
+      {!isOpen && (
+        <div className="fixed bottom-[84px] sm:bottom-[92px] md:bottom-8 right-4 md:right-8 z-40 pointer-events-auto select-none">
+          <button
+            onClick={() => {
+              setIsOpen(true);
+              setTimeout(() => startListening(), 400);
+            }}
+            className="relative group p-2 rounded-full hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-2.5 pr-4 shadow-[0_12px_32px_rgba(0,0,0,0.25)] border border-[var(--border)] bg-[var(--bg-surface)] backdrop-blur-xl"
+            title="Talk with ABHA AI Assistant"
+          >
+            <Abha3DOrb state="IDLE" size="md" interactive={false} />
 
-          {/* Glowing Label Badge */}
-          <div className="text-left">
-            <div className="flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-500 animate-spin-slow" />
-              <span className="font-black text-xs text-[var(--text-primary)] uppercase tracking-wider">
-                ABHA AI
+            <div className="text-left">
+              <div className="flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-500 animate-spin-slow" />
+                <span className="font-black text-xs text-[var(--text-primary)] uppercase tracking-wider">
+                  ABHA AI
+                </span>
+              </div>
+              <span className="text-[11px] font-black text-[var(--text-secondary)] flex items-center gap-1">
+                <span>🎙️</span>
+                <span>Tap to Speak</span>
               </span>
             </div>
-            <span className="text-[11px] font-black text-[var(--text-secondary)] flex items-center gap-1">
-              <span>🎙️</span>
-              <span>Tap to Speak</span>
-            </span>
-          </div>
-        </button>
-      </div>
+          </button>
+        </div>
+      )}
 
-      {/* ─── 2. EXPANDED 3D VOICE COMPANION MODAL ─────────────────────────── */}
+      {/* ─── 2. EXPANDED MOBILE-FRIENDLY VOICE COMPANION MODAL ──────────────── */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fade-in font-sans">
-          <div className="bg-white rounded-3xl p-5 sm:p-7 max-w-xl w-full border-2 border-black shadow-2xl flex flex-col max-h-[92vh] space-y-4 relative overflow-hidden">
-            {/* Top Modal Bar */}
-            <div className="flex items-center justify-between border-b-2 border-black pb-3 shrink-0">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">✨</span>
-                <div>
-                  <h3 className="font-black text-lg text-black">AABHA AI Voice Assistant</h3>
-                  <p className="text-xs text-gray-600 font-bold">
-                    Multilingual Voice Companion & Health Guide
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center sm:p-4 font-sans animate-fade-in">
+          <div className="bg-[var(--bg-surface)] border-t sm:border-2 border-[var(--border)] rounded-t-[32px] sm:rounded-[32px] w-full max-w-lg shadow-2xl flex flex-col h-[85vh] sm:h-auto sm:max-h-[88vh] overflow-hidden">
+            {/* Header */}
+            <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-[var(--border)] flex items-center justify-between shrink-0 bg-[var(--bg-surface-secondary)]/50">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-9 h-9 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-400/30 flex items-center justify-center text-lg shrink-0">
+                  ✨
+                </div>
+                <div className="min-w-0">
+                  <h3 className="font-black text-sm sm:text-base text-[var(--text-primary)] truncate">
+                    AABHA AI Voice Assistant
+                  </h3>
+                  <p className="text-[10px] text-[var(--text-secondary)] font-medium truncate">
+                    Powered by Google Gemini
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                {/* Multi-Lingual Selector */}
+              {/* Header Right Actions */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                {/* Compact Language Selector */}
                 <select
                   value={language}
                   onChange={e => setLanguage(e.target.value)}
-                  className="px-2.5 py-1 rounded-xl bg-gray-100 border border-gray-300 text-xs font-black text-black cursor-pointer focus:outline-none"
+                  className="px-2 py-1 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] text-[11px] font-black text-[var(--text-primary)] cursor-pointer outline-none"
                   aria-label="Select AI Voice Language"
                 >
-                  <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
-                  <option value="mr">🇮🇳 मराठी (Marathi)</option>
-                  <option value="bn">🇮🇳 বাংলা (Bengali)</option>
-                  <option value="as">🇮🇳 অসমীয়া (Assamese)</option>
-                  <option value="gu">🇮🇳 ગુજરાતી (Gujarati)</option>
-                  <option value="ta">🇮🇳 தமிழ் (Tamil)</option>
-                  <option value="te">🇮🇳 తెలుగు (Telugu)</option>
-                  <option value="kn">🇮🇳 ಕನ್ನಡ (Kannada)</option>
-                  <option value="pa">🇮🇳 ਪੰਜਾਬੀ (Punjabi)</option>
-                  <option value="en">🇺🇸 English</option>
+                  <option value="hi">🇮🇳 HI (हिन्दी)</option>
+                  <option value="mr">🇮🇳 MR (मराठी)</option>
+                  <option value="en">🌐 EN (English)</option>
+                  <option value="bn">🇮🇳 BN (বাংলা)</option>
+                  <option value="gu">🇮🇳 GU (ગુજરાતી)</option>
+                  <option value="ta">🇮🇳 TA (தமிழ்)</option>
+                  <option value="te">🇮🇳 TE (తెలుగు)</option>
                 </select>
 
                 {/* Mute Toggle */}
                 <button
+                  type="button"
                   onClick={() => {
                     if (!isMuted) speechService.stopSpeaking();
                     setIsMuted(!isMuted);
                   }}
-                  className="p-2 rounded-xl border border-gray-300 hover:bg-gray-100 transition text-black"
+                  className="p-1.5 rounded-xl border border-[var(--border)] hover:bg-[var(--bg-surface-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                   title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
                 >
-                  {isMuted ? <VolumeX className="w-4 h-4 text-red-500" /> : <Volume2 className="w-4 h-4" />}
+                  {isMuted ? <VolumeX className="w-4 h-4 text-rose-500" /> : <Volume2 className="w-4 h-4" />}
                 </button>
 
-                {/* Close Modal */}
+                {/* Close Button */}
                 <button
+                  type="button"
                   onClick={() => {
                     stopListening();
                     speechService.stopSpeaking();
                     setIsOpen(false);
                   }}
-                  className="p-2 rounded-xl border-2 border-black hover:bg-gray-100 transition text-black"
+                  className="p-1.5 rounded-xl bg-[var(--bg-surface-secondary)] hover:bg-rose-500/20 text-[var(--text-secondary)] hover:text-rose-400 border border-[var(--border)]"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            {/* ─── 3. CENTERPIECE 3D ANIMATED ORB WITH SOUNDWAVES ─────────── */}
-            <div className="flex flex-col items-center justify-center py-4 bg-gradient-to-b from-gray-50 via-emerald-50/30 to-white rounded-3xl border-2 border-black relative overflow-hidden shrink-0">
-              <Abha3DOrb
-                state={state}
-                size="hero"
-                interactive={true}
+            {/* Compact Animated 3D Orb Header Strip */}
+            <div className="px-4 py-2.5 bg-gradient-to-r from-emerald-500/10 via-[var(--bg-surface-secondary)] to-teal-500/10 border-b border-[var(--border)] flex items-center justify-between gap-3 shrink-0">
+              <div
                 onClick={() => {
-                  if (state === 'LISTENING') {
-                    stopListening();
-                  } else {
-                    startListening();
-                  }
+                  if (state === 'LISTENING') stopListening();
+                  else startListening();
                 }}
-              />
-
-              {/* State Status Text */}
-              <div className="mt-3 text-center">
-                <span className="text-xs font-black uppercase tracking-wider px-3 py-1 bg-white border border-black rounded-full shadow-xs">
-                  {state === 'LISTENING' && '🔴 Listening... Speak clearly'}
-                  {state === 'THINKING' && '✨ Processing medical query...'}
-                  {state === 'SPEAKING' && '🔊 Speaking response...'}
-                  {state === 'IDLE' && '🎙️ Tap orb or microphone to speak'}
-                  {state === 'ERROR' && '⚠️ Try again or type below'}
-                </span>
+                className="flex items-center gap-3 cursor-pointer group select-none"
+              >
+                <Abha3DOrb state={state} size="sm" interactive={false} />
+                <div>
+                  <div className="text-xs font-black text-[var(--text-primary)] flex items-center gap-1.5">
+                    <span>{state === 'LISTENING' ? '🔴 Listening...' : state === 'THINKING' ? '✨ Thinking...' : state === 'SPEAKING' ? '🔊 Speaking...' : '🎙️ Tap to Speak'}</span>
+                  </div>
+                  <p className="text-[10px] text-[var(--text-secondary)]">
+                    {state === 'LISTENING' ? 'Speak clearly now' : 'Ask questions or set reminders'}
+                  </p>
+                </div>
               </div>
 
-              {/* Live Speech Recognition Transcription */}
-              {transcript && (
-                <div className="mt-2 text-xs font-bold text-gray-800 italic bg-white/90 px-4 py-1.5 rounded-xl border border-gray-300 max-w-md text-center">
-                  "{transcript}"
-                </div>
-              )}
+              <button
+                type="button"
+                onClick={() => {
+                  if (state === 'LISTENING') stopListening();
+                  else startListening();
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-black flex items-center gap-1 shadow-sm transition ${
+                  state === 'LISTENING'
+                    ? 'bg-rose-500 text-white animate-pulse'
+                    : 'btn-glow text-white'
+                }`}
+              >
+                {state === 'LISTENING' ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+                <span>{state === 'LISTENING' ? 'Stop' : 'Mic'}</span>
+              </button>
             </div>
 
-            {/* ─── 4. CONVERSATION LOG (Scrollable) ────────────────────────── */}
-            <div className="flex-1 overflow-y-auto space-y-3 p-2 min-h-[140px] max-h-[220px]">
+            {/* Transcript Banner (if speaking) */}
+            {transcript && (
+              <div className="px-4 py-1.5 bg-emerald-500/15 text-emerald-300 text-xs font-bold italic border-b border-emerald-500/30 truncate shrink-0">
+                "{transcript}"
+              </div>
+            )}
+
+            {/* Scrollable Conversation Log (Expanded Vertical Space) */}
+            <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-0">
               {conversationHistory.length === 0 && (
-                <div className="text-center py-6 text-xs font-bold text-gray-500">
-                  Ask ABHA about your scheduled medicines, appointments, daily routine, or play games!
+                <div className="text-center py-8 text-xs font-medium text-[var(--text-secondary)] space-y-1">
+                  <p className="text-sm font-black text-[var(--text-primary)]">👋 How can I help you today?</p>
+                  <p>Ask about your medicine time, schedule, memory games, or say "Kal 8 baje medicine yaad dilana".</p>
                 </div>
               )}
 
               {conversationHistory.map((item, idx) => (
                 <div
                   key={idx}
-                  className={`flex ${item.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  className={`flex ${item.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
                 >
                   <div
-                    className={`max-w-[85%] p-3.5 rounded-2xl text-xs sm:text-sm font-bold leading-relaxed shadow-2xs ${
+                    className={`max-w-[85%] p-3 rounded-2xl text-xs sm:text-sm font-medium leading-relaxed shadow-sm ${
                       item.role === 'user'
-                        ? 'bg-black text-white rounded-br-none'
-                        : 'bg-emerald-50 border-2 border-emerald-300 text-emerald-950 rounded-bl-none'
+                        ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-br-none'
+                        : 'bg-[var(--bg-surface-secondary)] border border-[var(--border)] text-[var(--text-primary)] rounded-bl-none'
                     }`}
                   >
                     {item.role === 'assistant' && (
-                      <div className="text-[10px] font-black uppercase text-emerald-800 mb-1">ABHA:</div>
+                      <div className="text-[10px] font-black uppercase text-emerald-400 mb-0.5">AABHA:</div>
                     )}
                     {item.text}
                   </div>
                 </div>
               ))}
+              <div ref={messagesEndRef} />
             </div>
 
-            {/* ─── 5. QUICK SUGGESTION PILLS ───────────────────────────────── */}
-            <div className="shrink-0 space-y-1.5">
-              <div className="text-[10px] font-black uppercase text-gray-500 tracking-wider">
-                Quick Prompts:
-              </div>
-              <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                {quickPrompts.map((p, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleSendMessage(p.text)}
-                    className="whitespace-nowrap px-3 py-1.5 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-full text-xs font-black text-black transition shrink-0"
-                  >
-                    {p.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* ─── 6. INPUT CONTROLS FOOTER ────────────────────────────────── */}
-            <div className="shrink-0 space-y-2 pt-2 border-t border-gray-200">
-              <div className="flex items-center gap-2">
-                {/* Large Microphone Action Button */}
+            {/* Quick Prompts (Horizontal Scroll) */}
+            <div className="px-4 py-1.5 border-t border-[var(--border)] flex items-center gap-2 overflow-x-auto scrollbar-none shrink-0 bg-[var(--bg-surface-secondary)]/30">
+              {quickPrompts.map((p, idx) => (
                 <button
-                  onClick={() => {
-                    if (state === 'LISTENING') {
-                      stopListening();
-                    } else {
-                      startListening();
-                    }
-                  }}
-                  className={`p-3.5 rounded-2xl border-2 flex items-center justify-center font-black text-sm transition shadow-sm ${
-                    state === 'LISTENING'
-                      ? 'bg-red-500 text-white border-red-600 animate-pulse'
-                      : 'bg-black text-white border-black hover:bg-gray-800'
-                  }`}
-                  title="Toggle Microphone"
+                  key={idx}
+                  type="button"
+                  onClick={() => handleSendMessage(p.text)}
+                  className="whitespace-nowrap px-3 py-1 bg-[var(--bg-surface)] hover:bg-emerald-500/20 border border-[var(--border)] hover:border-emerald-400/40 rounded-full text-[11px] font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition shrink-0 cursor-pointer"
                 >
-                  {state === 'LISTENING' ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                  {p.label}
                 </button>
+              ))}
+            </div>
 
-                {/* Text input */}
-                <div className="flex-1 relative">
-                  <input
-                    type="text"
-                    placeholder="Or type a question for ABHA..."
-                    value={inputText}
-                    onChange={e => setInputText(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') handleSendMessage();
-                    }}
-                    className="w-full pl-4 pr-10 py-3 rounded-2xl border-2 border-gray-300 bg-white text-black font-bold text-xs sm:text-sm focus:border-black outline-none transition"
-                  />
-                  <button
-                    onClick={() => handleSendMessage()}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 bg-black text-white rounded-xl hover:bg-gray-800 transition"
-                  >
-                    <Send className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+            {/* Input Row Footer */}
+            <div className="p-3 sm:p-4 border-t border-[var(--border)] shrink-0 bg-[var(--bg-surface)]">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="Type a message or command..."
+                  value={inputText}
+                  onChange={e => setInputText(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') handleSendMessage();
+                  }}
+                  className="flex-1 bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--input-text)] px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium outline-none focus:border-emerald-400"
+                />
 
-              {/* Safety Non-Diagnostic Disclaimer */}
-              <div className="text-[10px] text-gray-500 font-bold text-center">
-                🛡️ ABHA AI provides operational reminders & memory exercises. It does NOT make clinical medical diagnoses.
+                <button
+                  type="button"
+                  onClick={() => handleSendMessage()}
+                  className="btn-glow p-2.5 rounded-xl text-white cursor-pointer shrink-0 shadow-md"
+                  title="Send"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>

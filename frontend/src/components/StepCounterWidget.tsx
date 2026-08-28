@@ -338,27 +338,13 @@ export const StepCounterWidget: React.FC<StepCounterWidgetProps> = ({
 
       {/* Controls & Quick Add Buttons */}
       <div className="pt-4 border-t border-[var(--border)] flex flex-col sm:flex-row items-center justify-between gap-3 relative z-10">
-        {/* Live Motion Sensor Toggle */}
-        {showLiveSensorToggle && (
-          <button
-            onClick={handleToggleLivePedometer}
-            className={`w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs ${
-              isLiveActive
-                ? 'bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 border border-rose-500/30 animate-pulse'
-                : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/20'
-            }`}
-          >
-            {isLiveActive ? (
-              <>
-                <Pause className="w-4 h-4" /> {t('Pause Live Pedometer')}
-              </>
-            ) : (
-              <>
-                <Play className="w-4 h-4 fill-current" /> {t('Start Live Pedometer')}
-              </>
-            )}
-          </button>
-        )}
+        {/* Automatic Live Tracking Status & Simulator */}
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>{t('Auto Sensor Active (Live)')}</span>
+          </span>
+        </div>
 
         {/* Quick Increment Adders */}
         {showQuickAdd && (

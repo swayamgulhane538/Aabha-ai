@@ -1,5 +1,6 @@
 import { api } from './api';
 import { useVoiceSettingsStore } from '../stores/voiceSettingsStore';
+import { stepTrackingService } from './stepTrackingService';
 import i18n from '../i18n';
 
 export interface ActionExecutionResult {
@@ -192,6 +193,52 @@ export class AIActionService {
       raw.includes('आठवडा')
     ) {
       return await this.getWeeklyInsightsAction(currentLang);
+    }
+
+    // ─── 8.1 STEP COUNTER & PHYSICAL WALKING COMMANDS ───────────────────────────
+    if (
+      raw.includes('step') ||
+      raw.includes('kadam') ||
+      raw.includes('कदम') ||
+      raw.includes('paavle') ||
+      raw.includes('पावले') ||
+      raw.includes('walking') ||
+      raw.includes('chale') ||
+      raw.includes('chalna')
+    ) {
+      // Check if user wants to add/log steps (e.g. "Add 500 steps", "500 kadam jodo")
+      const numMatch = raw.match(/\d+/);
+      if (numMatch && (raw.includes('add') || raw.includes('jodo') || raw.includes('जोड़ो') || raw.includes('जोडा') || raw.includes('walked') || raw.includes('chala'))) {
+        const count = parseInt(numMatch[0], 10);
+        if (count > 0) {
+          const rec = stepTrackingService.addSteps(count, 'Voice Command');
+          const pct = Math.min(100, Math.round((rec.steps / rec.goal) * 100));
+          return {
+            success: true,
+            intent: 'LOG_STEPS',
+            spokenReply: currentLang === 'mr'
+              ? `${count} पावले यशस्वीरीत्या जोडली गेली. आज तुम्ही एकूण ${rec.steps} पावले चालला आहात.`
+              : currentLang === 'hi'
+              ? `${count} कदम सफलतापूर्वक जोड़ दिए गए हैं। आज आपने कुल ${rec.steps} कदम चले हैं (${pct}% लक्ष्य)।`
+              : `Added ${count} steps! You have walked ${rec.steps.toLocaleString()} steps today (${pct}% of goal).`,
+            displayReply: `👣 ${count.toLocaleString()} steps logged! Today: ${rec.steps.toLocaleString()} / ${rec.goal.toLocaleString()} (${rec.distanceKm} km)`
+          };
+        }
+      }
+
+      // Default Query Steps (e.g. "Kitne steps hue?", "How many steps today?")
+      const today = stepTrackingService.getTodayRecord();
+      const pct = Math.min(100, Math.round((today.steps / today.goal) * 100));
+      return {
+        success: true,
+        intent: 'QUERY_STEPS',
+        spokenReply: currentLang === 'mr'
+          ? `आज तुम्ही एकूण ${today.steps} पावले चालला आहात, ज्यामुळे ${today.distanceKm} किलोमीटरचे अंतर पूर्ण झाले आहे. खूप छान!`
+          : currentLang === 'hi'
+          ? `आज आपने कुल ${today.steps} कदम चले हैं, जिससे ${today.distanceKm} किलोमीटर की दूरी तय हुई है। यह आपके लक्ष्य का ${pct} प्रतिशत है।`
+          : `You have completed ${today.steps.toLocaleString()} steps today covering ${today.distanceKm} km, which is ${pct}% of your daily goal.`,
+        displayReply: `👣 Today's Steps: ${today.steps.toLocaleString()} / ${today.goal.toLocaleString()} (${today.distanceKm} km • ${today.caloriesKcal} kcal)`
+      };
     }
 
     // ─── 9. CREATE REMINDER / ROUTINE COMMAND ─────────────────────────────────

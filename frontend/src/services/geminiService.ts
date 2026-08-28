@@ -301,6 +301,45 @@ Context: ${contextInfo}`;
 
     return null;
   }
+
+  // Generate Raw Prompt (used for JSON parsing, calorie calculations, and data queries)
+  public async generateRawPrompt(prompt: string): Promise<string | null> {
+    if (!this.hasApiKey()) return null;
+
+    const modelsToTry = [
+      this.activeModel,
+      ...this.availableModels.filter(m => m !== this.activeModel),
+      ...DEFAULT_MODELS.filter(m => m !== this.activeModel && !this.availableModels.includes(m))
+    ];
+
+    const apiVersions = ['v1beta', 'v1'];
+
+    for (const model of modelsToTry) {
+      for (const ver of apiVersions) {
+        try {
+          const url = `https://generativelanguage.googleapis.com/${ver}/models/${model}:generateContent?key=${this.apiKey}`;
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ role: 'user', parts: [{ text: prompt }] }],
+              generationConfig: { temperature: 0.2, maxOutputTokens: 350 }
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+            if (text) {
+              this.activeModel = model;
+              return text;
+            }
+          }
+        } catch {}
+      }
+    }
+    return null;
+  }
 }
 
 export const geminiService = GeminiService.getInstance();

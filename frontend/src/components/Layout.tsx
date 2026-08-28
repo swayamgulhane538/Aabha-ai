@@ -10,7 +10,7 @@ import { HackathonDemoModal } from './HackathonDemoModal';
 import { OneMinuteDemoExperience } from './OneMinuteDemoExperience';
 import { AnimatedBackground } from './AnimatedBackground';
 import { Abha3DOrb } from './Abha3DOrb';
-import { Settings, Sparkles, LogOut, Bell, User, CheckCircle2, ShieldCheck, X, Play } from 'lucide-react';
+import { Settings, Sparkles, LogOut, Bell, User, CheckCircle2, ShieldCheck, X, Play, Menu, ChevronRight } from 'lucide-react';
 
 export const Layout = () => {
   const { t } = useTranslation();
@@ -23,6 +23,7 @@ export const Layout = () => {
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [isOneMinDemoOpen, setIsOneMinDemoOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
 
   // Close notifications on outside click
@@ -259,6 +260,17 @@ export const Layout = () => {
             <User className="w-4 h-4 text-[var(--text-secondary)]" />
           </button>
 
+          {/* 📱 Mobile Full Navigation Drawer Trigger (☰) */}
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="xl:hidden btn-glass p-2 sm:p-2.5 rounded-full hover:scale-105 active:scale-95 transition cursor-pointer flex items-center justify-center border border-[var(--border)]"
+            title="Open Mobile Navigation Menu"
+            aria-label="Open Navigation Menu"
+          >
+            <Menu className="w-4 h-4 text-[var(--text-primary)]" />
+          </button>
+
           {/* ↪ Logout Button */}
           <button
             type="button"
@@ -271,6 +283,73 @@ export const Layout = () => {
         </div>
       </header>
 
+      {/* ─── MOBILE & TABLET HORIZONTAL NAVBAR (ALWAYS VISIBLE & SCROLLABLE ON MOBILE) ─── */}
+      <div
+        className="xl:hidden w-full overflow-x-auto py-2 px-3 bg-[var(--bg-header)] backdrop-blur-md border-b border-[var(--border)] scrollbar-none z-30 sticky top-[52px]"
+        style={{ backgroundColor: 'var(--bg-header)' }}
+      >
+        <div className="flex items-center gap-1.5 min-w-max text-xs font-bold">
+          {!isCaregiver ? (
+            <>
+              <Link to="/patient" className={`px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${location.pathname === '/patient' && !location.hash ? activeNavCls : inactiveNavCls}`}>
+                🏠 {t('Dashboard')}
+              </Link>
+              <Link to="/aabha" className={`px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${location.pathname.startsWith('/aabha') ? activeNavCls : inactiveNavCls}`}>
+                ✨ {t('Gemini AI Chat')}
+              </Link>
+              <Link to="/patient/reminders" className={`px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${location.pathname.startsWith('/patient/reminders') ? activeNavCls : inactiveNavCls}`}>
+                🗣️ {t('Voice Alarms')}
+              </Link>
+              <Link to="/patient/analytics" className={`px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${location.pathname.startsWith('/patient/analytics') ? activeNavCls : inactiveNavCls}`}>
+                📊 {t('Analytics')}
+              </Link>
+              <Link to="/patient/steps" className={`px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${location.pathname.startsWith('/patient/steps') ? activeNavCls : inactiveNavCls}`}>
+                👣 {t('Step Tracker')}
+              </Link>
+              <Link to="/patient/games" className={`px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${location.pathname.startsWith('/patient/games') ? activeNavCls : inactiveNavCls}`}>
+                🎮 {t('Brain Games')}
+              </Link>
+              <Link to="/patient/location" className={`px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${location.pathname.startsWith('/patient/location') ? activeNavCls : inactiveNavCls}`}>
+                📍 {t('Safe Location')}
+              </Link>
+              <Link to="/patient/diet" className={`px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${location.pathname.startsWith('/patient/diet') ? activeNavCls : inactiveNavCls}`}>
+                🥗 {t('Doctor Diet Plan')}
+              </Link>
+              <Link to="/patient/prescriptions" className={`px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${location.pathname.startsWith('/patient/prescriptions') ? activeNavCls : inactiveNavCls}`}>
+                🩺 {t('Prescriptions & Disease')}
+              </Link>
+              <Link to="/patient/memory-passport" className={`px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${location.pathname.startsWith('/patient/memory-passport') ? activeNavCls : inactiveNavCls}`}>
+                📖 {t('Memory Passport')}
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link to="/caregiver" className={`px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${location.pathname === '/caregiver' ? activeNavCls : inactiveNavCls}`}>
+                🏠 {t('Dashboard')}
+              </Link>
+              <Link to="/caregiver/location" className={`px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${location.pathname.startsWith('/caregiver/location') ? activeNavCls : inactiveNavCls}`}>
+                📍 {t('Live GPS Tracker')}
+              </Link>
+              <Link to="/patient/diet" className={`px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${location.pathname.startsWith('/patient/diet') ? activeNavCls : inactiveNavCls}`}>
+                🥗 {t('Doctor Diet Plan')}
+              </Link>
+              <Link to="/patient/prescriptions" className={`px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${location.pathname.startsWith('/patient/prescriptions') ? activeNavCls : inactiveNavCls}`}>
+                🩺 {t('Prescriptions & Disease')}
+              </Link>
+              <Link to="/patient/reports" className={`px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${location.pathname.startsWith('/patient/reports') ? activeNavCls : inactiveNavCls}`}>
+                📑 {t('My Reports')}
+              </Link>
+              <Link to="/patient/memory-passport" className={`px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${location.pathname.startsWith('/patient/memory-passport') ? activeNavCls : inactiveNavCls}`}>
+                📖 {t('Memory Passport')}
+              </Link>
+              <Link to="/patient/reminders" className={`px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${location.pathname.startsWith('/patient/reminders') ? activeNavCls : inactiveNavCls}`}>
+                🗣️ {t('Reminders')}
+              </Link>
+            </>
+          )}
+        </div>
+      </div>
+
       {/* Mobile Sub-bar for Offline indicator */}
       <div className="sm:hidden px-3.5 py-1 bg-[var(--bg-surface-secondary)] border-b border-[var(--border)] flex justify-between items-center text-[10px]">
         <OfflineIndicator />
@@ -280,7 +359,7 @@ export const Layout = () => {
       </div>
 
       {/* ─── 2. MAIN CONTENT AREA ───────────────────────────────────────────── */}
-      <main className="relative z-10 flex-1 w-full max-w-6xl mx-auto px-3.5 pt-0 pb-24 sm:px-6 sm:pt-0 md:pt-0 md:pb-12 overflow-x-hidden min-w-0">
+      <main className="relative z-10 flex-1 w-full max-w-6xl mx-auto px-3.5 pt-0 pb-28 sm:px-6 sm:pt-0 md:pt-0 md:pb-12 overflow-x-hidden min-w-0">
         <Outlet />
       </main>
 
@@ -309,69 +388,165 @@ export const Layout = () => {
 
       {/* ─── 4. FIXED MOBILE BOTTOM NAVIGATION ──────────────────────────────── */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 backdrop-blur-2xl px-3 py-2 flex justify-around items-center z-40 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.08)] border-t border-[var(--border)]"
-        style={{ backgroundColor: isDark ? 'rgba(13,20,38,0.96)' : 'rgba(255,255,255,0.96)' }}
+        className="xl:hidden fixed bottom-0 left-0 right-0 backdrop-blur-2xl px-2 py-1.5 flex justify-around items-center z-40 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.12)] border-t border-[var(--border)] overflow-x-auto scrollbar-none"
+        style={{ backgroundColor: isDark ? 'rgba(13,20,38,0.98)' : 'rgba(255,255,255,0.98)' }}
       >
         <Link
           to={isCaregiver ? '/caregiver' : '/patient'}
-          className={`py-1 px-2.5 rounded-2xl flex flex-col items-center transition-all ${
+          className={`py-1 px-2 rounded-xl flex flex-col items-center transition-all shrink-0 ${
             (location.pathname === '/patient' || location.pathname === '/caregiver') && !location.hash
-              ? 'text-emerald-500 dark:text-emerald-400 font-black scale-105'
+              ? 'text-purple-600 font-black scale-105'
               : 'text-[var(--text-muted)] font-bold'
           }`}
         >
-          <span className="text-xl leading-none mb-1">🏠</span>
-          <span className="text-[10px] tracking-tight">{t('Home')}</span>
+          <span className="text-lg leading-none mb-0.5">🏠</span>
+          <span className="text-[9px] tracking-tight">{t('Home')}</span>
         </Link>
 
         <Link
-          to="/patient/reminders"
-          className={`py-1 px-2.5 rounded-2xl flex flex-col items-center transition-all ${
-            location.pathname.startsWith('/patient/reminders')
-              ? 'text-emerald-500 dark:text-emerald-400 font-black scale-105'
+          to="/patient/steps"
+          className={`py-1 px-2 rounded-xl flex flex-col items-center transition-all shrink-0 ${
+            location.pathname.startsWith('/patient/steps')
+              ? 'text-purple-600 font-black scale-105'
               : 'text-[var(--text-muted)] font-bold'
           }`}
         >
-          <span className="text-xl leading-none mb-1">🗣️</span>
-          <span className="text-[10px] tracking-tight">{t('Alarms')}</span>
+          <span className="text-lg leading-none mb-0.5">👣</span>
+          <span className="text-[9px] tracking-tight">{t('Steps')}</span>
         </Link>
 
         <Link
-          to="/patient/analytics"
-          className={`py-1 px-2.5 rounded-2xl flex flex-col items-center transition-all ${
-            location.pathname.startsWith('/patient/analytics')
-              ? 'text-emerald-500 dark:text-emerald-400 font-black scale-105'
+          to="/patient/location"
+          className={`py-1 px-2 rounded-xl flex flex-col items-center transition-all shrink-0 ${
+            location.pathname.startsWith('/patient/location')
+              ? 'text-purple-600 font-black scale-105'
               : 'text-[var(--text-muted)] font-bold'
           }`}
         >
-          <span className="text-xl leading-none mb-1">📊</span>
-          <span className="text-[10px] tracking-tight">{t('Analytics')}</span>
+          <span className="text-lg leading-none mb-0.5">📍</span>
+          <span className="text-[9px] tracking-tight">{t('Location')}</span>
         </Link>
 
         <Link
-          to="/patient/games"
-          className={`py-1 px-2.5 rounded-2xl flex flex-col items-center transition-all ${
-            location.pathname.startsWith('/patient/games')
-              ? 'text-emerald-500 dark:text-emerald-400 font-black scale-105'
+          to="/patient/diet"
+          className={`py-1 px-2 rounded-xl flex flex-col items-center transition-all shrink-0 ${
+            location.pathname.startsWith('/patient/diet')
+              ? 'text-purple-600 font-black scale-105'
               : 'text-[var(--text-muted)] font-bold'
           }`}
         >
-          <span className="text-xl leading-none mb-1">🎮</span>
-          <span className="text-[10px] tracking-tight">{t('Games')}</span>
+          <span className="text-lg leading-none mb-0.5">🥗</span>
+          <span className="text-[9px] tracking-tight">{t('Diet')}</span>
         </Link>
 
         <Link
-          to="/patient/memory-passport"
-          className={`py-1 px-2.5 rounded-2xl flex flex-col items-center transition-all ${
-            location.pathname.startsWith('/patient/memory-passport')
-              ? 'text-emerald-500 dark:text-emerald-400 font-black scale-105'
+          to="/patient/prescriptions"
+          className={`py-1 px-2 rounded-xl flex flex-col items-center transition-all shrink-0 ${
+            location.pathname.startsWith('/patient/prescriptions')
+              ? 'text-purple-600 font-black scale-105'
               : 'text-[var(--text-muted)] font-bold'
           }`}
         >
-          <span className="text-xl leading-none mb-1">📖</span>
-          <span className="text-[10px] tracking-tight">{t('Passport')}</span>
+          <span className="text-lg leading-none mb-0.5">🩺</span>
+          <span className="text-[9px] tracking-tight">{t('Rx')}</span>
         </Link>
+
+        <Link
+          to="/aabha"
+          className={`py-1 px-2 rounded-xl flex flex-col items-center transition-all shrink-0 ${
+            location.pathname.startsWith('/aabha')
+              ? 'text-purple-600 font-black scale-105'
+              : 'text-[var(--text-muted)] font-bold'
+          }`}
+        >
+          <span className="text-lg leading-none mb-0.5">✨</span>
+          <span className="text-[9px] tracking-tight">{t('AI Chat')}</span>
+        </Link>
+
+        {/* More Full Menu Trigger */}
+        <button
+          type="button"
+          onClick={() => setIsMobileMenuOpen(true)}
+          className="py-1 px-2 rounded-xl flex flex-col items-center text-[var(--text-muted)] font-bold transition-all shrink-0 cursor-pointer"
+        >
+          <span className="text-lg leading-none mb-0.5">☰</span>
+          <span className="text-[9px] tracking-tight">{t('All')}</span>
+        </button>
       </nav>
+
+      {/* ─── 5. FULL MOBILE NAVIGATION DRAWER (POPUP SHEET) ────────────────── */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center items-center bg-black/70 backdrop-blur-md animate-fade-in p-0 sm:p-4">
+          <div
+            className="w-full max-w-lg max-h-[85vh] rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 border border-[var(--border)] shadow-2xl flex flex-col justify-between overflow-y-auto space-y-4 animate-in slide-in-from-bottom duration-200"
+            style={{ backgroundColor: 'var(--bg-surface)' }}
+          >
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <div className="flex items-center gap-2.5">
+                <span className="text-2xl">📱</span>
+                <div>
+                  <h3 className="text-base font-black text-[var(--text-primary)]">
+                    {t('All App Features & Navigation')}
+                  </h3>
+                  <p className="text-[11px] text-[var(--text-secondary)]">
+                    Complete access to all patient and caregiver modules
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-1.5 rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface-secondary)]"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Menu List */}
+            <div className="grid grid-cols-2 gap-2.5 text-xs">
+              {[
+                { to: '/patient', icon: '🏠', label: 'Dashboard', desc: 'Main Patient Center' },
+                { to: '/aabha', icon: '✨', label: 'Gemini AI Chat', desc: 'Multi-lingual Voice AI' },
+                { to: '/patient/reminders', icon: '🗣️', label: 'Voice Alarms', desc: 'Medicine & Routine' },
+                { to: '/patient/analytics', icon: '📊', label: 'Analytics', desc: 'Routine & Adherence' },
+                { to: '/patient/steps', icon: '👣', label: 'Step Tracker', desc: 'Automatic Pedometer' },
+                { to: '/patient/surya-namaskar', icon: '☀️', label: 'Surya Namaskar', desc: '12-Step Motion Flow' },
+                { to: '/patient/games', icon: '🎮', label: 'Brain Games', desc: 'Cognitive Exercises' },
+                { to: '/patient/location', icon: '📍', label: 'Safe Location', desc: 'GPS & Take Me Home' },
+                { to: '/patient/diet', icon: '🥗', label: 'Doctor Diet Plan', desc: 'MIND Diet & Calories' },
+                { to: '/patient/prescriptions', icon: '🩺', label: 'Prescriptions', desc: 'Disease & Camera Vault' },
+                { to: '/patient/memory-passport', icon: '📖', label: 'Memory Passport', desc: 'Family & Identity' },
+                { to: '/patient/vitals', icon: '💓', label: 'Vitals Tracker', desc: 'BP, Glucose & Pulse' }
+              ].map((item, idx) => (
+                <Link
+                  key={idx}
+                  to={item.to}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`p-3 rounded-2xl border transition-all flex flex-col justify-between gap-1 ${
+                    location.pathname === item.to
+                      ? 'bg-purple-600/15 border-purple-500/40 text-purple-300'
+                      : 'bg-[var(--bg-surface-secondary)] border-[var(--border)] text-[var(--text-primary)] hover:border-purple-500/30'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{item.icon}</span>
+                    <strong className="text-xs font-black">{item.label}</strong>
+                  </div>
+                  <span className="text-[10px] text-[var(--text-secondary)]">{item.desc}</span>
+                </Link>
+              ))}
+            </div>
+
+            <div className="pt-2 border-t border-[var(--border)] flex justify-end">
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-full py-2.5 rounded-xl text-xs font-bold bg-[var(--bg-surface-secondary)] text-[var(--text-primary)] border border-[var(--border)]"
+              >
+                Close Menu
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Settings & Demo Modals */}
       {isSettingsOpen && <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />}

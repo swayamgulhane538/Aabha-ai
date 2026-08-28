@@ -136,6 +136,14 @@ export const Layout = () => {
                   🎮 {t('Games')}
                 </Link>
                 <Link
+                  to="/patient/location"
+                  className={`px-3 py-1.5 rounded-full transition-all ${
+                    location.pathname.startsWith('/patient/location') ? activeNavCls : inactiveNavCls
+                  }`}
+                >
+                  📍 {t('Safe Location')}
+                </Link>
+                <Link
                   to="/patient/memory-passport"
                   className={`px-3 py-1.5 rounded-full transition-all ${
                     location.pathname.startsWith('/patient/memory-passport') ? activeNavCls : inactiveNavCls

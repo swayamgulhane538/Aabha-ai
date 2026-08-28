@@ -37,9 +37,11 @@ import AskAabhaView from './pages/AskAabhaView';
 import VoiceSettingsView from './pages/VoiceSettingsView';
 import StepTrackerView from './pages/StepTrackerView';
 import SuryaNamaskarView from './pages/SuryaNamaskarView';
+import PatientLocationView from './pages/PatientLocationView';
 
 // Caregiver pages
 import CaregiverDashboard from './pages/CaregiverDashboard';
+import CaregiverLocationTracker from './pages/CaregiverLocationTracker';
 import PatientsList from './pages/PatientsList';
 import PatientDetail from './pages/PatientDetail';
 import AlertsView from './pages/AlertsView';
@@ -103,6 +105,7 @@ const App: React.FC = () => {
                 <Route path="/patient/games/:type" element={<GamePlayer />} />
                 <Route path="/patient/steps" element={<StepTrackerView />} />
                 <Route path="/patient/surya-namaskar" element={<SuryaNamaskarView />} />
+                <Route path="/patient/location" element={<PatientLocationView />} />
                 <Route path="/patient/vitals" element={<VitalsTrackerView />} />
                 <Route path="/patient/consultation" element={<TeleconsultView />} />
                 <Route path="/patient/signbridge" element={<SignBridgePatientView />} />
@@ -126,6 +129,7 @@ const App: React.FC = () => {
             <Route element={<ProtectedRoute allowedRoles={['CAREGIVER']} />}>
               <Route element={<CaregiverLayout />}>
                 <Route path="/caregiver" element={<CaregiverDashboard />} />
+                <Route path="/caregiver/location" element={<CaregiverLocationTracker />} />
                 <Route path="/caregiver/patients" element={<PatientsList />} />
                 <Route path="/caregiver/patients/:id" element={<PatientDetail />} />
                 <Route path="/caregiver/consultation" element={<TeleconsultView />} />

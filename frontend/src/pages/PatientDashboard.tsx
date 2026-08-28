@@ -267,6 +267,15 @@ export const PatientDashboard: React.FC = () => {
               <span>Quick Help</span>
             </button>
 
+            {/* Where Am I? (Safe Location) */}
+            <Link
+              to="/patient/location"
+              className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-blue-500/30 hover:border-blue-400 text-xs font-black text-blue-400 flex items-center gap-1.5 cursor-pointer shadow-xs"
+            >
+              <span>📍</span>
+              <span>Where Am I?</span>
+            </Link>
+
             {/* Voice Settings */}
             <Link
               to="/patient/voice-settings"

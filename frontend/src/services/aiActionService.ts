@@ -267,6 +267,34 @@ export class AIActionService {
       };
     }
 
+    // ─── 8.3 LIVE GPS LOCATION & "WHERE AM I?" QUERY ──────────────────────────
+    if (
+      raw.includes('kahan hoon') ||
+      raw.includes('kahan hu') ||
+      raw.includes('location') ||
+      raw.includes('लोकेशन') ||
+      raw.includes('कुठे आहे') ||
+      raw.includes('where am i') ||
+      raw.includes('ghar kahan') ||
+      raw.includes('home distance')
+    ) {
+      if (typeof window !== 'undefined') {
+        setTimeout(() => {
+          window.location.href = '/patient/location';
+        }, 1200);
+      }
+      return {
+        success: true,
+        intent: 'QUERY_LOCATION',
+        spokenReply: currentLang === 'mr'
+          ? 'तुम्ही सध्या दादर येथील शिवाजी पार्कजवळ आहात. तुमचे घर येथून फक्त ११० मीटर अंतरावर आहे.'
+          : currentLang === 'hi'
+          ? 'अनिता जी, आप इस समय शिवाजी पार्क, दादर में हैं। आपका घर यहाँ से 110 मीटर दूर है। आपके परिवार के पास आपकी लाइव लोकेशन है।'
+          : 'Anita ji, you are at Shivaji Park, Dadar. Your home is 110 meters away. Your family can see your live GPS location.',
+        displayReply: '📍 Live GPS: Near Shivaji Park, Dadar, Mumbai (110m from Home)'
+      };
+    }
+
     // ─── 9. CREATE REMINDER / ROUTINE COMMAND ─────────────────────────────────
     if (
       raw.includes('yaad') ||

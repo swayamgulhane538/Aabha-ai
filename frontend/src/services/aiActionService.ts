@@ -295,6 +295,34 @@ export class AIActionService {
       };
     }
 
+    // ─── 8.4 DOCTOR RECOMMENDED DIET & NUTRITION QUERY ────────────────────────
+    if (
+      raw.includes('diet') ||
+      raw.includes('डाइट') ||
+      raw.includes('khana') ||
+      raw.includes('khane') ||
+      raw.includes('भोजन') ||
+      raw.includes('जेवण') ||
+      raw.includes('nutrition') ||
+      raw.includes('food')
+    ) {
+      if (typeof window !== 'undefined') {
+        setTimeout(() => {
+          window.location.href = '/patient/diet';
+        }, 1200);
+      }
+      return {
+        success: true,
+        intent: 'QUERY_DIET',
+        spokenReply: currentLang === 'mr'
+          ? 'डॉक्टर अनिता वर्मा यांनी मेंदूच्या आरोग्यासाठी पालक डाळ, अक्रोड, ओट्स आणि कमी मिठाच्या आहाराचा सल्ला दिला आहे.'
+          : currentLang === 'hi'
+          ? 'डॉक्टर अनिता वर्मा के अनुसार, आपके लिए ओमेगा-3, पालक दाल, अखरोट, और हल्दी-युक्त माइंड डाइट निर्धारित की गई है।'
+          : 'Dr. Anita Verma has prescribed a MIND & Medhya Rasayana neuro-protective diet rich in Omega-3, spinach, walnuts, and turmeric.',
+        displayReply: '🥗 Prescribed Diet: MIND Clinical Diet (1,750 kcal • Low Sodium • Omega-3 Rich)'
+      };
+    }
+
     // ─── 9. CREATE REMINDER / ROUTINE COMMAND ─────────────────────────────────
     if (
       raw.includes('yaad') ||

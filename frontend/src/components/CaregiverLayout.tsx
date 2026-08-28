@@ -20,6 +20,7 @@ export const CaregiverLayout = () => {
   const navItems = [
     { path: '/caregiver', icon: '📊', label: 'Dashboard' },
     { path: '/caregiver/location', icon: '📍', label: 'Live GPS Tracker' },
+    { path: '/patient/diet', icon: '🥗', label: 'Doctor Diet Plan' },
     { path: '/caregiver/patients', icon: '👥', label: 'Patients' },
     { path: '/caregiver/passport-edit', icon: '📖', label: 'Memory Passport' },
     { path: '/caregiver/history', icon: '📜', label: 'Patient History' },

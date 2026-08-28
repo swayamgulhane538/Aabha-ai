@@ -276,6 +276,15 @@ export const PatientDashboard: React.FC = () => {
               <span>Where Am I?</span>
             </Link>
 
+            {/* Doctor Diet Plan */}
+            <Link
+              to="/patient/diet"
+              className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-emerald-500/30 hover:border-emerald-400 text-xs font-black text-emerald-400 flex items-center gap-1.5 cursor-pointer shadow-xs"
+            >
+              <span>🥗</span>
+              <span>Diet Plan</span>
+            </Link>
+
             {/* Voice Settings */}
             <Link
               to="/patient/voice-settings"

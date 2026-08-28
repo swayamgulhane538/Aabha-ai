@@ -241,6 +241,32 @@ export class AIActionService {
       };
     }
 
+    // ─── 8.2 SURYA NAMASKAR 12-STEPS MOTION FLOW ─────────────────────────────
+    if (
+      raw.includes('surya') ||
+      raw.includes('namaskar') ||
+      raw.includes('सूर्य नमस्कार') ||
+      raw.includes('sun salutation') ||
+      raw.includes('yoga') ||
+      raw.includes('योगा')
+    ) {
+      if (typeof window !== 'undefined') {
+        setTimeout(() => {
+          window.location.href = '/patient/surya-namaskar';
+        }, 1200);
+      }
+      return {
+        success: true,
+        intent: 'START_SURYA_NAMASKAR',
+        spokenReply: currentLang === 'mr'
+          ? 'सूर्य नमस्कार १२ पायऱ्यांचे मोशन सत्र सुरू करत आहे. शांत बसा आणि श्वासावर लक्ष केंद्रित करा.'
+          : currentLang === 'hi'
+          ? 'सूर्य नमस्कार के 12 आसनों का मोशन सत्र शुरू किया जा रहा है। शांत मन से शुरू करें।'
+          : 'Starting Surya Namaskar 12-Step Motion Flow. Align your posture and follow the breath guide.',
+        displayReply: '☀️ Starting Surya Namaskar 12 Steps Motion Flow...'
+      };
+    }
+
     // ─── 9. CREATE REMINDER / ROUTINE COMMAND ─────────────────────────────────
     if (
       raw.includes('yaad') ||

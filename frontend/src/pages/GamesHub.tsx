@@ -29,6 +29,7 @@ const SIH_CORE_GAMES: GameItem[] = [
 
 const OTHER_GAMES: GameItem[] = [
   // Therapy & Relax
+  { id: 'surya-namaskar', icon: '☀️', title: 'Surya Namaskar 12 Steps Flow', description: 'Interactive sun salutation with breath pacing, dynamic motion poses & camera AI mirror.', category: 'therapy', badge: 'Yoga Flow' },
   { id: 'breathing-exercise', icon: '🌬️', title: 'Guided Box Breathing', description: 'Biofeedback breathing to lower pulse, relieve stress & stabilize mood.', category: 'therapy', badge: 'Therapy' },
   { id: 'coloring-therapy', icon: '🎨', title: 'Art & Mandala Therapy', description: 'Mindful coloring for calming emotional release and fine motor joy.', category: 'therapy', badge: 'Relaxing' },
   { id: 'physiotherapy-hand', icon: '🖐️', title: 'Physiotherapy Hand Movement', description: 'Finger tap dexterity training to strengthen motor reflexes.', category: 'therapy', badge: 'Physio' },

@@ -29,6 +29,7 @@ import { DareChallenge } from '../games/DareChallenge';
 import { BreathingExercise } from '../games/BreathingExercise';
 import { ColoringTherapy } from '../games/ColoringTherapy';
 import { PhysiotherapyHand } from '../games/PhysiotherapyHand';
+import { SuryaNamaskarView } from './SuryaNamaskarView';
 import { CheckCircle2, Trophy, Clock, Target, ArrowRight, RotateCcw, Sparkles, Zap, Shield } from 'lucide-react';
 
 interface GameResult {
@@ -48,6 +49,7 @@ const GAME_INFO: Record<string, { title: string; emoji: string; description: str
   'routine-ordering': { title: 'Daily Routine Ordering', emoji: '📅', description: 'Arrange daily activities in the correct chronological order.', type: 'ROUTINE_ORDERING', category: 'ROUTINE' },
   'familiar-objects': { title: 'Familiar Object Recognition', emoji: '🍵', description: 'Look at everyday household items and answer cognitive questions.', type: 'FAMILIAR_OBJECTS', category: 'MEMORY' },
   'breathing-exercise': { title: 'Guided Box Breathing', emoji: '🌬️', description: 'Interactive biofeedback box breathing to relieve stress and lower pulse.', type: 'BREATHING_EXERCISE', category: 'REACTION' },
+  'surya-namaskar': { title: 'Surya Namaskar 12 Steps Motion Flow', emoji: '☀️', description: '12-step guided sun salutation with breath pacing, animated vector motion & camera AI pose mirror.', type: 'SURYA_NAMASKAR', category: 'REACTION' },
   'coloring-therapy': { title: 'Art & Mandala Therapy', emoji: '🎨', description: 'Mindful coloring for calming emotional release and fine motor joy.', type: 'COLORING_THERAPY', category: 'REACTION' },
   'physiotherapy-hand': { title: 'Physiotherapy Hand Movement', emoji: '🖐️', description: 'Finger tap coordination and dexterity training for hand strength.', type: 'PHYSIOTHERAPY_HAND', category: 'REACTION' },
   'quiz-battle': { title: '2-Player Quiz Battle', emoji: '🎯', description: 'Both answer the same questions; fastest and correct answer gets points!', type: 'QUIZ_BATTLE', category: 'MEMORY' },
@@ -153,6 +155,8 @@ export const GamePlayer: React.FC = () => {
         return <FamiliarObjectRecognition difficulty={difficulty} onComplete={onComplete} />;
       case 'breathing-exercise':
         return <BreathingExercise />;
+      case 'surya-namaskar':
+        return <SuryaNamaskarView />;
       case 'coloring-therapy':
         return <ColoringTherapy />;
       case 'physiotherapy-hand':

@@ -1582,6 +1582,10 @@ class PersistentDatabase {
     );
   }
 
+  findPasswordResetToken(token: string): PasswordResetTokenRecord | undefined {
+    return this.verifyPasswordResetToken(token);
+  }
+
   markPasswordResetTokenUsed(tokenId: string) {
     this.ensureFreshData();
     const t = this.data.passwordResetTokens.find(x => x.id === tokenId);
@@ -1589,6 +1593,33 @@ class PersistentDatabase {
       t.used = true;
       this.saveToDisk();
     }
+  }
+
+  invalidatePasswordResetToken(token: string) {
+    this.ensureFreshData();
+    const t = this.data.passwordResetTokens.find(x => x.token === token || x.token.toLowerCase() === token.toLowerCase());
+    if (t) {
+      t.used = true;
+      this.saveToDisk();
+    }
+  }
+
+  lookupPatients(query: string): Partial<UserRecord>[] {
+    this.ensureFreshData();
+    const q = query.toLowerCase().trim();
+    return this.data.users
+      .filter(u => u.role === 'PATIENT' && (
+        (u.patientId && u.patientId.toLowerCase().includes(q)) ||
+        (u.name && u.name.toLowerCase().includes(q)) ||
+        (u.email && u.email.toLowerCase().includes(q))
+      ))
+      .map(u => ({
+        id: u.id,
+        patientId: u.patientId,
+        name: u.name,
+        email: u.email,
+        role: u.role
+      }));
   }
 
   // ─── AUDIT LOGS ───────────────────────────────────────────────

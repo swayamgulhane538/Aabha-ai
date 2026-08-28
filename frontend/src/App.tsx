@@ -98,8 +98,8 @@ const App: React.FC = () => {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
-            {/* ─── Patient Routes ─── */}
-            <Route element={<ProtectedRoute allowedRoles={['PATIENT']} />}>
+            {/* ─── Patient & Shared Clinical Routes ─── */}
+            <Route element={<ProtectedRoute allowedRoles={['PATIENT', 'CAREGIVER']} />}>
               <Route element={<Layout />}>
                 <Route path="/patient" element={<PatientDashboard />} />
                 <Route path="/patient/dashboard" element={<Navigate to="/patient" replace />} />
@@ -136,6 +136,11 @@ const App: React.FC = () => {
               <Route element={<CaregiverLayout />}>
                 <Route path="/caregiver" element={<CaregiverDashboard />} />
                 <Route path="/caregiver/location" element={<CaregiverLocationTracker />} />
+                <Route path="/caregiver/diet" element={<DoctorDietPlanView />} />
+                <Route path="/caregiver/prescriptions" element={<MedicalProfileAndPrescriptionsView />} />
+                <Route path="/caregiver/reports" element={<MyReportsView />} />
+                <Route path="/caregiver/reminders" element={<RemindersView />} />
+                <Route path="/caregiver/steps" element={<StepTrackerView />} />
                 <Route path="/caregiver/patients" element={<PatientsList />} />
                 <Route path="/caregiver/patients/:id" element={<PatientDetail />} />
                 <Route path="/caregiver/consultation" element={<TeleconsultView />} />

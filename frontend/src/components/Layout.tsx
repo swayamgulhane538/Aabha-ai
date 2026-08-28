@@ -152,6 +152,14 @@ export const Layout = () => {
                   🥗 {t('Doctor Diet Plan')}
                 </Link>
                 <Link
+                  to="/patient/prescriptions"
+                  className={`px-3 py-1.5 rounded-full transition-all ${
+                    location.pathname.startsWith('/patient/prescriptions') ? activeNavCls : inactiveNavCls
+                  }`}
+                >
+                  🩺 {t('Prescriptions & Disease')}
+                </Link>
+                <Link
                   to="/patient/memory-passport"
                   className={`px-3 py-1.5 rounded-full transition-all ${
                     location.pathname.startsWith('/patient/memory-passport') ? activeNavCls : inactiveNavCls

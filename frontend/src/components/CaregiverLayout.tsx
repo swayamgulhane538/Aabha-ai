@@ -21,6 +21,7 @@ export const CaregiverLayout = () => {
     { path: '/caregiver', icon: '📊', label: 'Dashboard' },
     { path: '/caregiver/location', icon: '📍', label: 'Live GPS Tracker' },
     { path: '/patient/diet', icon: '🥗', label: 'Doctor Diet Plan' },
+    { path: '/patient/prescriptions', icon: '🩺', label: 'Disease & Prescriptions' },
     { path: '/caregiver/patients', icon: '👥', label: 'Patients' },
     { path: '/caregiver/passport-edit', icon: '📖', label: 'Memory Passport' },
     { path: '/caregiver/history', icon: '📜', label: 'Patient History' },

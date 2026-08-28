@@ -39,6 +39,7 @@ import StepTrackerView from './pages/StepTrackerView';
 import SuryaNamaskarView from './pages/SuryaNamaskarView';
 import PatientLocationView from './pages/PatientLocationView';
 import DoctorDietPlanView from './pages/DoctorDietPlanView';
+import MedicalProfileAndPrescriptionsView from './pages/MedicalProfileAndPrescriptionsView';
 
 // Caregiver pages
 import CaregiverDashboard from './pages/CaregiverDashboard';
@@ -108,6 +109,9 @@ const App: React.FC = () => {
                 <Route path="/patient/surya-namaskar" element={<SuryaNamaskarView />} />
                 <Route path="/patient/location" element={<PatientLocationView />} />
                 <Route path="/patient/diet" element={<DoctorDietPlanView />} />
+                <Route path="/patient/prescriptions" element={<MedicalProfileAndPrescriptionsView />} />
+                <Route path="/patient/diagnosis" element={<MedicalProfileAndPrescriptionsView />} />
+                <Route path="/patient/medical-profile" element={<MedicalProfileAndPrescriptionsView />} />
                 <Route path="/patient/vitals" element={<VitalsTrackerView />} />
                 <Route path="/patient/consultation" element={<TeleconsultView />} />
                 <Route path="/patient/signbridge" element={<SignBridgePatientView />} />

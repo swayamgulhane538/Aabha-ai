@@ -323,6 +323,38 @@ export class AIActionService {
       };
     }
 
+    // ─── 8.5 PATIENT DISEASE & DOCTOR PRESCRIPTION QUERY ──────────────────────
+    if (
+      raw.includes('bimari') ||
+      raw.includes('bimaari') ||
+      raw.includes('बीमारी') ||
+      raw.includes('आजार') ||
+      raw.includes('disease') ||
+      raw.includes('diagnosis') ||
+      raw.includes('prescription') ||
+      raw.includes('parcha') ||
+      raw.includes('पर्चा') ||
+      raw.includes('letter') ||
+      raw.includes('dawai') ||
+      raw.includes('दवा')
+    ) {
+      if (typeof window !== 'undefined') {
+        setTimeout(() => {
+          window.location.href = '/patient/prescriptions';
+        }, 1200);
+      }
+      return {
+        success: true,
+        intent: 'QUERY_DIAGNOSIS_PRESCRIPTION',
+        spokenReply: currentLang === 'mr'
+          ? 'रुग्णाचे निदान सुरुवातीचा अल्झायमर आणि स्मृतीभ्रंश आहे. डॉक्टर अनिता वर्मा यांचा प्रिस्क्रिप्शन लेटर व्हॉल्ट उघडत आहे.'
+          : currentLang === 'hi'
+          ? 'मरीज का निदान शुरुआती अल्जाइमर और माइल्ड कॉग्निटिव इम्पेयरमेंट (MCI) है। डॉक्टर अनिता वर्मा का प्रिस्क्रिप्शन लेटर खोला जा रहा है।'
+          : 'Patient diagnosis is Early-Stage Alzheimer\'s Disease & MCI. Opening doctor prescription vault.',
+        displayReply: '🩺 Disease: Early Alzheimer\'s (MCI) • Opening Doctor Prescription Vault...'
+      };
+    }
+
     // ─── 9. CREATE REMINDER / ROUTINE COMMAND ─────────────────────────────────
     if (
       raw.includes('yaad') ||

@@ -252,16 +252,16 @@ export const PatientDashboard: React.FC = () => {
       };
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-6 sm:space-y-8 font-sans text-[var(--text-primary)] pb-28">
-      {/* ─── 1. TOP QUICK ACTION TOOLBAR (STICKY ON SCROLL) ────────────────── */}
-      <section className="sticky top-[58px] sm:top-[68px] z-30 py-2 backdrop-blur-2xl bg-[var(--bg-page)]/90 border-b border-[var(--border)] -mx-3.5 px-3.5 sm:-mx-6 sm:px-6 transition-all">
+    <div className="w-full max-w-6xl mx-auto space-y-5 sm:space-y-7 font-sans text-[var(--text-primary)] pb-28 -mt-2 sm:-mt-4">
+      {/* ─── 1. TOP QUICK ACTION TOOLBAR (ELEVATED & PROMINENT) ─────────────── */}
+      <section className="sticky top-[48px] sm:top-[56px] z-30 pt-1 pb-2 backdrop-blur-2xl bg-[var(--bg-page)]/95 border-b border-[var(--border)] -mx-3.5 px-3.5 sm:-mx-6 sm:px-6 transition-all shadow-xs">
         <div className="w-full overflow-x-auto pb-1 scrollbar-none">
-          <div className="flex items-center gap-2.5 min-w-[620px] lg:min-w-0 justify-between">
+          <div className="flex items-center gap-2 sm:gap-2.5 min-w-[620px] lg:min-w-0 justify-between">
             {/* Quick Help (Trusted Contact) */}
             <button
               type="button"
               onClick={() => setIsQuickHelpOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-rose-500/15 to-red-500/10 border border-rose-500/30 hover:border-rose-500 text-xs font-black text-rose-400 flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-rose-500/15 to-red-500/10 border border-rose-500/30 hover:border-rose-500 text-xs font-black text-rose-400 flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
             >
               <span>🚨</span>
               <span>Quick Help</span>
@@ -270,7 +270,7 @@ export const PatientDashboard: React.FC = () => {
             {/* Where Am I? (Safe Location) */}
             <Link
               to="/patient/location"
-              className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-blue-500/30 hover:border-blue-400 text-xs font-black text-blue-400 flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-blue-500/30 hover:border-blue-400 text-xs font-black text-blue-400 flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
             >
               <span>📍</span>
               <span>Where Am I?</span>
@@ -279,7 +279,7 @@ export const PatientDashboard: React.FC = () => {
             {/* Doctor Diet Plan */}
             <Link
               to="/patient/diet"
-              className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-emerald-500/30 hover:border-emerald-400 text-xs font-black text-emerald-400 flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-emerald-500/30 hover:border-emerald-400 text-xs font-black text-emerald-400 flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
             >
               <span>🥗</span>
               <span>Diet Plan</span>
@@ -288,7 +288,7 @@ export const PatientDashboard: React.FC = () => {
             {/* Voice Settings */}
             <Link
               to="/patient/voice-settings"
-              className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-teal-500/30 hover:border-teal-400 text-xs font-black text-teal-400 flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-teal-500/30 hover:border-teal-400 text-xs font-black text-teal-400 flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
             >
               <Sliders className="w-3.5 h-3.5" />
               <span>Voice Settings</span>
@@ -298,7 +298,7 @@ export const PatientDashboard: React.FC = () => {
             <button
               type="button"
               onClick={handleAddHydration}
-              className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-blue-500/30 hover:border-blue-400 text-xs font-black text-blue-400 flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-blue-500/30 hover:border-blue-400 text-xs font-black text-blue-400 flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
             >
               <span>💧</span>
               <span>{hydrationCount}/{hydrationTarget} Glasses</span>
@@ -307,7 +307,7 @@ export const PatientDashboard: React.FC = () => {
             {/* Routine Analytics */}
             <Link
               to="/patient/analytics"
-              className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-indigo-500/30 hover:border-indigo-400 text-xs font-black text-indigo-400 flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-indigo-500/30 hover:border-indigo-400 text-xs font-black text-indigo-400 flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
             >
               <span>📊</span>
               <span>Insights</span>
@@ -317,7 +317,7 @@ export const PatientDashboard: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsInteractiveDemoOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-amber-400/15 hover:bg-amber-400/25 border border-amber-400 text-xs font-black text-amber-300 flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="px-3.5 py-2 rounded-xl bg-amber-400/15 hover:bg-amber-400/25 border border-amber-400 text-xs font-black text-amber-300 flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
             >
               <Zap className="w-3.5 h-3.5 text-amber-400 animate-bounce" />
               <span>DEMO MODE</span>

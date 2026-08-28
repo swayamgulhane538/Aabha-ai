@@ -273,10 +273,9 @@ class LocationTrackingService {
     this.currentLocation = updated;
     this.saveLocation(updated);
 
-    // If patient just wandered outside safe boundary, announce automatic family alert
+    // If patient just wandered outside safe boundary, record status in history
     if (!isSafe && dist > this.geofence.radiusMeters) {
       this.recordLocationHistoryItem(updated, 'WANDERING_ALERT');
-      this.triggerWanderingSafetyAlert(updated);
     } else {
       this.recordLocationHistoryItem(updated, 'SAFE');
     }

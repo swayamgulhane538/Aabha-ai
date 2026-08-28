@@ -252,10 +252,10 @@ export const PatientDashboard: React.FC = () => {
       };
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-5 sm:space-y-7 font-sans text-[var(--text-primary)] pb-28 -mt-2 sm:-mt-4">
-      {/* ─── 1. TOP QUICK ACTION TOOLBAR (ELEVATED & PROMINENT) ─────────────── */}
-      <section className="sticky top-[48px] sm:top-[56px] z-30 pt-1 pb-2 backdrop-blur-2xl bg-[var(--bg-page)]/95 border-b border-[var(--border)] -mx-3.5 px-3.5 sm:-mx-6 sm:px-6 transition-all shadow-xs">
-        <div className="w-full overflow-x-auto pb-1 scrollbar-none">
+    <div className="w-full max-w-6xl mx-auto space-y-4 sm:space-y-6 font-sans text-[var(--text-primary)] pb-28">
+      {/* ─── 1. TOP QUICK ACTION TOOLBAR (PERFECTLY ALIGNED AT TOP) ─────────── */}
+      <section className="sticky top-0 z-30 py-1.5 backdrop-blur-2xl bg-[var(--bg-page)]/95 border-b border-[var(--border)] -mx-3.5 px-3.5 sm:-mx-6 sm:px-6 transition-all shadow-xs -mt-1 sm:-mt-2 mb-3 sm:mb-4">
+        <div className="w-full overflow-x-auto pb-0.5 scrollbar-none">
           <div className="flex items-center gap-2 sm:gap-2.5 min-w-[620px] lg:min-w-0 justify-between">
             {/* Quick Help (Trusted Contact) */}
             <button

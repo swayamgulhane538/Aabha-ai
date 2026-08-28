@@ -272,7 +272,7 @@ export const Layout = () => {
       </div>
 
       {/* ─── 2. MAIN CONTENT AREA ───────────────────────────────────────────── */}
-      <main className="relative z-10 flex-1 w-full max-w-6xl mx-auto px-3.5 py-4 sm:px-6 sm:py-6 md:py-8 pb-32 md:pb-12 overflow-x-hidden min-w-0">
+      <main className="relative z-10 flex-1 w-full max-w-6xl mx-auto px-3.5 pt-1 pb-24 sm:px-6 sm:pt-2 md:pt-2.5 md:pb-12 overflow-x-hidden min-w-0">
         <Outlet />
       </main>
 

@@ -11,6 +11,7 @@ import { MissedReminderBanner, MissedReminderItem } from '../components/MissedRe
 import { VoiceToReminderModal } from '../components/VoiceToReminderModal';
 import { HackathonInteractiveDemoModal } from '../components/HackathonInteractiveDemoModal';
 import { AabhaSuggestionsWidget } from '../components/AabhaSuggestionsWidget';
+import { StepCounterWidget } from '../components/StepCounterWidget';
 import { TrustedContactQuickHelpModal } from '../components/TrustedContactQuickHelpModal';
 import { speechService } from '../services/speechService';
 import { useAlarm } from '../context/AlarmContext';
@@ -535,7 +536,12 @@ export const PatientDashboard: React.FC = () => {
         </div>
       </section>
 
-      {/* ─── 6. AABHA SUGGESTIONS WIDGET ─────────────────────────────────────── */}
+      {/* ─── 6. PHYSICAL ACTIVITY STEP COUNTER WIDGET ──────────────────────── */}
+      <section>
+        <StepCounterWidget />
+      </section>
+
+      {/* ─── 7. AABHA SUGGESTIONS WIDGET ─────────────────────────────────────── */}
       <section>
         <AabhaSuggestionsWidget onLogHydration={handleAddHydration} />
       </section>

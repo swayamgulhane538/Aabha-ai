@@ -35,6 +35,7 @@ import SignBridgeDoctorView from './pages/SignBridgeDoctorView';
 import RoutineAnalyticsView from './pages/RoutineAnalyticsView';
 import AskAabhaView from './pages/AskAabhaView';
 import VoiceSettingsView from './pages/VoiceSettingsView';
+import StepTrackerView from './pages/StepTrackerView';
 
 // Caregiver pages
 import CaregiverDashboard from './pages/CaregiverDashboard';
@@ -99,6 +100,7 @@ const App: React.FC = () => {
                 <Route path="/patient/dashboard" element={<Navigate to="/patient" replace />} />
                 <Route path="/patient/games" element={<GamesHub />} />
                 <Route path="/patient/games/:type" element={<GamePlayer />} />
+                <Route path="/patient/steps" element={<StepTrackerView />} />
                 <Route path="/patient/vitals" element={<VitalsTrackerView />} />
                 <Route path="/patient/consultation" element={<TeleconsultView />} />
                 <Route path="/patient/signbridge" element={<SignBridgePatientView />} />

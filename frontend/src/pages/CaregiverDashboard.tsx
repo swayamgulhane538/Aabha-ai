@@ -283,7 +283,7 @@ export const CaregiverDashboard: React.FC = () => {
       </div>
 
       {/* ─── 3. TOP STATS CARDS ─────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5">
         <div className="card-3d bg-[var(--card-bg-inline)] p-5 rounded-[24px] border border-[var(--card-border-inline)] shadow-md space-y-1">
           <div className="flex items-center justify-between">
             <span className="text-xs font-black uppercase text-[var(--text-secondary)]">Cognitive Activity</span>
@@ -293,6 +293,18 @@ export const CaregiverDashboard: React.FC = () => {
           <div className="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
             <TrendingUp className="w-3.5 h-3.5" />
             <span>+6.4% from last week</span>
+          </div>
+        </div>
+
+        {/* Physical Steps Counter Card */}
+        <div className="card-3d bg-[var(--card-bg-inline)] p-5 rounded-[24px] border border-[var(--card-border-inline)] shadow-md space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase text-[var(--text-secondary)]">Physical Steps</span>
+            <span className="text-xl">👣</span>
+          </div>
+          <div className="text-3xl font-black text-teal-400">2,850</div>
+          <div className="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
+            <span>Goal: 4,000 (71% • 2.14 km)</span>
           </div>
         </div>
 

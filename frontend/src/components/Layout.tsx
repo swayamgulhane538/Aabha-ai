@@ -120,6 +120,14 @@ export const Layout = () => {
                   📊 {t('Analytics')}
                 </Link>
                 <Link
+                  to="/patient/steps"
+                  className={`px-3 py-1.5 rounded-full transition-all ${
+                    location.pathname.startsWith('/patient/steps') ? activeNavCls : inactiveNavCls
+                  }`}
+                >
+                  👣 {t('Step Tracker')}
+                </Link>
+                <Link
                   to="/patient/games"
                   className={`px-3 py-1.5 rounded-full transition-all ${
                     location.pathname.startsWith('/patient/games') ? activeNavCls : inactiveNavCls

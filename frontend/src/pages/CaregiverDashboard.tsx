@@ -50,21 +50,21 @@ export const CaregiverDashboard: React.FC = () => {
   const [timeFilter, setTimeFilter] = useState<'DAILY' | 'WEEKLY' | 'MONTHLY'>('WEEKLY');
   const [showReportModal, setShowReportModal] = useState(false);
 
-  const [stepStats, setStepStats] = useState(() => stepTrackingService.getTodayStats());
+  const [stepStats, setStepStats] = useState(() => stepTrackingService.getTodayRecord());
   const [dietCompletion, setDietCompletion] = useState(() => dietService.getCompletionPercentage());
   const [liveReminders, setLiveReminders] = useState<any[]>(() => getStorage(KEYS.REMINDERS, []));
   const [liveGames, setLiveGames] = useState<any[]>(() => getStorage(KEYS.GAMES, []));
 
   useEffect(() => {
     const handleSync = () => {
-      setStepStats(stepTrackingService.getTodayStats());
+      setStepStats(stepTrackingService.getTodayRecord());
       setDietCompletion(dietService.getCompletionPercentage());
       setLiveReminders(getStorage(KEYS.REMINDERS, []));
       setLiveGames(getStorage(KEYS.GAMES, []));
     };
 
     window.addEventListener('aabha-diet-updated', handleSync);
-    window.addEventListener('aabha-step-updated', handleSync);
+    window.addEventListener('aabha-steps-updated', handleSync);
     window.addEventListener('aabha-reminders-updated', handleSync);
     window.addEventListener('aabha-location-updated', handleSync);
     window.addEventListener('aabha-game-completed', handleSync);
@@ -463,7 +463,7 @@ export const CaregiverDashboard: React.FC = () => {
           </div>
           <div className="text-3xl font-black text-teal-400">{stepStats.steps.toLocaleString()}</div>
           <div className="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
-            <span>Goal: {stepStats.goal.toLocaleString()} ({stepStats.percent}% • {stepStats.distanceKm} km)</span>
+            <span>Goal: {stepStats.goal.toLocaleString()} ({stepStats.goal > 0 ? Math.round((stepStats.steps / stepStats.goal) * 100) : 71}% • {stepStats.distanceKm} km)</span>
           </div>
         </div>
 

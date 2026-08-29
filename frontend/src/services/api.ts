@@ -4,7 +4,7 @@ const rawApiUrl = (import.meta as any).env?.VITE_API_URL || '';
 const BASE_URL = rawApiUrl ? (rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`) : '/api';
 
 // ─── LOCAL STORAGE KEYS FOR PERSISTENT STORAGE ────────────────────────────────
-const KEYS = {
+export const KEYS = {
   USERS: 'aabha_local_users',
   REMINDERS: 'aabha_local_reminders',
   GAMES: 'aabha_local_game_results',
@@ -14,7 +14,7 @@ const KEYS = {
   APPOINTMENTS: 'aabha_local_appointments'
 };
 
-function getStorage<T>(key: string, defaultVal: T): T {
+export function getStorage<T>(key: string, defaultVal: T): T {
   try {
     const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw) : defaultVal;
@@ -23,7 +23,7 @@ function getStorage<T>(key: string, defaultVal: T): T {
   }
 }
 
-function setStorage<T>(key: string, value: T) {
+export function setStorage<T>(key: string, value: T) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {}

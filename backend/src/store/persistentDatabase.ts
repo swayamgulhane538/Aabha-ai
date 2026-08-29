@@ -1063,10 +1063,11 @@ class PersistentDatabase {
         if (parsed && Array.isArray(parsed.users)) {
           const defaults = getInitialDatabaseData();
           const users = [...parsed.users];
-          if (!users.some(u => u.id === 'uuid-demo-patient' || u.email === 'demo.patient@aabha.ai')) {
-            const demoUser = defaults.users.find(u => u.id === 'uuid-demo-patient');
-            if (demoUser) users.unshift(demoUser);
-          }
+          defaults.users.forEach(du => {
+            if (!users.some(u => u.id === du.id || u.email.toLowerCase() === du.email.toLowerCase())) {
+              users.push(du);
+            }
+          });
 
           const reports = [...(parsed.reports || defaults.reports)];
           defaults.reports.forEach(dr => {
@@ -1138,16 +1139,11 @@ class PersistentDatabase {
         if (parsed && Array.isArray(parsed.users)) {
           const defaults = getInitialDatabaseData();
           const users = [...parsed.users];
-          // Ensure demo patient exists
-          if (!users.some(u => u.id === 'uuid-demo-patient' || u.email === 'demo.patient@aabha.ai')) {
-            const demoUser = defaults.users.find(u => u.id === 'uuid-demo-patient');
-            if (demoUser) users.unshift(demoUser);
-          }
-          // Ensure demo caregiver nurse exists
-          if (!users.some(u => u.id === 'uuid-demo-nurse' || u.email === 'demo.nurse@aabha.ai')) {
-            const demoNurse = defaults.users.find(u => u.id === 'uuid-demo-nurse');
-            if (demoNurse) users.unshift(demoNurse);
-          }
+          defaults.users.forEach(du => {
+            if (!users.some(u => u.id === du.id || u.email.toLowerCase() === du.email.toLowerCase())) {
+              users.push(du);
+            }
+          });
 
           const caregiverRelationships = [...(parsed.caregiverRelationships || defaults.caregiverRelationships)];
           defaults.caregiverRelationships.forEach(drel => {

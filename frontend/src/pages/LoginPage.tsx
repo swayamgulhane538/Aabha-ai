@@ -275,17 +275,20 @@ export default function LoginPage() {
             )}
 
             {/* ─── 1-CLICK DEMO ACCESS CARD (PATIENT & JOINT CAREGIVER NURSE) ──────────── */}
-            <div className="p-4 sm:p-5 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-indigo-500/15 space-y-3 shadow-inner">
+            <div 
+              className="p-4 sm:p-5 rounded-2xl border border-emerald-500/30 space-y-3 shadow-inner"
+              style={{ backgroundColor: 'var(--bg-surface-secondary)' }}
+            >
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 bg-amber-400/20 border border-amber-400/40 text-amber-300 text-[10px] font-black uppercase rounded-md">
+                  <span className="px-2.5 py-0.5 bg-amber-500/20 border border-amber-500/40 text-amber-900 dark:text-amber-300 text-[10px] font-black uppercase rounded-md">
                     ⭐ {t('⭐ Quick Demo Access')}
                   </span>
                   <span className="font-black text-sm text-[var(--text-primary)]">
                     {t('Joint Demo Portals')}
                   </span>
                 </div>
-                <span className="text-[11px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                <span className="text-[11px] font-mono text-emerald-800 dark:text-emerald-300 font-bold bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/30">
                   🔗 Joint Patient & Caregiver Network
                 </span>
               </div>
@@ -296,13 +299,13 @@ export default function LoginPage() {
                   type="button"
                   onClick={handleContinueDemo}
                   disabled={submitting}
-                  className="btn-glow p-3 rounded-xl text-left flex items-center justify-between gap-2 cursor-pointer active:scale-95 transition"
+                  className="p-3.5 rounded-xl text-left flex items-center justify-between gap-2 cursor-pointer active:scale-95 transition bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-md border border-emerald-400/40"
                 >
                   <div className="space-y-0.5 min-w-0">
                     <div className="text-xs font-black text-white flex items-center gap-1.5 truncate">
                       <span>👤 {t('Demo Patient Portal')}</span>
                     </div>
-                    <div className="text-[10px] font-mono text-emerald-200 truncate">
+                    <div className="text-[11px] font-mono text-emerald-100 font-bold truncate">
                       PAT-DEMO-000001
                     </div>
                   </div>
@@ -314,17 +317,17 @@ export default function LoginPage() {
                   type="button"
                   onClick={handleContinueDemoNurse}
                   disabled={submitting}
-                  className="px-3.5 py-3 rounded-xl bg-purple-500/25 border border-purple-400/40 hover:bg-purple-500/35 text-purple-200 text-left flex items-center justify-between gap-2 cursor-pointer active:scale-95 transition shadow-sm"
+                  className="p-3.5 rounded-xl bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 text-white text-left flex items-center justify-between gap-2 cursor-pointer active:scale-95 transition shadow-md border border-purple-400/40"
                 >
                   <div className="space-y-0.5 min-w-0">
-                    <div className="text-xs font-black text-purple-200 flex items-center gap-1.5 truncate">
+                    <div className="text-xs font-black text-white flex items-center gap-1.5 truncate">
                       <span>👩‍⚕️ {t('Caregiver Nurse Portal')}</span>
                     </div>
-                    <div className="text-[10px] font-mono text-purple-300 truncate">
+                    <div className="text-[11px] font-mono text-purple-100 font-bold truncate">
                       CG-DEMO-000001 (Sister Anita)
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-purple-300 shrink-0" />
+                  <ArrowRight className="w-4 h-4 text-white shrink-0" />
                 </button>
               </div>
             </div>
@@ -387,8 +390,8 @@ export default function LoginPage() {
             {/* ─── TAB 0: DIRECT PATIENT ID LOGIN (NO PASSWORD NEEDED) ─────────── */}
             {activeTab === 'patientId' && (
               <form onSubmit={handlePatientIdSubmit} className="space-y-4 animate-fade-in">
-                <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-xs text-emerald-400 font-medium">
-                  💡 <strong>Senior & Patient Direct Access:</strong> Enter your unique Patient ID (e.g. <span className="font-mono font-black text-emerald-300">PAT-2026-174180</span> or <span className="font-mono font-black text-teal-300">PAT-DEMO-000001</span>) to access your dashboard instantly without a password.
+                <div className="p-3.5 bg-emerald-500/15 border border-emerald-500/30 rounded-2xl text-xs text-emerald-900 dark:text-emerald-300 font-medium">
+                  💡 <strong>Senior & Patient Direct Access:</strong> Enter your unique Patient ID (e.g. <span className="font-mono font-black text-emerald-800 dark:text-emerald-300">PAT-2026-174180</span> or <span className="font-mono font-black text-teal-800 dark:text-teal-300">PAT-DEMO-000001</span>) to access your dashboard instantly without a password.
                 </div>
 
                 <div className="space-y-1">

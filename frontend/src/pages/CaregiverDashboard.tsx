@@ -26,6 +26,7 @@ import {
   Lock,
   TrendingUp,
   Droplets
+} from 'lucide-react';
 import { ModalPortal } from '../components/ModalPortal';
 import { useAuthStore } from '../stores/authStore';
 import { api, KEYS, getStorage } from '../services/api';

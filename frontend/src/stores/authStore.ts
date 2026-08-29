@@ -143,62 +143,53 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         }
       },
 
-      // ─── 4.1 LOGIN DIRECTLY WITH PATIENT ID (NO PASSWORD REQUIRED) ─────
+      // ─── 4.1 LOGIN DIRECTLY WITH PATIENT ID (ONLY FOR REGISTERED PATIENTS) ─────
       loginWithPatientId: async (patientIdInput: string) => {
         set({ isLoading: true });
         const cleanId = patientIdInput.replace(/^(id|patient id|patient):\s*/i, '').trim().toUpperCase();
         const fullPatientId = cleanId.startsWith('PAT-') ? cleanId : `PAT-${cleanId}`;
 
         try {
-          // Attempt login via API identifier
-          const res = await api.post('/auth/login', { identifier: fullPatientId, password: 'demo-login' });
+          // Attempt login via dedicated /auth/login-patient-id
+          const res = await api.post('/auth/login-patient-id', { patientId: fullPatientId });
           if (res && res.user) {
             const user: User = res.user;
             user.role = (user.role || 'PATIENT').toUpperCase() as Role;
             localStorage.setItem('aabha_active_patient_id', user.patientId || fullPatientId);
-            set({ user, token: res.accessToken || 'token-patient-' + Date.now(), isAuthenticated: true, isLoading: false });
+            set({ user, token: res.accessToken, isAuthenticated: true, isLoading: false });
             return user;
           }
-        } catch (err) {}
+        } catch (err: any) {
+          // Check local registered users before throwing
+          try {
+            const raw = localStorage.getItem('aabha_local_users');
+            const users: any[] = raw ? JSON.parse(raw) : [];
+            const existing = users.find(u => 
+              (u.patientId?.toUpperCase() === fullPatientId || u.patientId?.toUpperCase() === cleanId) &&
+              (u.role === 'PATIENT' || !u.role)
+            );
 
-        // Resilient fallback: lookup existing or provision profile immediately
-        const patientUser: User = {
-          id: 'patient-' + Date.now(),
-          patientId: fullPatientId,
-          name: `Patient (${fullPatientId})`,
-          email: `${fullPatientId.toLowerCase().replace(/[^a-z0-9]/g, '')}@aabha.patient`,
-          role: 'PATIENT',
-          age: 68,
-          gender: 'Female',
-          phone: '+91 98765 00000',
-          emergencyContact: 'Dr. Anita Verma (+91 98765 43210)',
-          address: 'Shivaji Park, Dadar West, Mumbai 400028',
-          language: 'hi'
-        };
+            if (existing) {
+              localStorage.setItem('aabha_active_patient_id', existing.patientId || fullPatientId);
+              set({ user: existing, token: 'token-patient-' + Date.now(), isAuthenticated: true, isLoading: false });
+              return existing;
+            }
+          } catch {}
 
-        try {
-          const raw = localStorage.getItem('aabha_local_users');
-          const users: any[] = raw ? JSON.parse(raw) : [];
-          const existing = users.find(u => u.patientId?.toUpperCase() === fullPatientId || u.id === fullPatientId);
-          if (existing) {
-            localStorage.setItem('aabha_active_patient_id', existing.patientId || fullPatientId);
-            set({ user: existing, token: 'token-patient-' + Date.now(), isAuthenticated: true, isLoading: false });
-            return existing;
-          } else {
-            users.unshift(patientUser);
-            localStorage.setItem('aabha_local_users', JSON.stringify(users));
+          // Default demo patient check
+          if (fullPatientId === 'PAT-DEMO-000001' || fullPatientId === 'PAT-2026-000001' || fullPatientId === 'PAT-2026-000002' || fullPatientId === 'PAT-2026-000003') {
+            const demoUser = DEMO_PATIENT;
+            localStorage.setItem('aabha_active_patient_id', demoUser.patientId);
+            set({ user: demoUser, token: 'token-demo-p', isAuthenticated: true, isLoading: false });
+            return demoUser;
           }
-        } catch {}
 
-        localStorage.setItem('aabha_active_patient_id', fullPatientId);
-        set({
-          user: patientUser,
-          token: 'token-patient-' + Date.now(),
-          isAuthenticated: true,
-          isLoading: false
-        });
+          set({ isLoading: false });
+          throw new Error(err?.message || `No registered patient found with ID "${patientIdInput}". Please enter a valid registered Patient ID (इस ID से कोई मरीज पंजीकृत नहीं है).`);
+        }
 
-        return patientUser;
+        set({ isLoading: false });
+        throw new Error(`No registered patient found with ID "${patientIdInput}". Please enter a valid registered Patient ID (इस ID से कोई मरीज पंजीकृत नहीं है).`);
       },
 
       // ─── 5. REGISTER NEW USER (PERSISTS IN DATABASE) ──────────────────

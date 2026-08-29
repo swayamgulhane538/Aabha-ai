@@ -265,6 +265,43 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
     };
   }
 
+  // ─── 2.1 AUTH LOGIN PATIENT ID (ONLY REGISTERED PATIENTS) ─────────────────
+  if (url.includes('/auth/login-patient-id')) {
+    const rawId = String(body.patientId || body.identifier || '').replace(/^(id|patient id|patient):\s*/i, '').trim().toUpperCase();
+    const fullId = rawId.startsWith('PAT-') ? rawId : `PAT-${rawId}`;
+
+    const users = getStorage<any[]>(KEYS.USERS, []);
+    const matchedUser = users.find(u => (u.patientId?.toUpperCase() === fullId || u.patientId?.toUpperCase() === rawId) && (u.role === 'PATIENT' || !u.role));
+
+    if (matchedUser) {
+      return {
+        accessToken: 'token-local-' + Date.now(),
+        refreshToken: 'refresh-local-' + Date.now(),
+        user: matchedUser
+      };
+    }
+
+    if (fullId === 'PAT-DEMO-000001' || fullId === 'PAT-2026-000001' || fullId === 'PAT-2026-000002' || fullId === 'PAT-2026-000003') {
+      const demoP = {
+        id: 'uuid-demo-patient',
+        patientId: 'PAT-DEMO-000001',
+        name: 'Demo Patient',
+        email: 'demo.patient@aabha.ai',
+        role: 'PATIENT',
+        age: 68,
+        gender: 'Female',
+        phone: '+91 98765 00000',
+        emergencyContact: 'Dr. Anita Verma (+91 98765 43210)',
+        address: 'Shivaji Park, Dadar West, Mumbai 400028',
+        preferredLanguage: 'hi',
+        createdAt: new Date().toISOString()
+      };
+      return { accessToken: 'token-demo-p', refreshToken: 'refresh-demo-p', user: demoP };
+    }
+
+    throw new Error(`No registered patient found with ID "${body.patientId}". Please check and enter a valid registered Patient ID (इस ID से कोई मरीज पंजीकृत नहीं है).`);
+  }
+
   // ─── 2. AUTH LOGIN ─────────────────────────────────────────────────────────
   if (url.includes('/auth/login') || url.includes('/auth/login-otp')) {
     const input = String(body.email || body.identifier || '').toLowerCase().trim();

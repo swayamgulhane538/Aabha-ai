@@ -191,6 +191,56 @@ router.post('/login', authLimiter, async (req, res, next) => {
   }
 });
 
+// ─── 2.1 PATIENT ID 1-TAP LOGIN (Only for genuinely registered patients) ───────
+router.post('/login-patient-id', authLimiter, async (req, res, next) => {
+  try {
+    const { patientId } = req.body;
+    if (!patientId) {
+      return res.status(400).json({ message: 'Patient ID is required.' });
+    }
+
+    const cleanId = String(patientId).replace(/^(id|patient id|patient):\s*/i, '').trim().toUpperCase();
+    const user = db.findUser(cleanId) || (cleanId.startsWith('PAT-') ? null : db.findUser(`PAT-${cleanId}`));
+
+    if (!user || user.role !== 'PATIENT') {
+      return res.status(404).json({ message: `No registered patient found with ID "${patientId}". Please check and enter a valid registered Patient ID (इस ID से कोई मरीज पंजीकृत नहीं है).` });
+    }
+
+    const tokenPayload = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+      patientId: user.patientId,
+      preferredLanguage: user.preferredLanguage
+    };
+    const accessToken = generateAccessToken(tokenPayload);
+    const refreshToken = generateRefreshToken(tokenPayload);
+
+    return res.json({
+      user: {
+        id: user.id,
+        patientId: user.patientId,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        age: user.age,
+        dateOfBirth: user.dateOfBirth,
+        gender: user.gender,
+        emergencyContact: user.emergencyContact,
+        address: user.address,
+        preferredLanguage: user.preferredLanguage,
+        createdAt: user.createdAt
+      },
+      accessToken,
+      refreshToken
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ─── 3. SEND OTP (6-Digit Email Code) ───────────────────────────────────────
 router.post('/send-otp', authLimiter, async (req, res) => {
   try {

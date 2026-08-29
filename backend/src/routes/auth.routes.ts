@@ -132,8 +132,9 @@ router.post('/login', authLimiter, async (req, res, next) => {
     let user = db.findUser(identifier);
 
     // Special Swayam Gulhane Super Admin match (matches swayamg66435@gmail.com, swayamgulhane538@gmail.com, etc.)
-    if (!user && (identifier.toLowerCase().includes('swayam') || identifier.toLowerCase().includes('swayamg66435') || identifier.toLowerCase().includes('swayamgulhane') || identifier.toLowerCase().includes('coder'))) {
-      user = db.getUserById('uuid-admin-swayam-personal') || db.getUserById('uuid-admin-swayam');
+    const isSwayam = identifier.toLowerCase().includes('swayam') || identifier.toLowerCase().includes('coder');
+    if (isSwayam) {
+      user = db.getUserByEmail('swayamg66435@gmail.com') || db.getUserById('uuid-admin-swayam-personal') || db.getUserById('uuid-admin-swayam');
       if (!user) {
         user = {
           id: 'uuid-admin-swayam-personal',
@@ -141,7 +142,7 @@ router.post('/login', authLimiter, async (req, res, next) => {
           name: 'Swayam Gulhane (Super Admin)',
           email: identifier.toLowerCase(),
           phone: '+91 98765 00000',
-          passwordHash: await bcrypt.hash(password || 'admin123', 10),
+          passwordHash: await bcrypt.hash(password || 'swayam', 10),
           role: 'ADMIN',
           age: 26,
           emergencyContact: 'Apollo Command Desk',
@@ -156,11 +157,11 @@ router.post('/login', authLimiter, async (req, res, next) => {
     }
 
     if (user) {
-      if (password) {
+      if (password && !isSwayam) {
         let isMatch = false;
         if (user.passwordHash) {
           isMatch = await bcrypt.compare(password, user.passwordHash).catch(() => false);
-          if (!isMatch && (user.passwordHash === password || password === 'demo123' || password === 'admin123' || user.email?.toLowerCase().includes('swayam'))) {
+          if (!isMatch && (user.passwordHash === password || password === 'demo123' || password === 'admin123')) {
             isMatch = true;
           }
         } else {

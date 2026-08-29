@@ -2,6 +2,24 @@
   "patientCounter": 29,
   "users": [
     {
+      "id": "uuid-admin-swayam-personal",
+      "patientId": "ADM-2026-000002",
+      "name": "Swayam Gulhane (Super Admin)",
+      "email": "swayamg66435@gmail.com",
+      "phone": "+91 98765 00000",
+      "passwordHash": "$2a$10$w09P7w9lJpndN9qRk0uN3uY0F0Qv5/8863tX.nJ2p2B8r7x/C.cIu",
+      "role": "ADMIN",
+      "age": 26,
+      "dateOfBirth": "2000-01-01",
+      "gender": "Male",
+      "emergencyContact": "Apollo Command Desk",
+      "address": "Pune, Maharashtra",
+      "preferredLanguage": "en",
+      "status": "ACTIVE",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-08-29T01:50:00.000Z"
+    },
+    {
       "id": "uuid-usr-1787632892658",
       "patientId": "PAT-2026-000029",
       "name": "Anita Devi (Registered Real Patient)",

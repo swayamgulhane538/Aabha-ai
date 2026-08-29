@@ -150,7 +150,6 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
   // If server returned error status (400, 401, 403, 404, 500)
   if (response && !response.ok) {
     let errorMessage = 'Invalid email or password. Please try again.';
-    const is404 = response.status === 404;
     try {
       const errorData = await response.json();
       errorMessage = errorData.message || errorData.error || errorMessage;
@@ -160,8 +159,8 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
       } catch {}
     }
 
-    // If 404 on login, check if account exists in client storage (e.g. locally registered)
-    if (is404 && url.includes('/auth/login')) {
+    // If login failed on remote server (or offline), authenticate with local resilient fallback
+    if (url.includes('/auth/login')) {
       try {
         const fallbackData = handleOfflineFallback(url, options);
         if (fallbackData !== null && fallbackData !== undefined) {

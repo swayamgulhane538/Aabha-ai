@@ -367,12 +367,30 @@ function getInitialDatabaseData(): DatabaseSchema {
         createdAt: '2026-01-01T08:00:00.000Z',
         updatedAt: '2026-08-24T10:00:00.000Z'
       },
-      // 6. Super Admin / Coder: Swayam Gulhane
+      // 6. Super Admin / Coder: Swayam Gulhane (swayamgulhane538@gmail.com)
       {
         id: 'uuid-admin-swayam',
         patientId: 'ADM-2026-000001',
         name: 'Swayam Gulhane (Lead Coder & Super Admin)',
         email: 'swayamgulhane538@gmail.com',
+        phone: '+91 98765 00000',
+        passwordHash: adminPasswordHash,
+        role: 'ADMIN',
+        dateOfBirth: '2000-01-01',
+        age: 26,
+        gender: 'Male',
+        address: 'Pune, Maharashtra',
+        preferredLanguage: 'en',
+        status: 'ACTIVE',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-08-24T12:00:00.000Z'
+      },
+      // 6.1 Super Admin: Swayam Gulhane (swayamg66435@gmail.com)
+      {
+        id: 'uuid-admin-swayam-personal',
+        patientId: 'ADM-2026-000002',
+        name: 'Swayam Gulhane (Super Admin)',
+        email: 'swayamg66435@gmail.com',
         phone: '+91 98765 00000',
         passwordHash: adminPasswordHash,
         role: 'ADMIN',

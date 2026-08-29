@@ -179,7 +179,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           // Default demo patient check
           if (fullPatientId === 'PAT-DEMO-000001' || fullPatientId === 'PAT-2026-000001' || fullPatientId === 'PAT-2026-000002' || fullPatientId === 'PAT-2026-000003') {
             const demoUser = DEMO_PATIENT;
-            localStorage.setItem('aabha_active_patient_id', demoUser.patientId);
+            localStorage.setItem('aabha_active_patient_id', demoUser.patientId || 'PAT-DEMO-000001');
             set({ user: demoUser, token: 'token-demo-p', isAuthenticated: true, isLoading: false });
             return demoUser;
           }

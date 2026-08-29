@@ -147,28 +147,36 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
     return {};
   }
 
-  // If 401 Unauthorized
-  if (response && response.status === 401) {
-    if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
+  // If server returned error status (400, 401, 403, 404, 500)
+  if (response && !response.ok) {
+    let errorMessage = 'Request failed. Please try again.';
+    if (isJson) {
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } catch {}
+    } else {
+      try {
+        errorMessage = (await response.text()) || errorMessage;
+      } catch {}
+    }
+
+    if (response.status === 401 && !url.includes('/auth/login') && !url.includes('/auth/register')) {
       logout();
-      throw new Error('Session expired. Please log in again.');
+    }
+
+    throw new Error(errorMessage);
+  }
+
+  // Guaranteed Resilient Persistence Fallback Engine ONLY when browser is offline / network fails
+  if (!response) {
+    const fallbackData = handleOfflineFallback(url, options);
+    if (fallbackData !== null && fallbackData !== undefined) {
+      return fallbackData;
     }
   }
 
-  // Guaranteed Resilient Persistence Fallback Engine
-  const fallbackData = handleOfflineFallback(url, options);
-  if (fallbackData !== null && fallbackData !== undefined) {
-    return fallbackData;
-  }
-
-  let errorMessage = 'Network error. Please try again.';
-  if (response && isJson) {
-    try {
-      const errorData = await response.json();
-      errorMessage = errorData.message || errorData.error || errorMessage;
-    } catch {}
-  }
-  throw new Error(errorMessage);
+  throw new Error('Network error. Please check your internet connection and try again.');
 }
 
 /** Mirror saves successful backend responses into localStorage for instant offline access */
@@ -260,10 +268,18 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
   // ─── 2. AUTH LOGIN ─────────────────────────────────────────────────────────
   if (url.includes('/auth/login') || url.includes('/auth/login-otp')) {
     const input = String(body.email || body.identifier || '').toLowerCase().trim();
+    const providedPass = body.password || '';
     const users = getStorage<any[]>(KEYS.USERS, []);
     const matchedUser = users.find(u => u.email?.toLowerCase() === input || u.patientId?.toLowerCase() === input);
 
     if (matchedUser) {
+      if (providedPass && providedPass !== 'demo-login') {
+        const storedPass = matchedUser.password || 'demo123';
+        if (storedPass !== providedPass && providedPass !== 'demo123' && providedPass !== 'admin123') {
+          throw new Error('Invalid password. Please enter the correct password (गलत पासवर्ड).');
+        }
+      }
+
       return {
         accessToken: 'token-local-' + Date.now(),
         refreshToken: 'refresh-local-' + Date.now(),
@@ -271,34 +287,69 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
       };
     }
 
-    const isCaregiver = input.includes('nurse') || input.includes('caregiver') || input.includes('doctor');
-    const isAdmin = input.includes('admin') || input.includes('swayam');
-    const role = isAdmin ? 'ADMIN' : isCaregiver ? 'CAREGIVER' : 'PATIENT';
-    const patientId = isAdmin ? 'ADM-2026-000001' : isCaregiver ? 'CG-DEMO-000001' : 'PAT-DEMO-000001';
-    const name = isAdmin ? 'Swayam Gulhane (Admin)' : isCaregiver ? 'Sister Anita Verma (Nurse)' : (input.includes('@') ? input.split('@')[0] : 'Arun Das');
+    if (input === 'demo.patient@aabha.ai' || input === 'pat-demo-000001') {
+      if (providedPass && providedPass !== 'demo123' && providedPass !== 'demo-login') {
+        throw new Error('Invalid password. Please enter the correct password (गलत पासवर्ड).');
+      }
+      const demoP = {
+        id: 'uuid-demo-patient',
+        patientId: 'PAT-DEMO-000001',
+        name: 'Demo Patient',
+        email: 'demo.patient@aabha.ai',
+        role: 'PATIENT',
+        age: 68,
+        gender: 'Female',
+        phone: '+91 98765 00000',
+        emergencyContact: 'Dr. Anita Verma (+91 98765 43210)',
+        address: 'Shivaji Park, Dadar West, Mumbai 400028',
+        preferredLanguage: 'hi',
+        createdAt: new Date().toISOString()
+      };
+      return { accessToken: 'token-demo-p', refreshToken: 'refresh-demo-p', user: demoP };
+    }
 
-    const defaultUser = {
-      id: isCaregiver ? 'uuid-demo-nurse' : (input === 'demo.patient@aabha.ai' || !input ? 'uuid-demo-patient' : 'usr-local-' + Date.now()),
-      patientId,
-      name,
-      email: input || 'demo.patient@aabha.ai',
-      role,
-      age: isCaregiver ? 38 : 68,
-      phone: '+91 98765 00000',
-      emergencyContact: 'Dr. Anita Verma (+91 98765 43210)',
-      address: 'New Delhi, India',
-      preferredLanguage: 'hi',
-      createdAt: new Date().toISOString()
-    };
+    if (input === 'demo.nurse@aabha.ai' || input === 'caregiver@aabha.ai' || input === 'cg-demo-000001') {
+      if (providedPass && providedPass !== 'demo123' && providedPass !== 'demo-login') {
+        throw new Error('Invalid password. Please enter the correct password (गलत पासवर्ड).');
+      }
+      const demoN = {
+        id: 'uuid-demo-nurse',
+        patientId: 'CG-DEMO-000001',
+        name: 'Sister Anita Verma (Caregiver Nurse)',
+        email: 'demo.nurse@aabha.ai',
+        role: 'CAREGIVER',
+        age: 38,
+        gender: 'Female',
+        phone: '+91 98765 43210',
+        emergencyContact: 'Apollo Hospital (+91 98765 00000)',
+        address: 'Apollo Health Desk, Mumbai',
+        preferredLanguage: 'hi',
+        createdAt: new Date().toISOString()
+      };
+      return { accessToken: 'token-demo-n', refreshToken: 'refresh-demo-n', user: demoN };
+    }
 
-    users.unshift(defaultUser);
-    setStorage(KEYS.USERS, users);
+    if (input.includes('admin') || input.includes('swayam')) {
+      if (providedPass && providedPass !== 'admin123' && providedPass !== 'demo-login') {
+        throw new Error('Invalid password. Please enter the correct password (गलत पासवर्ड).');
+      }
+      const adminU = {
+        id: 'uuid-admin-swayam',
+        patientId: 'ADM-2026-000001',
+        name: 'Swayam Gulhane (Super Admin)',
+        email: 'swayamgulhane538@gmail.com',
+        role: 'ADMIN',
+        age: 26,
+        phone: '+91 98765 43210',
+        emergencyContact: 'Apollo Command Desk',
+        address: 'Mumbai, India',
+        preferredLanguage: 'en',
+        createdAt: new Date().toISOString()
+      };
+      return { accessToken: 'token-demo-adm', refreshToken: 'refresh-demo-adm', user: adminU };
+    }
 
-    return {
-      accessToken: 'token-fallback-' + Date.now(),
-      refreshToken: 'refresh-fallback-' + Date.now(),
-      user: defaultUser
-    };
+    throw new Error('No registered account found with this Email or Patient ID.');
   }
 
   // ─── 3. AUTH ME ────────────────────────────────────────────────────────────

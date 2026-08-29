@@ -26,10 +26,16 @@ import {
 import { locationTrackingService, LocationPoint, GeofenceZone, LocationHistoryItem } from '../services/locationTrackingService';
 import { speechService } from '../services/speechService';
 import { useAuthStore } from '../stores/authStore';
+import { KEYS, getStorage } from '../services/api';
 
 export const CaregiverLocationTracker: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { user } = useAuthStore();
+
+  const activePatientId = localStorage.getItem('aabha_active_patient_id') || 'PAT-2026-000001';
+  const users = getStorage<any[]>(KEYS.USERS, []);
+  const activePatient = users.find(u => u.patientId === activePatientId || u.id === activePatientId);
+  const patientDisplayName = activePatient?.name || (activePatientId.startsWith('PAT-') ? `Patient (${activePatientId})` : 'Anita Sharma');
 
   const [location, setLocation] = useState<LocationPoint>(locationTrackingService.getCurrentLocation());
   const [geofence, setGeofence] = useState<GeofenceZone>(locationTrackingService.getGeofence());
@@ -182,7 +188,7 @@ export const CaregiverLocationTracker: React.FC = () => {
               <div className="w-3 h-3 rounded-full bg-blue-500 animate-ping" />
               <div>
                 <span className="text-xs font-black text-[var(--text-primary)]">
-                  Anita Sharma (Patient)
+                  {patientDisplayName}
                 </span>
                 <p className="text-[11px] text-[var(--text-secondary)] truncate max-w-xs sm:max-w-md">
                   📍 {location.address}

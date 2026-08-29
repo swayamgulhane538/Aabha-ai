@@ -42,13 +42,14 @@ export const PatientLocationView: React.FC = () => {
   }, []);
 
   const handleSpeakWhereAmI = () => {
+    const name = user?.name || 'अनिता जी';
     let speechText = '';
     if (lang === 'hi') {
-      speechText = `नमस्ते अनिता जी, आप इस समय शिवाजी पार्क, दादर में हैं। आपका घर यहाँ से सिर्फ ${location.distanceFromHomeMeters} मीटर की दूरी पर है। आपके बेटे राहुल को आपकी लोकेशन मालूम है। घबराएं नहीं।`;
+      speechText = `नमस्ते ${name}, आप इस समय ${location.address} के पास हैं। आपका घर यहाँ से सिर्फ ${location.distanceFromHomeMeters} मीटर की दूरी पर है। आपके परिवार को आपकी लोकेशन मालूम है। घबराएं नहीं।`;
     } else if (lang === 'mr') {
-      speechText = `नमस्ते अनिता जी, तुम्ही सध्या दादर येथील शिवाजी पार्कजवळ आहात. तुमचे घर येथून फक्त ${location.distanceFromHomeMeters} मीटर अंतरावर आहे. घाबरू नका.`;
+      speechText = `नमस्ते ${name}, तुम्ही सध्या ${location.address} जवळ आहात. तुमचे घर येथून फक्त ${location.distanceFromHomeMeters} मीटर अंतरावर आहे. घाबरू नका.`;
     } else {
-      speechText = `Hello Anita ji, you are currently at Shivaji Park, Dadar. Your home is just ${location.distanceFromHomeMeters} meters away. Your family has your live location. Please stay calm.`;
+      speechText = `Hello ${name}, you are currently near ${location.address}. Your home is just ${location.distanceFromHomeMeters} meters away. Your family has your live location. Please stay calm.`;
     }
 
     speechService.speak(speechText, lang as any);

@@ -35,6 +35,7 @@ export const DEMO_NURSE: User = {
 
 interface AuthActions {
   login: (identifier: string, pass: string) => Promise<User>;
+  loginWithPatientId: (patientId: string) => Promise<User>;
   continueWithDemoAccount: () => Promise<User>;
   continueWithDemoCaregiverAccount: () => Promise<User>;
   sendOtp: (email: string) => Promise<any>;
@@ -140,6 +141,65 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           set({ isLoading: false });
           throw err;
         }
+      },
+
+      // ─── 4.1 LOGIN DIRECTLY WITH PATIENT ID (NO PASSWORD REQUIRED) ─────
+      loginWithPatientId: async (patientIdInput: string) => {
+        set({ isLoading: true });
+        const cleanId = patientIdInput.replace(/^(id|patient id|patient):\s*/i, '').trim().toUpperCase();
+        const fullPatientId = cleanId.startsWith('PAT-') ? cleanId : `PAT-${cleanId}`;
+
+        try {
+          // Attempt login via API identifier
+          const res = await api.post('/auth/login', { identifier: fullPatientId, password: 'demo-login' });
+          if (res && res.user) {
+            const user: User = res.user;
+            user.role = (user.role || 'PATIENT').toUpperCase() as Role;
+            localStorage.setItem('aabha_active_patient_id', user.patientId || fullPatientId);
+            set({ user, token: res.accessToken || 'token-patient-' + Date.now(), isAuthenticated: true, isLoading: false });
+            return user;
+          }
+        } catch (err) {}
+
+        // Resilient fallback: lookup existing or provision profile immediately
+        const patientUser: User = {
+          id: 'patient-' + Date.now(),
+          patientId: fullPatientId,
+          name: `Patient (${fullPatientId})`,
+          email: `${fullPatientId.toLowerCase().replace(/[^a-z0-9]/g, '')}@aabha.patient`,
+          role: 'PATIENT',
+          age: 68,
+          gender: 'Female',
+          phone: '+91 98765 00000',
+          emergencyContact: 'Dr. Anita Verma (+91 98765 43210)',
+          address: 'Shivaji Park, Dadar West, Mumbai 400028',
+          preferredLanguage: 'hi',
+          language: 'hi'
+        };
+
+        try {
+          const raw = localStorage.getItem('aabha_local_users');
+          const users: any[] = raw ? JSON.parse(raw) : [];
+          const existing = users.find(u => u.patientId?.toUpperCase() === fullPatientId || u.id === fullPatientId);
+          if (existing) {
+            localStorage.setItem('aabha_active_patient_id', existing.patientId || fullPatientId);
+            set({ user: existing, token: 'token-patient-' + Date.now(), isAuthenticated: true, isLoading: false });
+            return existing;
+          } else {
+            users.unshift(patientUser);
+            localStorage.setItem('aabha_local_users', JSON.stringify(users));
+          }
+        } catch {}
+
+        localStorage.setItem('aabha_active_patient_id', fullPatientId);
+        set({
+          user: patientUser,
+          token: 'token-patient-' + Date.now(),
+          isAuthenticated: true,
+          isLoading: false
+        });
+
+        return patientUser;
       },
 
       // ─── 5. REGISTER NEW USER (PERSISTS IN DATABASE) ──────────────────

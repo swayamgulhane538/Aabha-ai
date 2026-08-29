@@ -27,9 +27,10 @@ import {
 export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { login, continueWithDemoAccount, continueWithDemoCaregiverAccount, sendOtp, loginWithOtp, lookupPatient, isLoading } = useAuthStore();
+  const { login, loginWithPatientId, continueWithDemoAccount, continueWithDemoCaregiverAccount, sendOtp, loginWithOtp, lookupPatient, isLoading } = useAuthStore();
 
-  const [activeTab, setActiveTab] = useState<'password' | 'otp' | 'lookup'>('password');
+  const [activeTab, setActiveTab] = useState<'patientId' | 'password' | 'otp' | 'lookup'>('patientId');
+  const [patientIdInput, setPatientIdInput] = useState('');
 
   // Password Login state
   const [identifier, setIdentifier] = useState('');
@@ -58,6 +59,27 @@ export default function LoginPage() {
       navigate('/caregiver', { replace: true });
     } else {
       navigate('/patient', { replace: true });
+    }
+  };
+
+  // Handle Direct Patient ID Login (1-Tap, No Password Required)
+  const handlePatientIdSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (!patientIdInput.trim()) {
+      setError('Please enter your Patient ID (e.g. PAT-2026-174180 or PAT-DEMO-000001).');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const loggedUser = await loginWithPatientId(patientIdInput.trim());
+      redirectByRole(loggedUser.role);
+    } catch (err: any) {
+      setError(err?.message || 'Failed to login with Patient ID.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -312,6 +334,19 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => {
+                  setActiveTab('patientId');
+                  setError('');
+                }}
+                className={`flex-1 py-2 rounded-xl transition ${
+                  activeTab === 'patientId' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                }`}
+              >
+                🆔 {t('Patient ID Login')}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
                   setActiveTab('password');
                   setError('');
                 }}
@@ -319,7 +354,7 @@ export default function LoginPage() {
                   activeTab === 'password' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
-                {t('Password Login')}
+                ✉️ {t('Password Login')}
               </button>
 
               <button
@@ -332,7 +367,7 @@ export default function LoginPage() {
                   activeTab === 'otp' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
-                {t('Email OTP')}
+                📱 {t('Email OTP')}
               </button>
 
               <button
@@ -345,9 +380,53 @@ export default function LoginPage() {
                   activeTab === 'lookup' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
-                {t('Find Patient ID')}
+                🔍 {t('Find Patient ID')}
               </button>
             </div>
+
+            {/* ─── TAB 0: DIRECT PATIENT ID LOGIN (NO PASSWORD NEEDED) ─────────── */}
+            {activeTab === 'patientId' && (
+              <form onSubmit={handlePatientIdSubmit} className="space-y-4 animate-fade-in">
+                <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-xs text-emerald-400 font-medium">
+                  💡 <strong>Senior & Patient Direct Access:</strong> Enter your unique Patient ID (e.g. <span className="font-mono font-black text-emerald-300">PAT-2026-174180</span> or <span className="font-mono font-black text-teal-300">PAT-DEMO-000001</span>) to access your dashboard instantly without a password.
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-black text-[var(--text-secondary)] uppercase mb-1.5 flex items-center justify-between">
+                    <span>{t('Patient ID (मरीज ID) *')}</span>
+                    <span className="text-[10px] text-emerald-400 font-mono">1-Tap Direct Login</span>
+                  </label>
+                  <div className="relative">
+                    <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-emerald-400" />
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. PAT-2026-174180 or PAT-DEMO-000001"
+                      value={patientIdInput}
+                      onChange={e => setPatientIdInput(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 rounded-2xl border border-emerald-500/40 bg-[var(--input-bg)] text-[var(--input-text)] text-xs sm:text-sm font-mono font-bold focus:border-emerald-400 focus:outline-none transition uppercase"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="btn-glow w-full py-3.5 rounded-2xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98 transition disabled:opacity-50"
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Logging in as Patient...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>🔓 Login as Patient (मरीज लॉगिन करें) →</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
 
             {/* ─── TAB 1: STANDARD PASSWORD LOGIN ───────────────────────────── */}
             {activeTab === 'password' && (

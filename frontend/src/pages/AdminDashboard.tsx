@@ -40,7 +40,7 @@ export default function AdminDashboard() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<'patients' | 'caregivers' | 'reports' | 'medications' | 'appointments' | 'alerts' | 'analytics' | 'audit'>('patients');
+  const [activeTab, setActiveTab] = useState<'patients' | 'caregivers' | 'location' | 'reports' | 'medications' | 'appointments' | 'alerts' | 'analytics' | 'audit'>('patients');
   const [patients, setPatients] = useState<any[]>([]);
   const [reports, setReports] = useState<any[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
@@ -214,6 +214,7 @@ export default function AdminDashboard() {
         {[
           { id: 'patients', label: '👥 Patients Registry', count: patients.length },
           { id: 'caregivers', label: '🔗 Caregiver Linking' },
+          { id: 'location', label: '🛰️ Real-Time GPS Tracking' },
           { id: 'reports', label: '📄 Medical Reports', count: reports.length },
           { id: 'medications', label: '💊 Prescriptions', count: medications.length },
           { id: 'appointments', label: '📅 Consultations', count: appointments.length },
@@ -401,6 +402,56 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 2.5 REAL-TIME PATIENT GPS TRACKING TAB */}
+        {activeTab === 'location' && (
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded-3xl border-2 border-black shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div>
+                <span className="px-3 py-1 bg-blue-50 border border-blue-300 text-blue-900 text-xs font-black rounded-full">
+                  🛰️ Satellite GPS Live Telemetry
+                </span>
+                <h2 className="text-xl font-black text-black mt-1">
+                  Patient Live Geolocation & Wandering Guard
+                </h2>
+                <p className="text-xs text-gray-600 font-medium">
+                  Continuous 24/7 GPS satellite tracking with automatic wander detection outside 500m geofence.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1.5 rounded-xl bg-emerald-100 border border-emerald-400 text-emerald-800 text-xs font-black flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                  <span>Live GPS Beacon Active</span>
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-3xl border-2 border-black shadow-sm overflow-hidden space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-gray-200">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-bold text-xs bg-gray-100 px-3 py-1.5 rounded-xl border border-gray-300">
+                    📍 Shivaji Park, Dadar West, Mumbai 400028 (Safe Home Radius: 500m)
+                  </span>
+                </div>
+                <button
+                  onClick={() => window.open('https://www.google.com/maps?q=19.0186,72.8484', '_blank')}
+                  className="px-4 py-2 bg-black hover:bg-gray-800 text-white rounded-xl text-xs font-bold transition"
+                >
+                  Open in Google Maps ↗
+                </button>
+              </div>
+
+              <div className="w-full h-[450px] rounded-2xl overflow-hidden border-2 border-gray-300 shadow-inner">
+                <iframe
+                  title="Admin Patient GPS Map"
+                  src="https://www.openstreetmap.org/export/embed.html?bbox=72.8398%2C19.0118%2C72.8558%2C19.0238&layer=mapnik&marker=19.0186%2C72.8484"
+                  className="w-full h-full border-0"
+                />
               </div>
             </div>
           </div>

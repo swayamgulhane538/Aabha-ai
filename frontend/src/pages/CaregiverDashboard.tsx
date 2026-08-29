@@ -48,18 +48,25 @@ export const CaregiverDashboard: React.FC = () => {
   const [timeFilter, setTimeFilter] = useState<'DAILY' | 'WEEKLY' | 'MONTHLY'>('WEEKLY');
   const [showReportModal, setShowReportModal] = useState(false);
 
-  const [patients, setPatients] = useState<any[]>([
-    { id: 'uuid-demo-patient', patientId: 'PAT-DEMO-000001', name: 'Demo Patient', age: 68, gender: 'Female', cognitiveScore: 88, adherence: 94, lastActive: 'Active Now', relationship: 'Assigned Primary Caregiver & Clinical Nurse' },
-    { id: 'uuid-anita-01', patientId: 'PAT-2026-000001', name: 'Anita Devi', age: 67, gender: 'Female', cognitiveScore: 84, adherence: 95, lastActive: '1 hour ago', relationship: 'Clinical Supervising Nurse' },
-    { id: 'uuid-rajesh-03', patientId: 'PAT-2026-000003', name: 'Rajesh Kumar', age: 71, gender: 'Male', cognitiveScore: 78, adherence: 89, lastActive: '3 hours ago', relationship: 'Assigned Clinical Nurse' }
-  ]);
+  const isDemoCaregiver = user?.id === 'uuid-demo-nurse' || user?.email === 'caregiver@aabha.ai' || user?.email === 'demo.caregiver@aabha.ai';
 
-  const [selectedPatientId, setSelectedPatientId] = useState('uuid-demo-patient');
+  const [patients, setPatients] = useState<any[]>(() => {
+    if (isDemoCaregiver) {
+      return [
+        { id: 'uuid-demo-patient', patientId: 'PAT-DEMO-000001', name: 'Demo Patient', age: 68, gender: 'Female', cognitiveScore: 88, adherence: 94, lastActive: 'Active Now', relationship: 'Assigned Primary Caregiver & Clinical Nurse' },
+        { id: 'uuid-anita-01', patientId: 'PAT-2026-000001', name: 'Anita Devi', age: 67, gender: 'Female', cognitiveScore: 84, adherence: 95, lastActive: '1 hour ago', relationship: 'Clinical Supervising Nurse' },
+        { id: 'uuid-rajesh-03', patientId: 'PAT-2026-000003', name: 'Rajesh Kumar', age: 71, gender: 'Male', cognitiveScore: 78, adherence: 89, lastActive: '3 hours ago', relationship: 'Assigned Clinical Nurse' }
+      ];
+    }
+    return [];
+  });
+
+  const [selectedPatientId, setSelectedPatientId] = useState(isDemoCaregiver ? 'uuid-demo-patient' : '');
 
   // Link Patient Modal State
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
   const [inputPatientId, setInputPatientId] = useState('');
-  const [inputRelationship, setInputRelationship] = useState('Assigned Caregiver');
+  const [inputRelationship, setInputRelationship] = useState('Assigned Primary Caregiver');
   const [linkError, setLinkError] = useState('');
   const [linkSuccess, setLinkSuccess] = useState('');
   const [linking, setLinking] = useState(false);
@@ -68,17 +75,32 @@ export const CaregiverDashboard: React.FC = () => {
   const fetchLinkedPatients = async () => {
     try {
       const res: any = await api.get('/caregivers/patients');
-      if (res && Array.isArray(res) && res.length > 0) {
-        setPatients(res);
-        const demoP = res.find((p: any) => p.patientId === 'PAT-DEMO-000001' || p.id === 'uuid-demo-patient');
-        if (demoP) {
-          setSelectedPatientId(demoP.id);
-        } else {
+      if (res && Array.isArray(res)) {
+        if (res.length > 0) {
+          setPatients(res);
           setSelectedPatientId(res[0].id);
+          localStorage.setItem('aabha_active_patient_id', res[0].patientId || res[0].id);
+        } else if (isDemoCaregiver) {
+          const demoList = [
+            { id: 'uuid-demo-patient', patientId: 'PAT-DEMO-000001', name: 'Demo Patient', age: 68, gender: 'Female', cognitiveScore: 88, adherence: 94, lastActive: 'Active Now', relationship: 'Assigned Primary Caregiver & Clinical Nurse' }
+          ];
+          setPatients(demoList);
+          setSelectedPatientId(demoList[0].id);
+        } else {
+          setPatients([]);
+          setSelectedPatientId('');
         }
       }
     } catch (err) {
-      // Fallback to initial linked patients
+      if (isDemoCaregiver) {
+        setPatients([
+          { id: 'uuid-demo-patient', patientId: 'PAT-DEMO-000001', name: 'Demo Patient', age: 68, gender: 'Female', cognitiveScore: 88, adherence: 94, lastActive: 'Active Now', relationship: 'Assigned Primary Caregiver & Clinical Nurse' }
+        ]);
+        setSelectedPatientId('uuid-demo-patient');
+      } else {
+        setPatients([]);
+        setSelectedPatientId('');
+      }
     }
   };
 
@@ -102,9 +124,13 @@ export const CaregiverDashboard: React.FC = () => {
         relationship: inputRelationship
       });
 
-      setLinkSuccess(res.message || 'Patient successfully linked to your caretaker dashboard!');
+      setLinkSuccess(res?.message || '✓ Patient successfully linked to your caretaker dashboard!');
       setInputPatientId('');
       await fetchLinkedPatients();
+      if (res?.patient) {
+        setSelectedPatientId(res.patient.id);
+        localStorage.setItem('aabha_active_patient_id', res.patient.patientId || res.patient.id);
+      }
       setTimeout(() => {
         setIsLinkModalOpen(false);
         setLinkSuccess('');
@@ -266,6 +292,43 @@ export const CaregiverDashboard: React.FC = () => {
         </Link>
       </section>
 
+      {/* ─── 1.5 NO PATIENT LINKED PROMPT (FOR REAL / GMAIL LOGINS) ───────── */}
+      {patients.length === 0 && (
+        <section className="p-6 sm:p-8 rounded-[28px] bg-gradient-to-r from-purple-900/30 via-indigo-900/20 to-blue-900/20 border-2 border-dashed border-purple-500/50 shadow-xl text-center space-y-4 animate-fade-in">
+          <div className="w-14 h-14 rounded-2xl bg-purple-500/20 text-purple-300 border border-purple-400/40 flex items-center justify-center text-3xl mx-auto shadow-inner">
+            🔗
+          </div>
+          <div className="max-w-md mx-auto space-y-1">
+            <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
+              Link Your Patient by ID (अपना मरीज लिंक करें)
+            </h2>
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium">
+              Enter your patient's unique AABHA Patient ID (e.g. PAT-2026-000001) to begin monitoring their routines, live GPS, diet, and prescriptions.
+            </p>
+          </div>
+
+          <form onSubmit={handleLinkPatient} className="max-w-md mx-auto flex flex-col sm:flex-row items-center gap-2 pt-2">
+            <input
+              type="text"
+              placeholder="Enter Patient ID (e.g. PAT-2026-000001)"
+              value={inputPatientId}
+              onChange={(e) => setInputPatientId(e.target.value)}
+              className="w-full px-4 py-3 rounded-2xl bg-[var(--bg-surface-secondary)] border-2 border-purple-500/40 text-[var(--text-primary)] font-bold text-sm focus:outline-none focus:border-purple-400"
+            />
+            <button
+              type="submit"
+              disabled={linking}
+              className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs uppercase tracking-wider shrink-0 shadow-lg cursor-pointer transition disabled:opacity-50"
+            >
+              {linking ? 'Linking...' : '+ Link Patient'}
+            </button>
+          </form>
+
+          {linkError && <p className="text-xs font-bold text-rose-400">{linkError}</p>}
+          {linkSuccess && <p className="text-xs font-bold text-emerald-400">{linkSuccess}</p>}
+        </section>
+      )}
+
       {/* ─── 2. PATIENT SELECTOR & TIME FILTER ──────────────────────────────── */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-[var(--bg-surface)] border border-[var(--border)] rounded-[22px]">
         {/* Patient Switcher */}
@@ -273,19 +336,26 @@ export const CaregiverDashboard: React.FC = () => {
           <span className="text-xs font-black uppercase text-[var(--text-secondary)] shrink-0">
             Monitoring Patient:
           </span>
-          {patients.map(p => (
-            <button
-              key={p.id}
-              onClick={() => setSelectedPatientId(p.id)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition cursor-pointer shrink-0 ${
-                selectedPatientId === p.id
-                  ? 'bg-emerald-500 text-white shadow-sm'
-                  : 'btn-glass text-[var(--text-secondary)]'
-              }`}
-            >
-              👤 {p.name} ({p.patientId})
-            </button>
-          ))}
+          {patients.length === 0 ? (
+            <span className="text-xs font-bold text-amber-400 italic">No patient linked yet</span>
+          ) : (
+            patients.map(p => (
+              <button
+                key={p.id}
+                onClick={() => {
+                  setSelectedPatientId(p.id);
+                  localStorage.setItem('aabha_active_patient_id', p.patientId || p.id);
+                }}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition cursor-pointer shrink-0 ${
+                  selectedPatientId === p.id
+                    ? 'bg-emerald-500 text-white shadow-sm'
+                    : 'btn-glass text-[var(--text-secondary)]'
+                }`}
+              >
+                👤 {p.name} ({p.patientId})
+              </button>
+            ))
+          )}
 
           <button
             onClick={() => setIsLinkModalOpen(true)}

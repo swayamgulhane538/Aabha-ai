@@ -35,11 +35,14 @@ const PatientsList = () => {
     if (!linkPatientId.trim()) return;
 
     try {
-      await api.post('/caregivers/link', {
+      const res: any = await api.post('/caregivers/link', {
         patientId: linkPatientId.trim(),
         relationship: linkRel
       });
-      setLinkStatus('🎉 Patient linked successfully!');
+      if (res?.patient?.patientId) {
+        localStorage.setItem('aabha_active_patient_id', res.patient.patientId);
+      }
+      setLinkStatus(res?.message || '🎉 Patient linked successfully!');
       setTimeout(() => {
         setLinkStatus('');
         setShowLinkModal(false);

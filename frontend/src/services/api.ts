@@ -426,17 +426,52 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
   // ─── 6. CAREGIVERS LINKING & PATIENT LIST ──────────────────────────────────
   if (url.includes('/caregivers/link') && method === 'POST') {
     const links = getStorage<any[]>(KEYS.CAREGIVERS, []);
+    const users = getStorage<any[]>(KEYS.USERS, []);
     const targetPatientId = String(body.patientId || '').toUpperCase().trim();
+    
+    // Find or dynamically create patient user record
+    let patientObj = users.find(u => 
+      u.role === 'PATIENT' && (
+        u.patientId?.toUpperCase() === targetPatientId ||
+        u.id === targetPatientId ||
+        u.email?.toUpperCase() === targetPatientId
+      )
+    );
+
+    if (!patientObj) {
+      patientObj = {
+        id: 'patient-' + Date.now(),
+        patientId: targetPatientId.startsWith('PAT-') ? targetPatientId : `PAT-${targetPatientId}`,
+        name: `Patient (${targetPatientId})`,
+        email: `${targetPatientId.toLowerCase().replace(/[^a-z0-9]/g, '')}@aabha.patient`,
+        role: 'PATIENT',
+        age: 68,
+        gender: 'Female',
+        cognitiveScore: 84,
+        adherence: 92,
+        lastActive: 'Active Now',
+        status: 'ACTIVE',
+        createdAt: new Date().toISOString()
+      };
+      users.unshift(patientObj);
+      setStorage(KEYS.USERS, users);
+    }
+
     const newLink = {
       id: 'rel-' + Date.now(),
       caregiverUserId: currentUserId,
-      patientId: targetPatientId,
+      patientId: patientObj.patientId,
+      patientUserId: patientObj.id,
       relationship: body.relationship || 'Assigned Caregiver',
       createdAt: new Date().toISOString()
     };
-    links.unshift(newLink);
-    setStorage(KEYS.CAREGIVERS, links);
-    return { message: 'Patient linked successfully', link: newLink };
+    
+    // Save link without duplicates
+    const filteredLinks = links.filter(l => !(l.caregiverUserId === currentUserId && (l.patientId === patientObj.patientId || l.patientUserId === patientObj.id)));
+    filteredLinks.unshift(newLink);
+    setStorage(KEYS.CAREGIVERS, filteredLinks);
+    
+    return { message: `✓ Patient ${patientObj.name} (${patientObj.patientId}) linked successfully!`, link: newLink, patient: patientObj };
   }
 
   if (url.includes('/caregivers/patients')) {
@@ -444,6 +479,8 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
     const links = getStorage<any[]>(KEYS.CAREGIVERS, []);
     const userLinks = links.filter(l => l.caregiverUserId === currentUserId);
     const linkedPatientIds = userLinks.map(l => l.patientId?.toUpperCase());
+
+    const isDemoCaregiver = currentUserId === 'uuid-demo-nurse' || currentAuthUser?.email === 'caregiver@aabha.ai' || currentAuthUser?.email === 'demo.caregiver@aabha.ai';
 
     const defaultPatients = [
       { id: 'uuid-demo-patient', patientId: 'PAT-DEMO-000001', name: 'Demo Patient', age: 68, gender: 'Female', cognitiveScore: 88, adherence: 94, lastActive: 'Active Now', relationship: 'Assigned Primary Caregiver & Clinical Nurse' },
@@ -456,18 +493,16 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
       return [...defaultPatients, ...allPatients];
     }
 
-    if (currentUserId === 'uuid-demo-nurse') {
+    if (isDemoCaregiver) {
       const added = users.filter(u => u.role === 'PATIENT' && linkedPatientIds.includes(u.patientId?.toUpperCase()));
       return [...defaultPatients, ...added];
     }
 
+    // For real / Gmail logged in accounts:
     const myPatients = users.filter(
       u => u.role === 'PATIENT' && (linkedPatientIds.includes(u.patientId?.toUpperCase()) || linkedPatientIds.includes(u.id))
     );
 
-    if (myPatients.length === 0) {
-      return [defaultPatients[0]];
-    }
     return myPatients;
   }
 

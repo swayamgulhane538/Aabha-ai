@@ -250,6 +250,7 @@ export interface DatabaseSchema {
 
 const defaultPasswordHash = bcrypt.hashSync('demo123', 10);
 const adminPasswordHash = bcrypt.hashSync('admin123', 10);
+const swayamPasswordHash = bcrypt.hashSync('swayam', 10);
 
 function getInitialDatabaseData(): DatabaseSchema {
   return {
@@ -374,7 +375,7 @@ function getInitialDatabaseData(): DatabaseSchema {
         name: 'Swayam Gulhane (Lead Coder & Super Admin)',
         email: 'swayamgulhane538@gmail.com',
         phone: '+91 98765 00000',
-        passwordHash: adminPasswordHash,
+        passwordHash: swayamPasswordHash,
         role: 'ADMIN',
         dateOfBirth: '2000-01-01',
         age: 26,
@@ -392,7 +393,7 @@ function getInitialDatabaseData(): DatabaseSchema {
         name: 'Swayam Gulhane (Super Admin)',
         email: 'swayamg66435@gmail.com',
         phone: '+91 98765 00000',
-        passwordHash: adminPasswordHash,
+        passwordHash: swayamPasswordHash,
         role: 'ADMIN',
         dateOfBirth: '2000-01-01',
         age: 26,

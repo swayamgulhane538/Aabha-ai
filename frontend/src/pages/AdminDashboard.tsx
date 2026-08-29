@@ -76,8 +76,9 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     try {
       setLoading(true);
+      const cleanSearch = searchQuery.replace(/^(id|patient id|patient):\s*/i, '').trim();
       const [patientsRes, reportsRes, auditRes, medsRes, aptsRes, alertsRes] = await Promise.all([
-        api.get(`/patients?search=${encodeURIComponent(searchQuery)}&status=${statusFilter}`),
+        api.get(`/patients?search=${encodeURIComponent(cleanSearch)}&status=${statusFilter}`),
         api.get('/reports'),
         api.get('/audit'),
         api.get('/medications').catch(() => ({ medications: [] })),
@@ -85,7 +86,7 @@ export default function AdminDashboard() {
         api.get('/alerts').catch(() => [])
       ]);
 
-      setPatients(patientsRes?.patients || []);
+      setPatients(patientsRes?.patients || (Array.isArray(patientsRes) ? patientsRes : []));
       setReports(Array.isArray(reportsRes) ? reportsRes : []);
       setAuditLogs(Array.isArray(auditRes) ? auditRes : []);
       setMedications(medsRes?.medications || []);

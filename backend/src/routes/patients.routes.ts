@@ -54,11 +54,11 @@ router.get('/', (req, res) => {
   // Apply search
   let filtered = mapped;
   if (search && search.trim()) {
-    const q = search.toLowerCase().trim();
+    const q = search.replace(/^(id|patient id|patient):\s*/i, '').toLowerCase().trim();
     filtered = filtered.filter(p =>
-      p.patientId.toLowerCase().includes(q) ||
-      p.name.toLowerCase().includes(q) ||
-      p.email.toLowerCase().includes(q) ||
+      (p.patientId && p.patientId.toLowerCase().includes(q)) ||
+      (p.name && p.name.toLowerCase().includes(q)) ||
+      (p.email && p.email.toLowerCase().includes(q)) ||
       (p.phone && p.phone.includes(q))
     );
   }

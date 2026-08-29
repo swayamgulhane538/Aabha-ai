@@ -377,6 +377,89 @@ function handleOfflineFallback(url: string, options: RequestInit): any {
     return userReminders;
   }
 
+  // ─── 4.5 PATIENTS LIST (ADMIN & REGISTRY) ──────────────────────────────────
+  if (url.startsWith('/patients') || url.includes('/patients?')) {
+    const users = getStorage<any[]>(KEYS.USERS, []);
+    const searchMatch = url.match(/[?&]search=([^&]*)/);
+    const rawSearch = searchMatch ? decodeURIComponent(searchMatch[1]) : '';
+    const cleanSearch = rawSearch.replace(/^(id|patient id|patient):\s*/i, '').toLowerCase().trim();
+
+    let allPatients = users.filter(u => u.role === 'PATIENT');
+
+    const defaultPatients = [
+      {
+        id: 'uuid-demo-patient',
+        patientId: 'PAT-DEMO-000001',
+        name: 'Demo Patient',
+        email: 'demo.patient@aabha.ai',
+        role: 'PATIENT',
+        age: 68,
+        gender: 'Female',
+        status: 'ACTIVE',
+        reportsCount: 3,
+        assessmentsCount: 2,
+        caregiverName: 'Sister Anita Verma',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: 'uuid-anita-01',
+        patientId: 'PAT-2026-000001',
+        name: 'Anita Devi',
+        email: 'anita@aabha.ai',
+        role: 'PATIENT',
+        age: 67,
+        gender: 'Female',
+        status: 'ACTIVE',
+        reportsCount: 4,
+        assessmentsCount: 3,
+        caregiverName: 'Dr. Anita Verma',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: 'uuid-rajesh-03',
+        patientId: 'PAT-2026-000003',
+        name: 'Rajesh Kumar',
+        email: 'rajesh@aabha.ai',
+        role: 'PATIENT',
+        age: 71,
+        gender: 'Male',
+        status: 'ACTIVE',
+        reportsCount: 2,
+        assessmentsCount: 1,
+        caregiverName: 'Priya Sharma',
+        createdAt: new Date().toISOString()
+      }
+    ];
+
+    // Combine default and user-registered patients
+    const combined = [...defaultPatients];
+    allPatients.forEach(p => {
+      if (!combined.some(c => c.patientId === p.patientId || c.id === p.id)) {
+        combined.push({
+          ...p,
+          status: p.status || 'ACTIVE',
+          reportsCount: p.reportsCount || 1,
+          assessmentsCount: p.assessmentsCount || 1,
+          caregiverName: p.caregiverName || 'Assigned Caregiver'
+        });
+      }
+    });
+
+    let filtered = combined;
+    if (cleanSearch) {
+      filtered = filtered.filter(p =>
+        (p.patientId && p.patientId.toLowerCase().includes(cleanSearch)) ||
+        (p.name && p.name.toLowerCase().includes(cleanSearch)) ||
+        (p.email && p.email.toLowerCase().includes(cleanSearch))
+      );
+    }
+
+    return {
+      patients: filtered,
+      total: filtered.length
+    };
+  }
+
   // ─── 5. COGNITIVE GAME RESULTS & PROGRESS ──────────────────────────────────
   if (url.includes('/games/result') && method === 'POST') {
     const results = getStorage<any[]>(KEYS.GAMES, []);

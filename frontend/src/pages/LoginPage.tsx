@@ -299,17 +299,17 @@ export default function LoginPage() {
                   type="button"
                   onClick={handleContinueDemo}
                   disabled={submitting}
-                  className="p-3.5 rounded-xl text-left flex items-center justify-between gap-2 cursor-pointer active:scale-95 transition bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-md border border-emerald-400/40"
+                  className="p-3.5 rounded-xl text-left flex items-center justify-between gap-2 cursor-pointer active:scale-95 transition bg-emerald-100 dark:bg-emerald-900/40 hover:bg-emerald-200 dark:hover:bg-emerald-800/50 text-black shadow-sm border border-emerald-300 dark:border-emerald-500/50"
                 >
                   <div className="space-y-0.5 min-w-0">
-                    <div className="text-xs font-black text-white flex items-center gap-1.5 truncate">
+                    <div className="text-xs font-black text-black dark:text-white flex items-center gap-1.5 truncate">
                       <span>👤 {t('Demo Patient Portal')}</span>
                     </div>
-                    <div className="text-[11px] font-mono text-emerald-100 font-bold truncate">
+                    <div className="text-[11px] font-mono text-black dark:text-emerald-200 font-black truncate">
                       PAT-DEMO-000001
                     </div>
                   </div>
-                  <Sparkles className="w-4 h-4 text-amber-300 shrink-0" />
+                  <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-300 shrink-0" />
                 </button>
 
                 {/* 2. Demo Caregiver / Nurse Button (Linked to Patient) */}
@@ -317,17 +317,17 @@ export default function LoginPage() {
                   type="button"
                   onClick={handleContinueDemoNurse}
                   disabled={submitting}
-                  className="p-3.5 rounded-xl bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 text-white text-left flex items-center justify-between gap-2 cursor-pointer active:scale-95 transition shadow-md border border-purple-400/40"
+                  className="p-3.5 rounded-xl bg-purple-100 dark:bg-purple-900/40 hover:bg-purple-200 dark:hover:bg-purple-800/50 text-black text-left flex items-center justify-between gap-2 cursor-pointer active:scale-95 transition shadow-sm border border-purple-300 dark:border-purple-500/50"
                 >
                   <div className="space-y-0.5 min-w-0">
-                    <div className="text-xs font-black text-white flex items-center gap-1.5 truncate">
+                    <div className="text-xs font-black text-black dark:text-white flex items-center gap-1.5 truncate">
                       <span>👩‍⚕️ {t('Caregiver Nurse Portal')}</span>
                     </div>
-                    <div className="text-[11px] font-mono text-purple-100 font-bold truncate">
+                    <div className="text-[11px] font-mono text-black dark:text-purple-200 font-black truncate">
                       CG-DEMO-000001 (Sister Anita)
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-white shrink-0" />
+                  <ArrowRight className="w-4 h-4 text-black dark:text-white shrink-0" />
                 </button>
               </div>
             </div>

@@ -162,7 +162,19 @@ export const CaregiverDashboard: React.FC = () => {
   ]);
 
   const indicators = AdaptiveAIEngine.calculateCognitiveIndicators();
-  const activePatient = patients.find(p => p.id === selectedPatientId) || patients[0];
+  const fallbackPatient = {
+    id: 'unassigned',
+    patientId: 'PAT-NOT-LINKED',
+    name: 'Linked Patient',
+    age: 68,
+    gender: 'N/A',
+    cognitiveScore: 84,
+    adherence: 92,
+    relationship: 'Assigned Caregiver'
+  };
+  const activePatient = (patients && patients.length > 0)
+    ? (patients.find(p => p.id === selectedPatientId) || patients[0])
+    : fallbackPatient;
 
   const handleAcknowledgeAlert = (alertId: string) => {
     setAlerts(prev => prev.filter(a => a.id !== alertId));

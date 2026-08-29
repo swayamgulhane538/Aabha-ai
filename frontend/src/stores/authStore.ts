@@ -173,7 +173,6 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           phone: '+91 98765 00000',
           emergencyContact: 'Dr. Anita Verma (+91 98765 43210)',
           address: 'Shivaji Park, Dadar West, Mumbai 400028',
-          preferredLanguage: 'hi',
           language: 'hi'
         };
 
